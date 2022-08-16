@@ -1,52 +1,20 @@
-import os
-import re
-import requests
-import shutil
+from webdriver.webdriver_conf import webdriver_conf
+from webdriver.updateWebdriver import updateWebdriver
 from time import sleep
-from bs4 import BeautifulSoup
-from webdriver.webdriver_conf import webdriver_conf, webdriver_update
+import json
+import os
 
 
-class liveRLdata:
+class rl_playerinfo:
     def __init__(self):
         appdata = os.getenv('APPDATA')
         self.plugDir = f'{appdata}\\bakkesmod\\bakkesmod\\data\\PlayerNames\\'
         self.mainDict = {}
         self.platformDict = {'1': 'steam', '2': 'psn', '3': 'psn', '4': 'xbl',
                              '6': 'switch', '7': 'switch', '8': 'psynet', '11': 'epic'}
-        self.base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
+        self.api_base_url = 'https://api.tracker.gg/api/v2/rocket-league/standard/profile'
+        self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
         self.storage = ''
-
-    def updateWebdriver(self):
-        checkv = webdriver_update()
-        url = 'https://chromedriver.chromium.org/downloads'
-        zipurl = 'https://chromedriver.storage.googleapis.com/'
-        zipname = 'chromedriver_win32.zip'
-
-        if not checkv[0]:
-            print('Attempting to update webdriver')
-            resp = requests.get(url)
-            findurl = re.findall(rf"ChromeDriver {checkv[1]}.+?(?=</a>|</strong>)", resp.text)
-
-            if len(findurl) > 0:
-                dlver = findurl[0].split(' ')[1]
-                zipurl += f'{dlver}/{zipname}'
-                dlzip = requests.get(zipurl)
-
-                with open(f'webdriver/{zipname}', 'wb') as out_file:
-                    out_file.write(dlzip.content)
-                print(f'Downloaded new webdriver, version {dlver}, unpacking...')
-                sleep(15)
-                os.rename('webdriver/chromedriver.exe', 'webdriver/chromedriver_old.exe')
-
-                shutil.unpack_archive(f'webdriver/{zipname}', 'webdriver')
-                print('Cleaning up...')
-                os.remove(f'webdriver/{zipname}')
-                os.remove('webdriver/chromedriver_old.exe')
-                print('Webdriver update successful!')
-                self.updateWebdriver()
-        else:
-            return
 
     def readDatafile(self):
         self.mainDict = {}
@@ -70,27 +38,67 @@ class liveRLdata:
             return self.mainDict
 
     def request(self, dicty: dict):
+        print(dicty)
         for name, platform in dicty.items():
-            url = f'{self.base_url}/{platform}/{name}/overview'
-            resp = requests.get(url, timeout=None)
-            print(url)
-            soup = BeautifulSoup(resp.text, "html.parser")
-            print(soup.body.get_text().strip())
+            api_url = f'{self.api_base_url}/{platform}/{name}'
+            gen_url = f'{self.gen_base_url}/{platform}/{name}/overview'
+
+            api_resp = webdriver_conf(api_url).split(';">')[1].split('</pre>')[0]
+            data = json.loads(api_resp)
+
+            print(json.dumps(data, indent=4))
+
+            clr_name = data['data']['platformInfo']['platformUserHandle']
+
+            # if 'Ranked Duel 1v1' in data['data']['segments'][1]:
+            #     ones_tier = data['data']['segments'][1]['stats']['tier']['metadata']['name']
+            #     ones_div = data['data']['segments'][1]['stats']['division']['metadata']['name']
+            #     twos_tier = data['data']['segments'][2]['stats']['tier']['metadata']['name']
+            #     twos_div = data['data']['segments'][2]['stats']['division']['metadata']['name']
+            #     threes_tier = data['data']['segments'][3]['stats']['tier']['metadata']['name']
+            #     threes_div = data['data']['segments'][3]['stats']['division']['metadata']['name']
+            # else:
+            #     ones_tier = data['data']['segments'][2]['stats']['tier']['metadata']['name']
+            #     ones_div = data['data']['segments'][2]['stats']['division']['metadata']['name']
+            #     twos_tier = data['data']['segments'][3]['stats']['tier']['metadata']['name']
+            #     twos_div = data['data']['segments'][3]['stats']['division']['metadata']['name']
+            #     threes_tier = data['data']['segments'][4]['stats']['tier']['metadata']['name']
+            #     threes_div = data['data']['segments'][4]['stats']['division']['metadata']['name']
+
+            ranks = []
+            for i in range(0, 3):
+                if 'Ranked Duel 1v1' in data['data']['segments'][i]:
+                    print('drue')
+                    tier = data['data']['segments'][i]['stats']['tier']['metadata']['name']
+                    div = data['data']['segments'][i]['stats']['division']['metadata']['name']
+                    ranks.append(f'{tier} {div}')
+                else:
+                    print('false')
+                    tier = data['data']['segments'][i+1]['stats']['tier']['metadata']['name']
+                    div = data['data']['segments'][i+1]['stats']['division']['metadata']['name']
+                    ranks.append(f'{tier} {div}')
+
+
+
+
+            wins = data['data']['segments'][0]['stats']['wins']['value']
+            sussy = data['data']['userInfo']['isSuspicious']
+            print(f'{clr_name} -- 1v1: {ranks[0]}   |   2v2: {ranks[1]}   |   '
+                  f'3v3: {ranks[2]}   |   Wins: {wins}, Sussy: {sussy}, {gen_url}')
 
     def main(self):
-        self.updateWebdriver()
+        updateWebdriver()
         while True:
             stringy = self.readDatafile()
             inDatadict = self.transformData(stringy)
             if inDatadict:
-                print(inDatadict)
-                # self.request(inDatadict)
+                self.request(inDatadict)
+            sleep(15)
 
 
 if __name__ == '__main__':
-    test = liveRLdata()
-    while True:
-        print(test.main())
-        sleep(15)
+    init = rl_playerinfo()
+    print(init.main())
+
 
 

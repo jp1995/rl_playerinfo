@@ -15,39 +15,19 @@ def webdriver_conf(url):
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
     driver = webdriver.Chrome(chrome_options=options, executable_path=r'webdriver/chromedriver.exe')
-
-    bVersion = driver.capabilities['browserVersion']
-    dVersion = driver.capabilities['chrome']['chromedriverVersion'].split(' ')[0]
-    if bVersion[0:2] != dVersion[0:2]:
-        print(f'Major version mismatch\n'
-              f'Chromedriver version {dVersion}\n'
-              f'Chrome version {bVersion}')
-        return [False, bVersion]
-    else:
-        print('Driver version matches Chrome version, continuing')
-
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     driver.execute_cdp_cmd('Network.setUserAgentOverride', {
         "userAgent": 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'})
     driver.get(url)
-    sleep(30)
-    driver.implicitly_wait(30)
+    sleep(2)
+    #driver.implicitly_wait(30)
     page = driver.execute_script('return document.body.innerHTML')
     return page
 
 
-def webdriver_update():
+def webdriver_getversion():
     options = webdriver.ChromeOptions()
-    options.add_argument("javascript.enabled")
-    options.add_argument("start-maximized")
     options.add_argument("--headless")
-    options.add_argument("--enable-javascript")
-    options.add_argument("--disable-blink-features")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument('--disable-gpu')
-    options.add_argument('--no-sandbox')
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option('useAutomationExtension', False)
     driver = webdriver.Chrome(chrome_options=options, executable_path=r'webdriver/chromedriver.exe')
 
     bVersion = driver.capabilities['browserVersion'].split('.')[0]
