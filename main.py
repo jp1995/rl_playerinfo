@@ -1,5 +1,6 @@
 from webdriver.webdriver_conf import webdriver_conf
 from webdriver.updateWebdriver import updateWebdriver
+from db_connect import db_push_tracker_stats
 from tabulate import tabulate
 from time import sleep
 import json
@@ -39,61 +40,75 @@ class rl_playerinfo:
             return self.mainDict
 
     def handleData(self, dicty: dict):
-        #print(dicty)
-        headings = ['Name', '1v1', '2v2', '3v3', 'Wins', 'Reward level',
+        headings = ['Name', '1v1', '', '2v2', '', '3v3', '', 'Wins', 'Games', 'Reward level',
                     'Influencer', 'Premium', 'Sussy', 'Country', 'url']
-
         table = [headings]
+        dbdump = []
 
         for name, platform in dicty.items():
             api_url = f'{self.api_base_url}/{platform}/{name}'
             gen_url = f'{self.gen_base_url}/{platform}/{name}/overview'
             rankdict = {}
-            totaldata = []
+            gendict = {}
+            dbdump_dict = {}
             totalprint = []
 
             api_resp = webdriver_conf(api_url).split(';">')[1].split('</pre>')[0]
             data = json.loads(api_resp)
-            # print(json.dumps(data, indent=4))
-
-            clr_name = data['data']['platformInfo']['platformUserHandle']
-            premium = data['data']['userInfo']['isPremium']
-            sussy = data['data']['userInfo']['isSuspicious']
-            influencer = data['data']['userInfo']['isInfluencer']
-            country = data['data']['userInfo']['countryCode']
-            wins = data['data']['segments'][0]['stats']['wins']['value']
-            rewardlevel = data['data']['segments'][0]['stats']['seasonRewardLevel']['metadata']['rankName']
-            stats_totalprint = [wins, rewardlevel, influencer, premium, sussy, country, gen_url]
-            stats_totaldata = [wins, rewardlevel, influencer, premium, sussy, country, gen_url]
+            #print(json.dumps(data, indent=4))
 
             for i in range(0, len(data['data']['segments'])):
                 for x in range(1, 4):
                     if f'{x}v{x}' in data['data']['segments'][i]['metadata']['name']:
                         tier = data['data']['segments'][i]['stats']['tier']['metadata']['name']
                         div = data['data']['segments'][i]['stats']['division']['metadata']['name']
-                        streak = data['data']['segments'][i]['stats']['winStreak']['displayValue']
-                        rankdict[f'{x}v{x}'] = f'{tier} {div} / {streak}'
+                        rankdict[f'{x}v{x}'] = f'{tier} {div}'
+                        rankdict[f'{x}v{x}_winstreak'] = data['data']['segments'][i]['stats']['winStreak']['displayValue']
+                        rankdict[f'{x}v{x}_games'] = data['data']['segments'][i]['stats']['matchesPlayed']['value']
 
             for x in range(1, 4):
                 if f'{x}v{x}' not in rankdict.keys():
                     rankdict[f'{x}v{x}'] = 'NULL'
+                    rankdict[f'{x}v{x}_winstreak'] = 'NULL'
+                    rankdict[f'{x}v{x}_games'] = 'NULL'
+
+            clr_name = data['data']['platformInfo']['platformUserHandle']
+            gendict['wins'] = data['data']['segments'][0]['stats']['wins']['value']
+            gendict['games_this_season'] = rankdict['1v1_games'] + rankdict['2v2_games'] + rankdict['3v3_games']
+            gendict['rewardlevel'] = data['data']['segments'][0]['stats']['seasonRewardLevel']['metadata']['rankName']
+            gendict['influencer'] = data['data']['userInfo']['isInfluencer']
+            gendict['premium'] = data['data']['userInfo']['isPremium']
+            gendict['sussy'] = data['data']['userInfo']['isSuspicious']
+            gendict['country'] = data['data']['userInfo']['countryCode']
+            gendict['url'] = gen_url
 
             sorted_rankdict = {k: v for k, v in sorted(rankdict.items())}
             #print(sorted_rankdict)
 
+            dbdump_dict['name'] = clr_name
+            dbdump_dict['platform'] = platform
+            for key, value in sorted_rankdict.items():
+                dbdump_dict[key] = value
+            for key, value in gendict.items():
+                dbdump_dict[key] = value
+
             totalprint.append(clr_name)
             for key, value in sorted_rankdict.items():
-                totalprint.append(f'{rankdict[key]}')
-            for i in stats_totalprint:
-                totalprint.append(i)
+                if key in ['1v1', '1v1_winstreak', '2v2', '2v2_winstreak', '3v3', '3v3_winstreak']:
+                    totalprint.append(f'{rankdict[key]}')
+            for key, value in gendict.items():
+                totalprint.append(gendict[key])
 
             table.append(totalprint)
+            dbdump.append(dbdump_dict)
 
         print(tabulate(table, headers='firstrow', tablefmt='fancy_grid'))
+        push = db_push_tracker_stats(dbdump)
+        if all(push):
+            print('Succesful push')
 
-        # Eventually, return list, where element 0 is an html table,
-        # and element 1 is the more detailed dictionary for database
-        # return []
+
+        #return [dbdump]
 
     def main(self):
         updateWebdriver()
