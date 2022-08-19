@@ -1,6 +1,7 @@
 /.idea
 todo
 /webdriver/__pycache__/
+/web/__pycache__/
 /__pycache__/
 test.py
 connect
