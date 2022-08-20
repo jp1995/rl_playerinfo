@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+from livereload import Server
 import logging
 
 app = Flask(__name__, template_folder='.', static_folder='assets')
@@ -14,6 +15,7 @@ log.setLevel(logging.ERROR)
 def index():
     return render_template('table.html')
 
-
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=True)
+    server = Server(app.wsgi_app)
+    server.serve()
+    #app.run(debug=True, use_reloader=True)

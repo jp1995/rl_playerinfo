@@ -28,7 +28,9 @@ def formatTable(listy: list):
                 'Grand Champion I': '<img class="tier" src="../assets/gc1.png" alt="gc1">',
                 'Grand Champion II': '<img class="tier" src="../assets/gc2.png" alt="gc2">',
                 'Grand Champion III': '<img class="tier" src="../assets/gc3.png" alt="gc3">',
-                'Supersonic Legend': '<img class="tier" src="../assets/ssl.png" alt="ssl">'}
+                'Supersonic Legend': '<img class="tier" src="../assets/ssl.png" alt="ssl">',
+                'Grand I': '<img class="tier" src="../assets/gc1.png" alt="gc1">',
+                'Supersonic I': '<img class="tier" src="../assets/gc1.png" alt="gc1">'}
 
     del listy[0]
     del listy[-1]
@@ -36,7 +38,8 @@ def formatTable(listy: list):
     for item in listy:
         for key, value in icondict.items().__reversed__():
             if isinstance(item, str):
-                if item == key.split(' ')[0] and item != 'NULL':
+                #if item == key.split(' ')[0] and item != 'NULL':
+                if item == key.replace(' I', '').replace(' II', '').replace(' III', ''):
                     outlist.append(icondict[f'{key.split(" ")[0]} I'])
                     break
                 if item.startswith(key) and item != 'NULL':
@@ -53,8 +56,6 @@ def formatTable(listy: list):
         else:
             continue
 
-    print(listy)
-    # print(outlist)
     for item in listy:
         outlist.append(item)
 
@@ -63,7 +64,6 @@ def formatTable(listy: list):
     del outlist[4]
     del outlist[4]; del outlist[4]; del outlist[4]
 
-    print(outlist)
     return outlist
 
 

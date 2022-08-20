@@ -27,6 +27,11 @@ class rl_playerinfo:
     def wipeNames(self):
         with open(self.plugDir + 'names.txt', 'w') as f:
             pass
+        with open('web/table_base.html', 'r', encoding='utf-8') as tb:
+            with open('web/table.html', 'w', encoding='utf-8') as t:
+                base = tb.read()
+                t.write("{% extends 'index.html' %}")
+                t.write(base)
 
     def readNames(self):
         self.mainDict = {}
@@ -88,7 +93,6 @@ class rl_playerinfo:
                         rankdict[f'{x}v{x}'] = f'{tier} {div}'
                         rankdict[f'{x}v{x}_winstreak'] = int(data['data']['segments'][i]['stats']['winStreak']['displayValue'])
                         rankdict[f'{x}v{x}_games'] = int(data['data']['segments'][i]['stats']['matchesPlayed']['value'])
-                        print(rankdict[f'{x}v{x}_games'])
 
             for x in range(1, 4):
                 if f'{x}v{x}' not in rankdict.keys():
@@ -143,6 +147,7 @@ class rl_playerinfo:
             {% block body %}\n")
             f.write(tabulate(table, headers='firstrow', tablefmt='unsafehtml', colalign='center', numalign='center'))
             f.write("\n{% endblock %}")
+        print('Table generated')
 
     def handleExit(self):
         self.webserver.kill()
