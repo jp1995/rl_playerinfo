@@ -5,8 +5,6 @@ from web.formatTable import formatTable
 from tabulate import tabulate
 from time import sleep
 import subprocess
-import sys
-import signal
 import atexit
 import json
 import os
@@ -23,6 +21,7 @@ class rl_playerinfo:
         self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
         self.storage = ''
         self.webserver = subprocess.Popen("python app.py", cwd='./web/', shell=True)
+        self.api_resps = []
 
     def wipeNames(self):
         with open(self.plugDir + 'names.txt', 'w') as f:
@@ -57,97 +56,125 @@ class rl_playerinfo:
 
             return self.mainDict
 
-    def handleData(self, dicty: dict):
-        headings = ['Name', '1v1', '2v2', '3v3', 'Wins', 'Games', 'Reward level',
-                    'Influencer', 'Premium', 'Sussy', 'Country']
-        table = [headings]
-        dbdump = []
-
+    def requests(self, dicty: dict):
         for name, platform in dicty.items():
             api_url = f'{self.api_base_url}/{platform}/{name}'
-            gen_url = f'{self.gen_base_url}/{platform}/{name}/overview'
-            rankdict = {}
-            tierdict = {}
-            gendict = {}
-            dbdump_dict = {}
-            totalprint = []
+            resp = webdriver_conf(api_url).split(';">')[1].split('</pre>')[0]
 
-            api_resp = webdriver_conf(api_url).split(';">')[1].split('</pre>')[0]
             try:
-                data = json.loads(api_resp)
+                data = json.loads(resp)
             except json.decoder.JSONDecodeError:
                 print('Tracker network is down')
                 continue
-            if not data['data']:
-                print(f"{name}, {platform} is a smurf so new the API doesn't even know about them")
+            if 'data' not in data:
+                print(f"Something broke.\nOr {name}, {platform} is a smurf so new the API doesn't even know about them")
                 continue
 
-            # print(json.dumps(data, indent=4))
+            self.api_resps.append(data)
 
-            for i in range(0, len(data['data']['segments'])):
-                for x in range(1, 4):
-                    if f'{x}v{x}' in data['data']['segments'][i]['metadata']['name']:
-                        tier = data['data']['segments'][i]['stats']['tier']['metadata']['name']
-                        div = data['data']['segments'][i]['stats']['division']['metadata']['name']
-                        tierdict[f'{x}v{x}'] = tier
-                        rankdict[f'{x}v{x}'] = f'{tier} {div}'
-                        rankdict[f'{x}v{x}_winstreak'] = int(data['data']['segments'][i]['stats']['winStreak']['displayValue'])
-                        rankdict[f'{x}v{x}_games'] = int(data['data']['segments'][i]['stats']['matchesPlayed']['value'])
+        return self.api_resps
 
+    @staticmethod
+    def rankDict(resp: dict):
+        rankdict = {}
+
+        for i in range(0, len(resp['data']['segments'])):
             for x in range(1, 4):
-                if f'{x}v{x}' not in rankdict.keys():
-                    rankdict[f'{x}v{x}'] = 'NULL'
-                    rankdict[f'{x}v{x}_winstreak'] = 0
-                    rankdict[f'{x}v{x}_games'] = 0
+                if f'{x}v{x}' in resp['data']['segments'][i]['metadata']['name']:
+                    tier = resp['data']['segments'][i]['stats']['tier']['metadata']['name']
+                    div = resp['data']['segments'][i]['stats']['division']['metadata']['name']
+                    if div == 'NULL':
+                        div = 'I'
 
-            # print(rankdict)
+                    rankdict[f'{x}v{x}'] = f'{tier} {div}'
+                    rankdict[f'{x}v{x}_winstreak'] = int(resp['data']['segments'][i]['stats']['winStreak']['displayValue'])
+                    rankdict[f'{x}v{x}_games'] = int(resp['data']['segments'][i]['stats']['matchesPlayed']['value'])
 
-            clr_name = data['data']['platformInfo']['platformUserHandle']
-            gendict['wins'] = data['data']['segments'][0]['stats']['wins']['value']
-            gendict['games_this_season'] = rankdict['1v1_games'] + rankdict['2v2_games'] + rankdict['3v3_games']
-            gendict['rewardlevel'] = data['data']['segments'][0]['stats']['seasonRewardLevel']['metadata']['rankName']
-            if gendict['rewardlevel'] == 'None':
-                gendict['rewardlevel'] = 'NULL'
-            gendict['influencer'] = data['data']['userInfo']['isInfluencer']
-            gendict['premium'] = data['data']['userInfo']['isPremium']
-            gendict['sussy'] = str(data['data']['userInfo']['isSuspicious']).replace('None', 'False')
-            gendict['country'] = str(data['data']['userInfo']['countryCode'])
-            gendict['url'] = gen_url
+        for x in range(1, 4):
+            if f'{x}v{x}' not in rankdict.keys():
+                rankdict[f'{x}v{x}'] = 'NULL'
+                rankdict[f'{x}v{x}_winstreak'] = 0
+                rankdict[f'{x}v{x}_games'] = 0
 
-            sorted_rankdict = {k: v for k, v in sorted(rankdict.items())}
-            # rankdict_icons = getRankicons(sorted_rankdict)
+        sorted_rankdict = {k: v for k, v in sorted(rankdict.items())}
+        return sorted_rankdict
 
-            dbdump_dict['name'] = clr_name
-            dbdump_dict['platform'] = platform
-            for key, value in sorted_rankdict.items():
+    @staticmethod
+    def writeTable(listy: list):
+        with open('web/table.html', 'w', encoding='utf-8') as f:
+            f.write("{% extends 'index.html' %}\n \
+            {% block head %}\n \
+            {% endblock %}\n \
+            {% block body %}\n")
+            f.write(tabulate(listy, headers='firstrow', tablefmt='unsafehtml', colalign='center', numalign='center'))
+            f.write("\n{% endblock %}")
+        print('Table generated')
+
+    def handleDBdata(self, api_resps: list):
+        dbdump = []
+        for resp in api_resps:
+            dbdump_dict = {}
+            uid = resp['data']['platformInfo']['platformUserIdentifier']
+            platform = resp['data']['platformInfo']['platformSlug']
+            gen_url = f'{self.gen_base_url}/{platform}/{uid}/overview'
+
+            rankdict = self.rankDict(resp)
+
+            dbdump_dict['name'] = resp['data']['platformInfo']['platformUserHandle']
+            dbdump_dict['platform'] = resp['data']['platformInfo']['platformSlug']
+            for key, value in rankdict.items():
                 dbdump_dict[key] = value
-            for key, value in gendict.items():
-                dbdump_dict[key] = value
+            dbdump_dict['wins'] = resp['data']['segments'][0]['stats']['wins']['value']
+            dbdump_dict['games_this_season'] = rankdict['1v1_games'] + rankdict['2v2_games'] + rankdict['3v3_games']
+            dbdump_dict['rewardlevel'] = resp['data']['segments'][0]['stats']['seasonRewardLevel']['metadata'][
+                'rankName']
+            if dbdump_dict['rewardlevel'] == 'None':
+                dbdump_dict['rewardlevel'] = 'NULL'
+            dbdump_dict['influencer'] = resp['data']['userInfo']['isInfluencer']
+            dbdump_dict['premium'] = resp['data']['userInfo']['isPremium']
+            dbdump_dict['sussy'] = str(resp['data']['userInfo']['isSuspicious']).replace('None', 'False')
+            dbdump_dict['country'] = str(resp['data']['userInfo']['countryCode'])
+            dbdump_dict['url'] = gen_url
 
-            totalprint.append(clr_name)
-            for key, value in sorted_rankdict.items():
-                if key in ['1v1', '1v1_winstreak', '2v2', '2v2_winstreak', '3v3', '3v3_winstreak']:
-                    totalprint.append(f'{sorted_rankdict[key]}')
-            for key, value in gendict.items():
-                totalprint.append(gendict[key])
-
-            formatted = formatTable(totalprint)
-
-            table.append(formatted)
             dbdump.append(dbdump_dict)
 
         push = db_push_tracker_stats(dbdump)
         if all(push):
             print('Succesful push')
 
-        with open('web/table.html', 'w', encoding='utf-8') as f:
-            f.write("{% extends 'index.html' %}\n \
-            {% block head %}\n \
-            {% endblock %}\n \
-            {% block body %}\n")
-            f.write(tabulate(table, headers='firstrow', tablefmt='unsafehtml', colalign='center', numalign='center'))
-            f.write("\n{% endblock %}")
-        print('Table generated')
+    def handleData(self, api_resps: list):
+        table = [['Name', '1v1', '2v2', '3v3', 'Wins', '<p title="Competitive games this season">Games <sup>*</sup></p>',
+                 'Reward level', 'Influencer', 'Premium', 'Sussy', 'Country']]
+
+        for resp in api_resps:
+            uid = resp['data']['platformInfo']['platformUserIdentifier']
+            platform = resp['data']['platformInfo']['platformSlug']
+            gen_url = f'{self.gen_base_url}/{platform}/{uid}/overview'
+            totalprint = []
+
+            # print(json.dumps(data, indent=4))
+            rankdict = self.rankDict(resp)
+
+            totalprint.append(resp['data']['platformInfo']['platformUserHandle'])
+            for key, value in rankdict.items():
+                if key in ['1v1', '1v1_winstreak', '2v2', '2v2_winstreak', '3v3', '3v3_winstreak']:
+                    totalprint.append(f'{rankdict[key]}')
+            totalprint.append(resp['data']['segments'][0]['stats']['wins']['value'])
+            totalprint.append(rankdict['1v1_games'] + rankdict['2v2_games'] + rankdict['3v3_games'])
+            rewardlevel = resp['data']['segments'][0]['stats']['seasonRewardLevel']['metadata']['rankName']
+            if rewardlevel == 'None':
+                rewardlevel = 'NULL RR'
+            totalprint.append(rewardlevel)
+            totalprint.append(resp['data']['userInfo']['isInfluencer'])
+            totalprint.append(resp['data']['userInfo']['isPremium'])
+            totalprint.append(str(resp['data']['userInfo']['isSuspicious']).replace('None', 'False'))
+            totalprint.append(str(resp['data']['userInfo']['countryCode']))
+            totalprint.append(gen_url)
+
+            formatted = formatTable(totalprint)
+            table.append(formatted)
+
+        self.writeTable(table)
 
     def handleExit(self):
         self.webserver.kill()
@@ -157,10 +184,13 @@ class rl_playerinfo:
         self.wipeNames()
         atexit.register(self.handleExit)
         while True:
+            self.api_resps.clear()
             stringy = self.readNames()
             inDatadict = self.cleanNames(stringy)
             if inDatadict:
-                self.handleData(inDatadict)
+                self.requests(inDatadict)
+                self.handleDBdata(self.api_resps)
+                self.handleData(self.api_resps)
             sleep(15)
 
 

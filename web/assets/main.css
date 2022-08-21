@@ -4,12 +4,25 @@ body {
     margin-left: 6vh;
     font-family: Segoe UI, Roboto, Helvetica, sans-serif;
 }
+h1 {
+    margin-top: 3vh;
+}
 table {
     width: 80%;
     border-collapse: collapse;
     border-style: hidden;
     margin-left: -20px;
-    margin-top: 5vh;
+    margin-top: 6vh;
+}
+tbody{
+    background: linear-gradient(to bottom, #4d6387 50%, #ad5149 50%);
+}
+
+td:nth-child(5){
+    padding-left: 6vh;
+}
+th:nth-child(5){
+    padding-left: 6vh;
 }
 
 th {
@@ -17,17 +30,26 @@ th {
     height: 5vh;
     margin-left: -2vh;
     text-align: left;
-    padding-left: 3vh;
-
+    padding-left: 4vh;
 }
 
 tr {
     border: 2px solid black;
-    background-color: #4d6387;
 }
 
-tr:nth-child(even){
-   background: #ad5149;
+td:first-child {
+    padding-right: 8vh;
+}
+
+td:nth-child(n+2):nth-child(-n+4) img{
+    margin-left: -2vh;
+}
+
+td:nth-child(n+2):nth-child(-n+4) {
+    background-color: rgba(0, 0, 0, 0.20);
+}
+th:nth-child(n+2):nth-child(-n+4) {
+    background-color: rgba(255, 255, 255, 0.10);
 }
 
 td {
@@ -35,8 +57,7 @@ td {
     height: 6vh;
     background-color: rgba(0, 0, 0, 0.3);
     color: #c7c5c5;
-    padding-left: 3vh;
-
+    padding-left: 4vh;
 }
 
 .tier {
@@ -64,5 +85,5 @@ a:active {
     color: #c7c5c5;
 }
 span {
-    margin: -10px;
+    margin-left: -1vh;
 }
