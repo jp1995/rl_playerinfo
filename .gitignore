@@ -5,4 +5,3 @@ todo
 /__pycache__/
 test.py
 connect
-threaded_requests.py

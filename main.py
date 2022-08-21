@@ -1,11 +1,13 @@
 from webdriver.webdriver_conf import webdriver_conf
 from webdriver.updateWebdriver import updateWebdriver
+from threaded_requests import perform_web_requests
 from db_connect import db_push_tracker_stats
 from web.formatTable import formatTable
 from tabulate import tabulate
 from time import sleep
 import subprocess
 import atexit
+import timeit
 import json
 import os
 
@@ -57,21 +59,26 @@ class rl_playerinfo:
             return self.mainDict
 
     def requests(self, dicty: dict):
+        urls = []
+
         for name, platform in dicty.items():
             api_url = f'{self.api_base_url}/{platform}/{name}'
-            resp = webdriver_conf(api_url).split(';">')[1].split('</pre>')[0]
+            urls.append(api_url)
+            print(name)
 
+        resps = perform_web_requests(urls, len(urls))
+        print('done')
+        for item in resps:
             try:
-                data = json.loads(resp)
+                data = json.loads(item)
             except json.decoder.JSONDecodeError:
                 print('Tracker network is down')
                 continue
             if 'data' not in data:
-                print(f"Something broke.\nOr {name}, {platform} is a smurf so new the API doesn't even know about them")
+                # print(f"Something broke.\nOr {name}, {platform} is a smurf so new the API doesn't even know about them")
+                print('oh no god no not like this please aaaaaaaaaaah ........')
                 continue
-
             self.api_resps.append(data)
-
         return self.api_resps
 
     @staticmethod
@@ -177,6 +184,7 @@ class rl_playerinfo:
         self.writeTable(table)
 
     def handleExit(self):
+        print('Closing webserver gracefully')
         self.webserver.kill()
 
     def main(self):
