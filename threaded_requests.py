@@ -2,9 +2,10 @@ from webdriver.webdriver_conf import webdriver_conf
 from threading import Thread
 import queue
 
-# I totally wrote all of this myself and definitely didn't copy from SO :)
+"""I totally wrote all of this myself and definitely didn't copy from SO :)"""
 
-def perform_web_requests(addresses, no_workers):
+
+def threaded_requests(addresses, no_workers):
     class Worker(Thread):
         def __init__(self, request_queue):
             Thread.__init__(self)

@@ -1,13 +1,11 @@
-from webdriver.webdriver_conf import webdriver_conf
 from webdriver.updateWebdriver import updateWebdriver
-from threaded_requests import perform_web_requests
+from threaded_requests import threaded_requests
 from db_connect import db_push_tracker_stats
 from web.formatTable import formatTable
 from tabulate import tabulate
 from time import sleep
 import subprocess
 import atexit
-import timeit
 import json
 import os
 
@@ -39,10 +37,8 @@ class rl_playerinfo:
         with open(self.plugDir + "names.txt", encoding='utf-8') as f:
             lines = [line.rstrip() for line in f]
 
-        try:
+        if lines[0]:
             return lines[0]
-        except IndexError:
-            return ''
 
     def cleanNames(self, namesstr: str):
         if len(namesstr) > 0 and namesstr != self.storage:
@@ -60,25 +56,22 @@ class rl_playerinfo:
 
     def requests(self, dicty: dict):
         urls = []
-
         for name, platform in dicty.items():
             api_url = f'{self.api_base_url}/{platform}/{name}'
             urls.append(api_url)
-            print(name)
 
-        resps = perform_web_requests(urls, len(urls))
-        print('done')
+        resps = threaded_requests(urls, len(urls))
         for item in resps:
             try:
                 data = json.loads(item)
             except json.decoder.JSONDecodeError:
-                print('Tracker network is down')
+                print('Tracker network appears down')
                 continue
             if 'data' not in data:
-                # print(f"Something broke.\nOr {name}, {platform} is a smurf so new the API doesn't even know about them")
-                print('oh no god no not like this please aaaaaaaaaaah ........')
+                print(f"Something broke.\nPossibly hit a smurf so new the API doesn't even know about them")
                 continue
             self.api_resps.append(data)
+
         return self.api_resps
 
     @staticmethod
@@ -109,10 +102,7 @@ class rl_playerinfo:
     @staticmethod
     def writeTable(listy: list):
         with open('web/table.html', 'w', encoding='utf-8') as f:
-            f.write("{% extends 'index.html' %}\n \
-            {% block head %}\n \
-            {% endblock %}\n \
-            {% block body %}\n")
+            f.write("{% extends 'index.html' %}\n{% block head %}\n{% endblock %}\n{% block body %}\n")
             f.write(tabulate(listy, headers='firstrow', tablefmt='unsafehtml', colalign='center', numalign='center'))
             f.write("\n{% endblock %}")
         print('Table generated')
@@ -125,12 +115,12 @@ class rl_playerinfo:
             platform = resp['data']['platformInfo']['platformSlug']
             gen_url = f'{self.gen_base_url}/{platform}/{uid}/overview'
 
-            rankdict = self.rankDict(resp)
-
             dbdump_dict['name'] = resp['data']['platformInfo']['platformUserHandle']
             dbdump_dict['platform'] = resp['data']['platformInfo']['platformSlug']
-            for key, value in rankdict.items():
-                dbdump_dict[key] = value
+
+            rankdict = self.rankDict(resp)
+            dbdump_dict = {k: v for k, v in rankdict.items()}
+
             dbdump_dict['wins'] = resp['data']['segments'][0]['stats']['wins']['value']
             dbdump_dict['games_this_season'] = rankdict['1v1_games'] + rankdict['2v2_games'] + rankdict['3v3_games']
             dbdump_dict['rewardlevel'] = resp['data']['segments'][0]['stats']['seasonRewardLevel']['metadata'][
@@ -145,9 +135,8 @@ class rl_playerinfo:
 
             dbdump.append(dbdump_dict)
 
-        push = db_push_tracker_stats(dbdump)
-        if all(push):
-            print('Succesful push')
+        db_push_tracker_stats(dbdump)
+        print('Successful push')
 
     def handleData(self, api_resps: list):
         table = [['Name', '1v1', '2v2', '3v3', 'Wins', '<p title="Competitive games this season">Games <sup>*</sup></p>',
@@ -164,7 +153,7 @@ class rl_playerinfo:
 
             totalprint.append(resp['data']['platformInfo']['platformUserHandle'])
             for key, value in rankdict.items():
-                if key in ['1v1', '1v1_winstreak', '2v2', '2v2_winstreak', '3v3', '3v3_winstreak']:
+                if key not in ['1v1_games', '2v2_games', '3v3_games']:
                     totalprint.append(f'{rankdict[key]}')
             totalprint.append(resp['data']['segments'][0]['stats']['wins']['value'])
             totalprint.append(rankdict['1v1_games'] + rankdict['2v2_games'] + rankdict['3v3_games'])
@@ -189,7 +178,7 @@ class rl_playerinfo:
 
     def main(self):
         updateWebdriver()
-        self.wipeNames()
+        #self.wipeNames()
         atexit.register(self.handleExit)
         while True:
             self.api_resps.clear()
@@ -197,7 +186,7 @@ class rl_playerinfo:
             inDatadict = self.cleanNames(stringy)
             if inDatadict:
                 self.requests(inDatadict)
-                self.handleDBdata(self.api_resps)
+                # self.handleDBdata(self.api_resps)
                 self.handleData(self.api_resps)
             sleep(15)
 

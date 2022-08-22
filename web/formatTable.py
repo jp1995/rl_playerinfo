@@ -5,6 +5,8 @@ def formatTable(listy: list):
 
     url = listy[-1]
     outlist.append(f'<a href="{url}">{listy[0]}</a>')
+    del listy[0]
+    del listy[-1]
 
     icondict = {'NULL': '<img class="tier" src="../assets/unranked.png" alt="unranked" title="Unranked">',
                 'Bronze I': '<img class="tier" src="../assets/b1.png" alt="b1" title="Bronze I">',
@@ -32,9 +34,6 @@ def formatTable(listy: list):
                 'Grand I': '<img class="tier" src="../assets/gc1.png" alt="gc1">',
                 'Supersonic I': '<img class="tier" src="../assets/gc1.png" alt="gc1">'}
 
-    del listy[0]
-    del listy[-1]
-
     for item in listy:
         for key, value in icondict.items().__reversed__():
             if isinstance(item, str):
@@ -52,19 +51,16 @@ def formatTable(listy: list):
                     outlist.append(value+f'<span>{item.split(" ")[-1]}, {listy[listy.index(item)+1]}</span>')
                     listy.remove(item)
                     break
-                if item.startswith(key):
-                    outlist.append(value)
-                    listy.remove(item)
-                    break
         else:
             continue
 
-    for item in listy:
+    # Exclude already used winstreak items
+    for item in listy[3:]:
         outlist.append(item)
 
-    del outlist[10]
-    outlist.insert(10, outlist[4])
+    # Replace reward level string with icon
+    del outlist[7]
+    outlist.insert(7, outlist[4])
     del outlist[4]
-    del outlist[4]; del outlist[4]; del outlist[4]
-    print(outlist)
+
     return outlist

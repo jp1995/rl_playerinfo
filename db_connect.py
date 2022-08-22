@@ -1,12 +1,11 @@
 from datetime import datetime
 import mysql.connector as db
+from return_to_monke import dbpass
 
-with open('connect', encoding='utf-8') as f:
-    password = f.read().rstrip()
 
 connection = db.connect(
     user='rl_playerinfo',
-    password=password,
+    password=dbpass,
     host='localhost',
     database='rl_playerinfo')
 
@@ -14,10 +13,9 @@ connection = db.connect(
 def db_push_tracker_stats(listy: list):
     now = datetime.now()
     date_created = now.strftime("%d/%m/%Y %H:%M:%S")
-    success = []
 
     for dicty in listy:
-        print(dicty)
+        # Making these stats actually usable
         if dicty['name'] == 'bogeymanEST' or dicty['name'] == 'poncho':
             continue
 
@@ -31,8 +29,6 @@ def db_push_tracker_stats(listy: list):
         try:
             cursor.execute(stmt)
             connection.commit()
-            success.append(True)
+            print(dicty)
         except db.Error as e:
-            print(f'Error adding entry to database: {e}')
-
-    return success
+            print(f'Error adding entry to database: {e}\n{dicty}')
