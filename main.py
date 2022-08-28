@@ -147,7 +147,7 @@ class rl_playerinfo:
     def handleData(self, api_resps: list):
         table = [['Name', '1v1', '2v2', '3v3', 'Wins',
                   '<p title="Competitive games this season">Games <sup>*</sup></p>',
-                 'Reward level', 'Influencer', 'Premium', 'Sussy', 'Country']]
+                 'Reward level', 'Influencer', 'Premium', 'Sussy', 'Country', 'Platform']]
 
         for resp in api_resps:
             uid = resp['data']['platformInfo']['platformUserIdentifier']
@@ -172,10 +172,29 @@ class rl_playerinfo:
             totalprint.append(resp['data']['userInfo']['isPremium'])
             totalprint.append(str(resp['data']['userInfo']['isSuspicious']).replace('None', 'False'))
             totalprint.append(str(resp['data']['userInfo']['countryCode']))
+            totalprint.append(resp['data']['platformInfo']['platformSlug'])
             totalprint.append(gen_url)
 
             formatted = formatTable(totalprint)
             table.append(formatted)
+
+        infl = []
+        prem = []
+        suss = []
+        for row in table[1:]:
+            infl.append(row[7])
+            prem.append(row[8])
+            suss.append(row[9])
+
+        if 'True' not in infl:
+            idx = table[0].index('Influencer')
+            [row.pop(idx) for row in table]
+        if 'True' not in prem:
+            idx = table[0].index('Premium')
+            [row.pop(idx) for row in table]
+        if 'True' not in suss:
+            idx = table[0].index('Sussy')
+            [row.pop(idx) for row in table]
 
         self.writeTable(table)
 

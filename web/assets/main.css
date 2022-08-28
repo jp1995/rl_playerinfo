@@ -65,6 +65,16 @@ td {
     width: 42px;
 }
 
+.flag {
+    height: 20px;
+    width: 32px;
+}
+
+.platform {
+    height: 32px;
+    width: 32px;
+}
+
 a:link {
     text-decoration: none;
     color: #c7c5c5;
