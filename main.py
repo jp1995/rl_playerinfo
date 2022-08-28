@@ -6,6 +6,7 @@ from tabulate import tabulate
 from time import sleep
 import subprocess
 import atexit
+import socket
 import json
 import os
 
@@ -23,8 +24,10 @@ class rl_playerinfo:
         self.webserver = subprocess.Popen("python app.py", cwd='./web/', shell=True)
         self.api_resps = []
 
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     def wipeNames(self):
-        with open(self.plugDir + 'names.txt', 'w') as f:
+        with open(self.plugDir + 'names.txt', 'w'):
             pass
         with open('web/table_base.html', 'r', encoding='utf-8') as tb:
             with open('web/table.html', 'w', encoding='utf-8') as t:
@@ -37,8 +40,10 @@ class rl_playerinfo:
         with open(self.plugDir + "names.txt", encoding='utf-8') as f:
             lines = [line.rstrip() for line in f]
 
-        if lines[0]:
+        try:
             return lines[0]
+        except IndexError:
+            return ''
 
     def cleanNames(self, namesstr: str):
         if len(namesstr) > 0 and namesstr != self.storage:
@@ -119,7 +124,8 @@ class rl_playerinfo:
             dbdump_dict['platform'] = resp['data']['platformInfo']['platformSlug']
 
             rankdict = self.rankDict(resp)
-            dbdump_dict = {k: v for k, v in rankdict.items()}
+            for key, value in rankdict.items():
+                dbdump_dict[key] = value
 
             dbdump_dict['wins'] = resp['data']['segments'][0]['stats']['wins']['value']
             dbdump_dict['games_this_season'] = rankdict['1v1_games'] + rankdict['2v2_games'] + rankdict['3v3_games']
@@ -139,7 +145,8 @@ class rl_playerinfo:
         print('Successful push')
 
     def handleData(self, api_resps: list):
-        table = [['Name', '1v1', '2v2', '3v3', 'Wins', '<p title="Competitive games this season">Games <sup>*</sup></p>',
+        table = [['Name', '1v1', '2v2', '3v3', 'Wins',
+                  '<p title="Competitive games this season">Games <sup>*</sup></p>',
                  'Reward level', 'Influencer', 'Premium', 'Sussy', 'Country']]
 
         for resp in api_resps:
@@ -148,7 +155,7 @@ class rl_playerinfo:
             gen_url = f'{self.gen_base_url}/{platform}/{uid}/overview'
             totalprint = []
 
-            # print(json.dumps(data, indent=4))
+            # print(json.dumps(resp, indent=4))
             rankdict = self.rankDict(resp)
 
             totalprint.append(resp['data']['platformInfo']['platformUserHandle'])
@@ -178,7 +185,7 @@ class rl_playerinfo:
 
     def main(self):
         updateWebdriver()
-        #self.wipeNames()
+        self.wipeNames()
         atexit.register(self.handleExit)
         while True:
             self.api_resps.clear()
@@ -186,6 +193,7 @@ class rl_playerinfo:
             inDatadict = self.cleanNames(stringy)
             if inDatadict:
                 self.requests(inDatadict)
+                # If you want database functionality, uncomment and setup your own db + edit db_connect.py
                 # self.handleDBdata(self.api_resps)
                 self.handleData(self.api_resps)
             sleep(15)

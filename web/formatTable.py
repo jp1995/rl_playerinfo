@@ -2,6 +2,7 @@
 
 def formatTable(listy: list):
     outlist = []
+    print(listy)
 
     url = listy[-1]
     outlist.append(f'<a href="{url}">{listy[0]}</a>')
@@ -9,6 +10,7 @@ def formatTable(listy: list):
     del listy[-1]
 
     icondict = {'NULL': '<img class="tier" src="../assets/unranked.png" alt="unranked" title="Unranked">',
+                'Unranked': '<img class="tier" src="../assets/unranked.png" alt="unranked" title="Unranked">',
                 'Bronze I': '<img class="tier" src="../assets/b1.png" alt="b1" title="Bronze I">',
                 'Bronze II': '<img class="tier" src="../assets/b2.png" alt="b2" title="Bronze II">',
                 'Bronze III': '<img class="tier" src="../assets/b3.png" alt="b3" title="Bronze III">',
@@ -26,7 +28,7 @@ def formatTable(listy: list):
                 'Diamond III': '<img class="tier" src="../assets/d3.png" alt="d3" title="Diamond III">',
                 'Champion I': '<img class="tier" src="../assets/c1.png" alt="c1" title="Champion I">',
                 'Champion II': '<img class="tier" src="../assets/c2.png" alt="c2" title="Champion II">',
-                'Chamion III': '<img class="tier" src="../assets/c3.png" alt="c3" title="Champion III">',
+                'Champion III': '<img class="tier" src="../assets/c3.png" alt="c3" title="Champion III">',
                 'Grand Champion I': '<img class="tier" src="../assets/gc1.png" alt="gc1" title="Grand Champion I">',
                 'Grand Champion II': '<img class="tier" src="../assets/gc2.png" alt="gc2" title="Grand Champion II">',
                 'Grand Champion III': '<img class="tier" src="../assets/gc3.png" alt="gc3" title="Grand Champion III">',
@@ -57,10 +59,8 @@ def formatTable(listy: list):
     # Exclude already used winstreak items
     for item in listy[3:]:
         outlist.append(item)
-
     # Replace reward level string with icon
     del outlist[7]
     outlist.insert(7, outlist[4])
     del outlist[4]
-
     return outlist
