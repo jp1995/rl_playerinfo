@@ -2,7 +2,7 @@
 
 A rocket league session info tool that condenses interesting tracker data for all players in the match.
 
-![output](https://cdn.discordapp.com/attachments/533998516876607511/1013598626955665458/unknown.png)
+![output](https://cdn.discordapp.com/attachments/533998516876607511/1013614330308214814/unknown.png)
 
 * Name is a link to the trackernetwork profile
 * For every rank, the value after division is winstreak.
@@ -20,7 +20,9 @@ Then enable the plugin in bakkesmod PluginManager
 ```
 
 ### Script
-Has been tested on python 3.10
+Has been tested on python 3.10.
+
+Currently needs chrome installed to run the webdriver.
 ```bash
 # Clone the repo
 $ git clone https://github.com/jp1995/rl_playerinfo
@@ -46,5 +48,6 @@ The backend of this is pretty ape brained.
 * Needs a rewrite to pass data from plugin to script over tcp, in json format. This should help clean the python script up too.
 * Do proper team separation (currently it's random).
 * Get playlist, do not fill table until all players present.
+* Firefox webdriver support.
 * Maybe another column for linked socials?
 

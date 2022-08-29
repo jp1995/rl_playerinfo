@@ -69,6 +69,8 @@ def formatTable(listy: list):
     flaglink = f'<img class="flag" src="https://flagicons.lipis.dev/flags/4x3/{flag}.svg" alt="{flag}" title="{flag}">'
     if flag != 'none':
         outlist = outlist[:10]+[flaglink]+outlist[11:]
+    else:
+        outlist = outlist[:10] + ['-'] + outlist[11:]
 
     platform = outlist[11]
     platlink = f'<img class="platform" src="assets/{platform}.svg" alt="{platform}" title="{platform}">'
