@@ -1,6 +1,6 @@
 # rl_playerinfo
 
-A rocket league session info tool that shows interesting information about the players in your game.
+A rocket league session info tool that condenses interesting tracker data for all players in the match.
 
 ![output](https://cdn.discordapp.com/attachments/533998516876607511/1013598626955665458/unknown.png)
 
@@ -33,9 +33,9 @@ $ pip install -r requirements.txt
 ```
 
 ## Instructions
-After installing, simply run the `main.py` script.
+After installing, simply run the script.
 
-`python `
+`python main.py`
 
 The client should then be available at http://127.0.0.1:5500/. It will fill out once in game.
 
@@ -43,12 +43,8 @@ If you want to save this data into your own database, configure `db_connect.py` 
 
 # Todo
 The backend of this is pretty ape brained. 
-
-Needs a rewrite to pass data from plugin to script over tcp, in json format. This should help clean the python script up too.
-
-Do proper team separation (currently it's random).
-
-Get playlist, do not fill table until all players present.
-
-Maybe another column for linked socials?
+* Needs a rewrite to pass data from plugin to script over tcp, in json format. This should help clean the python script up too.
+* Do proper team separation (currently it's random).
+* Get playlist, do not fill table until all players present.
+* Maybe another column for linked socials?
 
