@@ -32,7 +32,6 @@ class rl_playerinfo:
         with open('web/table_base.html', 'r', encoding='utf-8') as tb:
             with open('web/table.html', 'w', encoding='utf-8') as t:
                 base = tb.read()
-                t.write("{% extends 'index.html' %}")
                 t.write(base)
 
     def readNames(self):
