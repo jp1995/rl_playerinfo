@@ -41,7 +41,7 @@ After installing, simply run the script.
 
 The client should then be available at http://127.0.0.1:5500/. It will fill out once in game.
 
-If you want to save this data into your own database, configure `db_connect.py` to your liking.
+If you want to save this data into your own database, configure `db_connect.py` to your liking and uncomment the relevant line in the `main` function of `main.py`.
 
 # Todo
 The backend of this is pretty ape brained. 
@@ -50,4 +50,6 @@ The backend of this is pretty ape brained.
 * Get playlist, do not fill table until all players present.
 * Firefox webdriver support.
 * Maybe another column for linked socials?
+
+Once the backend has been properly unfucked, could add a session MMR tracker too.
 

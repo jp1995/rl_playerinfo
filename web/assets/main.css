@@ -1,17 +1,17 @@
 body {
     background-color: #030710;
     color: #d3d3d3;
-    margin-left: 6vh;
+
     font-family: Segoe UI, Roboto, Helvetica, sans-serif;
 }
 h1 {
     margin-top: 3vh;
 }
 table {
-    width: 80%;
+    width: 70%;
     border-collapse: collapse;
     border-style: hidden;
-    margin-left: -20px;
+    margin-left: 4vh;
     margin-top: 6vh;
 }
 tbody{
@@ -96,4 +96,54 @@ a:active {
 }
 span {
     margin-left: -1vh;
+}
+
+.topnav {
+    background-color: #121212;
+    overflow: hidden;
+    height: 55px;
+    margin-left: -8px;
+    margin-right: -8px;
+    margin-top: -10px;
+}
+
+.rl_icon {
+    height: 48px;
+    width: 48px;
+    float: left;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 5px;
+}
+
+button {
+    height: 100%;
+    width: 140px;
+    background-color: #1d1d1d;
+    color: #d3d3d3;
+    border: none;
+}
+.play {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    -ms-transform: translateY(40%);
+    transform: translateY(40%);
+    padding-right: 10px;
+}
+
+.title {
+    display: inline-block;
+    font-size: 10pt;
+    text-align: center;
+    -ms-transform: translateY(20%);
+    transform: translateY(20%);
+}
+.github {
+    float: right;
+    width: 25px;
+    height: 25px;
+    margin-right: 20px;
+    -ms-transform: translateY(65%);
+    transform: translateY(65%);
 }
