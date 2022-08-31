@@ -56,42 +56,31 @@ json PlayerNames::getPnames() {
 
 	ServerWrapper server = gameWrapper->GetCurrentGameState();
 	if (server) {
+		cvarManager->log("Online server found");
 		std::string matchID = server.GetMatchGUID();
-		//if (!matchID) return empty;
-		j["Match"]["matchID"] = matchID;
-
 		int maxp = server.GetMaxTeamSize() * 2;
-		//if (!maxp) return empty;
-		j["Match"]["maxPlayers"] = maxp;
-
+		
 		GameSettingPlaylistWrapper playlist = server.GetPlaylist();
 		if (!playlist) return empty;
 		int playlistID = playlist.GetPlaylistId();
-		j["Match"]["playlist"] = playlistID;
-
+		
 		ArrayWrapper pris = server.GetPRIs();
-		//if (!pris) return empty;
-		cvarManager->log("Online server found");
-
 		for (PriWrapper pri : pris) {
 			if (!pri) return empty;
-
 			UniqueIDWrapper uidW = pri.GetUniqueIdWrapper();
-			//if (!uidW) return;	// Can't nullcheck this?
-
 			TeamInfoWrapper team = pri.GetTeam();
 			if (!team) return empty;
 
 			int teamindex = team.GetTeamIndex();
-			std::string name = pri.GetPlayerName().ToString();
 			int platform = uidW.GetPlatform();
 			auto uid = uidW.GetUID();
 
-			std::string uidString = std::to_string(uid);
+			std::string name = pri.GetPlayerName().ToString();
+			std::string UIDstr = std::to_string(uid);
 
 			if (platform == 1) {
-				j["Match"]["players"][uidString]["team"] = teamindex;
-				j["Match"]["players"][uidString]["platform"] = platform;
+				j["Match"]["players"][UIDstr]["team"] = teamindex;
+				j["Match"]["players"][UIDstr]["platform"] = platform;
 			}
 			else {
 				j["Match"]["players"][name]["team"] = teamindex;
@@ -99,42 +88,45 @@ json PlayerNames::getPnames() {
 			}
 			
 		}
+		j["Match"]["matchID"] = matchID;
+		j["Match"]["maxPlayers"] = maxp;
+		j["Match"]["playlist"] = playlistID;
+
+
 		cvarManager->log("All data saved");
 	}
 	cvarManager->log("Returning json object");
 	return j;
 }
 
+void PlayerNames::writeSession(json arr) {
+	std::string jsonstr = arr.dump();
+
+	cvarManager->log("Writing session into file...");
+
+	std::string src = PlugDir();
+	ofstream file(src + "\\names.txt", std::ofstream::out);
+
+	if (file.is_open()) {
+
+		file << jsonstr;
+
+	}
+	file.close();
+}
+
 
 void PlayerNames::HandleGameStart(std::string eventName) {
 	json j = getPnames();
 	if (j.is_null()) return;
-
 	if (j["Match"]["matchID"] == "") return;
-	std::string matchID = j["Match"]["matchID"];
 
+	std::string matchID = j["Match"]["matchID"];
 	int num_players = j["Match"]["players"].size();
 	int maxplayers = j["Match"]["maxPlayers"];
 
-	std::string fileContents = NamesFile();
-	json existing = json::parse(fileContents);
-
-	std::string oldid = existing["Match"]["matchID"];
-
-	if (matchID != oldid and num_players == maxplayers) {
-		std::string jsonstr = j.dump();
-
-		cvarManager->log("New match detected, writing into file...");
-
-		std::string src = PlugDir();
-		ofstream file(src + "\\names.txt", std::ofstream::out);
-
-		if (file.is_open()) {
-
-			file << jsonstr;
-
-		}
-		file.close();
+	if (num_players == maxplayers) {
+		writeSession(j);
 	}
 }
 

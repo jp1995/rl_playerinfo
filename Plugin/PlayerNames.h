@@ -24,6 +24,7 @@ class PlayerNames : public BakkesMod::Plugin::BakkesModPlugin/*, public BakkesMo
 	virtual void onUnload();
 
 	json getPnames();
+	void writeSession(json jsonstr);
 	void HandleGameStart(std::string eventName);
 
 	// Inherited via PluginSettingsWindow
