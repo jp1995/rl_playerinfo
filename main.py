@@ -44,23 +44,23 @@ class rl_playerinfo:
         except IndexError:
             return ''
 
-    def cleanNames(self, namesstr: str):
-        if len(namesstr) > 0 and namesstr != self.storage:
-            self.storage = namesstr
+    def checkIfNewNames(self):
+        strjson = self.readNames()
 
-            self.mainDict = dict([subString.split(':') for subString in namesstr.split(',')])
+        if strjson != self.storage:
+            self.storage = strjson
 
-            for key, value in self.mainDict.items():
-                try:
-                    self.mainDict[key] = self.platformDict[value]
-                except KeyError:
-                    print(f'Unknown platform value in dictionary: {key} - {value}')
+            return strjson
 
-            return self.mainDict
-
-    def requests(self, dicty: dict):
+    def requests(self, strjson):
         urls = []
-        for name, platform in dicty.items():
+        intermed = []
+
+        realjson = json.loads(strjson)
+        for player in realjson['Match']['players']:
+            name = player
+            platform_num = str(realjson['Match']['players'][name]['platform'])
+            platform = self.platformDict[platform_num]
             api_url = f'{self.api_base_url}/{platform}/{name}'
             urls.append(api_url)
 
@@ -74,7 +74,14 @@ class rl_playerinfo:
             if 'data' not in data:
                 print(f"Something broke.\nPossibly hit a smurf so new the API doesn't even know about them")
                 continue
-            self.api_resps.append(data)
+            intermed.append(data)
+
+        for item in intermed:
+            uid = item['data']['platformInfo']['platformUserIdentifier']
+            item['data']['gameInfo'] = {}
+            item['data']['gameInfo']['maxPlayers'] = realjson['Match']['maxPlayers']
+            item['data']['gameInfo']['team'] = realjson['Match']['players'][uid]['team']
+            self.api_resps.append(item)
 
         return self.api_resps
 
@@ -102,6 +109,37 @@ class rl_playerinfo:
 
         sorted_rankdict = {k: v for k, v in sorted(rankdict.items())}
         return sorted_rankdict
+
+    @staticmethod
+    def hideSpecCols(table: list):
+        infl = []
+        prem = []
+        suss = []
+        for row in table[1:]:
+            infl.append(row[7])
+            prem.append(row[8])
+            suss.append(row[9])
+
+        if 'True' not in infl:
+            idx = table[0].index('Influencer')
+            [row.pop(idx) for row in table]
+        if 'True' not in prem:
+            idx = table[0].index('Premium')
+            [row.pop(idx) for row in table]
+        if 'True' not in suss:
+            idx = table[0].index('Sussy')
+            [row.pop(idx) for row in table]
+
+        return table
+
+    @staticmethod
+    def sortPlayersByTeams(table: list):
+        stable = sorted(table[1:], key=lambda x: int(x[-1]))
+        for item in stable:
+            del item[-1]
+        sorted_table = [table[0]] + stable
+
+        return sorted_table
 
     @staticmethod
     def writeTable(listy: list):
@@ -154,7 +192,6 @@ class rl_playerinfo:
             gen_url = f'{self.gen_base_url}/{platform}/{uid}/overview'
             totalprint = []
 
-            # print(json.dumps(resp, indent=4))
             rankdict = self.rankDict(resp)
 
             totalprint.append(resp['data']['platformInfo']['platformUserHandle'])
@@ -172,30 +209,16 @@ class rl_playerinfo:
             totalprint.append(str(resp['data']['userInfo']['isSuspicious']).replace('None', 'False'))
             totalprint.append(str(resp['data']['userInfo']['countryCode']))
             totalprint.append(resp['data']['platformInfo']['platformSlug'])
+            totalprint.append(resp['data']['gameInfo']['team'])
             totalprint.append(gen_url)
 
             formatted = formatTable(totalprint)
             table.append(formatted)
 
-        infl = []
-        prem = []
-        suss = []
-        for row in table[1:]:
-            infl.append(row[7])
-            prem.append(row[8])
-            suss.append(row[9])
+        table = self.hideSpecCols(table)
+        sorted_table = self.sortPlayersByTeams(table)
 
-        if 'True' not in infl:
-            idx = table[0].index('Influencer')
-            [row.pop(idx) for row in table]
-        if 'True' not in prem:
-            idx = table[0].index('Premium')
-            [row.pop(idx) for row in table]
-        if 'True' not in suss:
-            idx = table[0].index('Sussy')
-            [row.pop(idx) for row in table]
-
-        self.writeTable(table)
+        self.writeTable(sorted_table)
 
     def handleExit(self):
         print('Closing webserver gracefully')
@@ -207,10 +230,9 @@ class rl_playerinfo:
         atexit.register(self.handleExit)
         while True:
             self.api_resps.clear()
-            stringy = self.readNames()
-            inDatadict = self.cleanNames(stringy)
-            if inDatadict:
-                self.requests(inDatadict)
+            strjson = self.checkIfNewNames()
+            if strjson:
+                self.requests(strjson)
                 # If you want database functionality, uncomment and setup your own db + edit db_connect.py
                 # self.handleDBdata(self.api_resps)
                 self.handleData(self.api_resps)

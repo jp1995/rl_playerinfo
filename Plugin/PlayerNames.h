@@ -5,7 +5,10 @@
 #include "bakkesmod/plugin/PluginSettingsWindow.h"
 
 #include "version.h"
+#include <nlohmann/json.hpp>
 constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
+
+using json = nlohmann::json;
 
 
 class PlayerNames : public BakkesMod::Plugin::BakkesModPlugin/*, public BakkesMod::Plugin::PluginSettingsWindow*//*, public BakkesMod::Plugin::PluginWindow*/
@@ -20,7 +23,7 @@ class PlayerNames : public BakkesMod::Plugin::BakkesModPlugin/*, public BakkesMo
 	void LoadHooks();
 	virtual void onUnload();
 
-	std::map <std::string, int> getPnames();
+	json getPnames();
 	void HandleGameStart(std::string eventName);
 
 	// Inherited via PluginSettingsWindow

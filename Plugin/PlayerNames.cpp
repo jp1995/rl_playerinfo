@@ -3,7 +3,10 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <nlohmann/json.hpp>
+
 using namespace std;
+using json = nlohmann::json;
 
 
 BAKKESMOD_PLUGIN(PlayerNames, "Get Player names in lobbies", plugin_version, PLUGINTYPE_FREEPLAY)
@@ -47,71 +50,91 @@ std::string PlayerNames::NamesFile() {
 }
 
 
-std::map <std::string, int> PlayerNames::getPnames() {
-	std::map <std::string, int> bindNames;
-	std::map <std::string, int>::iterator pos;
+json PlayerNames::getPnames() {
+	json j;
+	json empty;
 
 	ServerWrapper server = gameWrapper->GetCurrentGameState();
 	if (server) {
+		std::string matchID = server.GetMatchGUID();
+		//if (!matchID) return empty;
+		j["Match"]["matchID"] = matchID;
+
+		int maxp = server.GetMaxTeamSize() * 2;
+		//if (!maxp) return empty;
+		j["Match"]["maxPlayers"] = maxp;
+
+		GameSettingPlaylistWrapper playlist = server.GetPlaylist();
+		if (!playlist) return empty;
+		int playlistID = playlist.GetPlaylistId();
+		j["Match"]["playlist"] = playlistID;
+
 		ArrayWrapper pris = server.GetPRIs();
+		//if (!pris) return empty;
+		cvarManager->log("Online server found");
 
 		for (PriWrapper pri : pris) {
-			if (!pri) continue;
+			if (!pri) return empty;
 
 			UniqueIDWrapper uidW = pri.GetUniqueIdWrapper();
-			//if (!uidW) { return; }	// Can't nullcheck this?
+			//if (!uidW) return;	// Can't nullcheck this?
 
+			TeamInfoWrapper team = pri.GetTeam();
+			if (!team) return empty;
+
+			int teamindex = team.GetTeamIndex();
 			std::string name = pri.GetPlayerName().ToString();
 			int platform = uidW.GetPlatform();
 			auto uid = uidW.GetUID();
 
-			std::string uidString = std::to_string(uid); // Can't mix <string, int> and <int, int> in map
+			std::string uidString = std::to_string(uid);
 
 			if (platform == 1) {
-				bindNames.insert(std::pair<std::string, int>(uidString, platform));
+				j["Match"]["players"][uidString]["team"] = teamindex;
+				j["Match"]["players"][uidString]["platform"] = platform;
 			}
 			else {
-				bindNames.insert(std::pair<std::string, int>(name, platform));
+				j["Match"]["players"][name]["team"] = teamindex;
+				j["Match"]["players"][name]["platform"] = platform;
 			}
+			
 		}
+		cvarManager->log("All data saved");
 	}
-	return bindNames;
+	cvarManager->log("Returning json object");
+	return j;
 }
 
 
 void PlayerNames::HandleGameStart(std::string eventName) {
-	std::map <std::string, int> bindNames = getPnames();
-	std::string inputstr;
-	for (std::pair<std::string, int>NamePlatPair : bindNames) {
+	json j = getPnames();
+	if (j.is_null()) return;
 
-		std::string name = NamePlatPair.first;
-		int platform = NamePlatPair.second;
-		std::string platString = std::to_string(platform);
+	if (j["Match"]["matchID"] == "") return;
+	std::string matchID = j["Match"]["matchID"];
 
-		inputstr += name + ":" + platString + ",";
+	int num_players = j["Match"]["players"].size();
+	int maxplayers = j["Match"]["maxPlayers"];
 
-	}
-	if (inputstr.length() > 0) {
+	std::string fileContents = NamesFile();
+	json existing = json::parse(fileContents);
 
-		inputstr.erase(inputstr.length() - 1);
-		std::string fileContents = NamesFile();
+	std::string oldid = existing["Match"]["matchID"];
 
-		if (fileContents != inputstr) {
+	if (matchID != oldid and num_players == maxplayers) {
+		std::string jsonstr = j.dump();
 
-			cvarManager->log("Old player names: " + fileContents);
-			cvarManager->log("New player names: " + inputstr);
-			cvarManager->log("Writing new values into file...");
+		cvarManager->log("New match detected, writing into file...");
 
-			std::string src = PlugDir();
-			ofstream file(src + "\\names.txt", std::ofstream::out);
+		std::string src = PlugDir();
+		ofstream file(src + "\\names.txt", std::ofstream::out);
 
-			if (file.is_open()) {
+		if (file.is_open()) {
 
-				file << inputstr;
+			file << jsonstr;
 
-			}
-			file.close();
 		}
+		file.close();
 	}
 }
 

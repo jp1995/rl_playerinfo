@@ -30,7 +30,6 @@ platforms = ['steam', 'xbl', 'psn', 'switch', 'epic']
 
 def formatTable(listy: list):
     outlist = []
-    print(listy)
 
     url = listy[-1]
     outlist.append(f'<a href="{url}">{listy[0]}</a>')
@@ -75,7 +74,6 @@ def formatTable(listy: list):
     platform = outlist[11]
     platlink = f'<img class="platform" src="assets/{platform}.svg" alt="{platform}" title="{platform}">'
     if platform in platforms:
-        outlist = outlist[:11] + [platlink]
+        outlist = outlist[:11] + [platlink] + outlist[12:]
 
-    print(outlist)
     return outlist

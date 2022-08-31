@@ -43,11 +43,9 @@ The client should then be available at http://127.0.0.1:5500/. It will fill out 
 
 If you want to save this data into your own database, configure `db_connect.py` to your liking and uncomment the relevant line in the `main` function of `main.py`.
 
-# Todo
+## todo
 The backend of this is pretty ape brained. 
-* Needs a rewrite to pass data from plugin to script over tcp, in json format. This should help clean the python script up too.
-* Do proper team separation (currently it's random).
-* Get playlist, do not fill table until all players present.
+* Needs a rewrite to pass data from plugin to script over tcp.
 * Firefox webdriver support.
 * Maybe another column for linked socials?
 
