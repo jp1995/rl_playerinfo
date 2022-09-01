@@ -52,19 +52,13 @@ class rl_playerinfo:
 
             return strjson
 
-    def requests(self, strjson):
-        urls = []
-        intermed = []
+    @staticmethod
+    def notFound():
+        with open('web/not_found.json', 'r', encoding='utf-8') as f:
+            json = f.read()
+        return json
 
-        realjson = json.loads(strjson)
-        for player in realjson['Match']['players']:
-            name = player
-            platform_num = str(realjson['Match']['players'][name]['platform'])
-            platform = self.platformDict[platform_num]
-            api_url = f'{self.api_base_url}/{platform}/{name}'
-            urls.append(api_url)
-
-        resps = threaded_requests(urls, len(urls))
+    def responses_check(self, resps: list):
         for item in resps:
             try:
                 data = json.loads(item)
@@ -73,17 +67,47 @@ class rl_playerinfo:
                 continue
             if 'data' not in data:
                 print(f"Something broke.\nPossibly hit a smurf so new the API doesn't even know about them")
-                continue
-            intermed.append(data)
+                data = json.loads(self.notFound())
 
-        for item in intermed:
+            self.api_resps.append(data)
+
+    def responses_mod(self, resps: list, strjson: str):
+        legit = []
+        gamedata = json.loads(strjson)
+
+        self.responses_check(resps)
+
+        for item in self.api_resps:
             uid = item['data']['platformInfo']['platformUserIdentifier']
             item['data']['gameInfo'] = {}
-            item['data']['gameInfo']['maxPlayers'] = realjson['Match']['maxPlayers']
-            item['data']['gameInfo']['team'] = realjson['Match']['players'][uid]['team']
-            self.api_resps.append(item)
+            item['data']['gameInfo']['maxPlayers'] = gamedata['Match']['maxPlayers']
+            try:
+                item['data']['gameInfo']['team'] = gamedata['Match']['players'][uid]['team']
+                legit.append(uid)
+            except KeyError:
+                item['data']['gameInfo']['team'] = 0
 
-        return self.api_resps
+        for player in gamedata['Match']['players']:
+            for item in self.api_resps:
+                handle = item['data']['platformInfo']['platformUserHandle']
+                if player not in legit and handle == 'Player not found':
+                    item['data']['platformInfo']['platformUserIdentifier'] = player
+                    item['data']['platformInfo']['platformUserHandle'] = player + ' - No API response'
+                    item['data']['platformInfo']['platformSlug'] = self.platformDict[str(gamedata['Match']['players'][player]['platform'])]
+
+    def requests(self, strjson):
+        urls = []
+
+        gamedata = json.loads(strjson)
+        for player in gamedata['Match']['players']:
+            name = player
+            platform_num = str(gamedata['Match']['players'][name]['platform'])
+            platform = self.platformDict[platform_num]
+            api_url = f'{self.api_base_url}/{platform}/{name}'
+            urls.append(api_url)
+
+        resps = threaded_requests(urls, len(urls))
+        self.responses_mod(resps, strjson)
 
     @staticmethod
     def rankDict(resp: dict):
@@ -193,7 +217,8 @@ class rl_playerinfo:
             totalprint = []
 
             rankdict = self.rankDict(resp)
-
+            # print(json.dumps(resp, indent=4))
+            # quit()
             totalprint.append(resp['data']['platformInfo']['platformUserHandle'])
             for key, value in rankdict.items():
                 if key not in ['1v1_games', '2v2_games', '3v3_games']:

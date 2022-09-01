@@ -29,6 +29,7 @@ platforms = ['steam', 'xbl', 'psn', 'switch', 'epic']
 
 
 def formatTable(listy: list):
+    print(listy)
     outlist = []
 
     url = listy[-1]
