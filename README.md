@@ -11,18 +11,8 @@ A rocket league session info tool that condenses interesting tracker data for al
 
 ## Installation
 
-### Plugin
-```
-# Copy the plugin over the your bakkesmod folder
-$ copy Plugin/PlayerNames.dll %AppData%\bakkesmod\bakkesmod\plugins
-
-Then enable the plugin in bakkesmod PluginManager
-```
-
 ### Script
-Has been tested on python 3.10.
 
-Currently needs chrome installed to run the webdriver (chromedriver).
 ```bash
 # Clone the repo
 $ git clone https://github.com/jp1995/rl_playerinfo
@@ -30,9 +20,21 @@ $ git clone https://github.com/jp1995/rl_playerinfo
 # Change your current directory to rl_playerinfo
 $ cd rl_playerinfo
 
-# Install required packages with pip
+# Install required packages with pip.
 $ pip install -r requirements.txt
 ```
+
+Has been tested on python 3.10. Currently needs Chrome installed to run the webdriver (chromedriver), sorry Firefox andys.
+
+If you do not have python or pip installed, [refer to this article](https://www.dataquest.io/blog/install-pip-windows/) or use google.
+
+### Plugin
+```bash
+# Copy the plugin over the your bakkesmod folder
+$ copy Plugin/PlayerNames.dll %AppData%\bakkesmod\bakkesmod\plugins
+```
+
+Then enable the plugin in bakkesmod PluginManager (F2 > Plugins > Pluginmanager > tick the box).
 
 ## Instructions
 After installing, simply run the script.
