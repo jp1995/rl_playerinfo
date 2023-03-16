@@ -16,7 +16,7 @@ class rl_playerinfo:
         appdata = os.getenv('APPDATA')
         self.plugDir = f'{appdata}\\bakkesmod\\bakkesmod\\data\\PlayerNames\\'
         self.mainDict = {}
-        self.platformDict = {'1': 'steam', '2': 'psn', '3': 'psn', '4': 'xbl',
+        self.platformDict = {'0': 'unknown', '1': 'steam', '2': 'psn', '3': 'psn', '4': 'xbl',
                              '6': 'switch', '7': 'switch', '8': 'psynet', '11': 'epic'}
         self.api_base_url = 'https://api.tracker.gg/api/v2/rocket-league/standard/profile'
         self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
@@ -81,6 +81,7 @@ class rl_playerinfo:
             uid = item['data']['platformInfo']['platformUserIdentifier']
             item['data']['gameInfo'] = {}
             item['data']['gameInfo']['maxPlayers'] = gamedata['Match']['maxPlayers']
+            item['data']['gameInfo']['playlistID'] = gamedata['Match']['playlist']
             try:
                 item['data']['gameInfo']['team'] = gamedata['Match']['players'][uid]['team']
                 legit.append(uid)
@@ -203,7 +204,7 @@ class rl_playerinfo:
             dbdump.append(dbdump_dict)
 
         db_push_tracker_stats(dbdump)
-        print('Successful push')
+        print('Successful push\n')
 
     def handleData(self, api_resps: list):
         table = [['Name', '1v1', '2v2', '3v3', 'Wins',
@@ -258,10 +259,13 @@ class rl_playerinfo:
             strjson = self.checkIfNewNames()
             if strjson:
                 self.requests(strjson)
-                # If you want database functionality, uncomment and setup your own db + edit db_connect.py
-                # self.handleDBdata(self.api_resps)
+                gameInfo = json.loads(strjson)
+                # If you want database functionality, uncomment and set up your own db + edit db_connect.py
+                # if gameInfo['Match']['isRanked'] == 1:
+                #     print('Ranked match detected, logging into database.')
+                #     self.handleDBdata(self.api_resps)
                 self.handleData(self.api_resps)
-            sleep(15)
+            sleep(2)
 
 
 if __name__ == '__main__':

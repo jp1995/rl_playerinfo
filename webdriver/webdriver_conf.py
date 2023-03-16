@@ -23,21 +23,3 @@ def webdriver_conf(url):
     #driver.implicitly_wait(30)
     page = driver.execute_script('return document.body.innerHTML')
     return page
-
-
-def webdriver_getversion():
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    driver = webdriver.Chrome(chrome_options=options, executable_path=r'webdriver/chromedriver.exe')
-
-    bVersion = driver.capabilities['browserVersion'].split('.')[0]
-    dVersion = driver.capabilities['chrome']['chromedriverVersion'].split(' ')[0].split('.')[0]
-    driver.quit()
-    if bVersion != dVersion:
-        print(f'Major version mismatch\n'
-              f'Chromedriver version {dVersion}\n'
-              f'Chrome version {bVersion}\n')
-        return [False, bVersion]
-    else:
-        print('Driver version matches Chrome version, continuing\n')
-        return [True]

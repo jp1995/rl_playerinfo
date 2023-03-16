@@ -25,7 +25,7 @@ icondict = {'NULL': '<img class="tier" src="../assets/unranked.png" alt="unranke
             'Grand I': '<img class="tier" src="../assets/gc1.png" alt="gc1">',
             'Supersonic I': '<img class="tier" src="../assets/gc1.png" alt="gc1">'}
 
-platforms = ['steam', 'xbl', 'psn', 'switch', 'epic']
+platforms = ['unknown', 'steam', 'xbl', 'psn', 'switch', 'epic']
 
 
 def formatTable(listy: list):

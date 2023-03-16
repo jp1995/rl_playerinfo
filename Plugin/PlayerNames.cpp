@@ -63,6 +63,7 @@ json PlayerNames::getPnames() {
 		GameSettingPlaylistWrapper playlist = server.GetPlaylist();
 		if (!playlist) return empty;
 		int playlistID = playlist.GetPlaylistId();
+		int getbranked = playlist.GetbRanked();
 		
 		ArrayWrapper pris = server.GetPRIs();
 		for (PriWrapper pri : pris) {
@@ -91,6 +92,7 @@ json PlayerNames::getPnames() {
 		j["Match"]["matchID"] = matchID;
 		j["Match"]["maxPlayers"] = maxp;
 		j["Match"]["playlist"] = playlistID;
+		j["Match"]["isRanked"] = getbranked;
 
 
 		cvarManager->log("All data saved");

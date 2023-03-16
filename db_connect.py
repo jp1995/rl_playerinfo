@@ -15,8 +15,8 @@ def db_push_tracker_stats(listy: list):
     date_created = now.strftime("%d/%m/%Y %H:%M:%S")
 
     for dicty in listy:
-        # Making these stats actually usable
-        if dicty['name'] == 'bogeymanEST' or dicty['name'] == 'poncho':
+        # Making these stats actually usable, modify as needed
+        if dicty['name'] == 'bogeymanEST' or dicty['name'] == 'poncho' or 'No API response' in dicty['name']:
             continue
 
         dicty['date_created'] = date_created

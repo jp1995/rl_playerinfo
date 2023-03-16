@@ -22,7 +22,7 @@ Then enable the plugin in bakkesmod PluginManager
 ### Script
 Has been tested on python 3.10.
 
-Currently needs chrome installed to run the webdriver.
+Currently needs chrome installed to run the webdriver (chromedriver).
 ```bash
 # Clone the repo
 $ git clone https://github.com/jp1995/rl_playerinfo
@@ -39,15 +39,28 @@ After installing, simply run the script.
 
 `python main.py`
 
-The client should then be available at http://127.0.0.1:5500/. It will fill out once in game.
+The client should then be available at http://127.0.0.1:5500/. It will fill once match data is received from the plugin.
 
-If you want to save this data into your own database, configure `db_connect.py` to your liking and uncomment the relevant line in the `main` function of `main.py`.
+#### Autorun
+
+Alternatively, autorun the script when Rocket League is launched in Steam.
+Add the following to launch options and modify accordingly.
+
+`cmd /c start python "path_to_main.py" & cmd /c start /b "path_to_RocketLeague.exe" %command%`
+
+Windows has some limitations when it comes to running things in parallel in a single cmd window (which is how %command% handles it). This solution can sometimes dump some *interesting* errors but everything appears to work nicely.
+
+You could also run the script as a Windows service.
+
+#### Database connection
+
+If you want to save this data into your own database, configure `db_connect.py` to your liking and uncomment the relevant lines in the `main` function of `main.py`.
+
 
 ## todo
 The backend of this is pretty ape brained. 
-* Needs a rewrite to pass data from plugin to script over tcp.
+* Ideally data would be passed from plugin to script over tcp.
 * Firefox webdriver support.
 * Maybe another column for linked socials?
-
-Once the backend has been properly unfucked, could add a session MMR tracker too.
+* Perhaps a session MMR tracker too?
 
