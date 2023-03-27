@@ -4,10 +4,11 @@ A rocket league session info tool that condenses interesting tracker data for al
 
 ![output](https://cdn.discordapp.com/attachments/533998516876607511/1013614330308214814/unknown.png)
 
-* Name is a link to the trackernetwork profile
-* For every rank, the value after division is winstreak.
+* For every rank, the second value is winstreak.
 * Games is a sum of ranked games this season.
-* IsInfluencer, IsPremium, IsSuspicious columns are hidden unless one of the players has a value of True.
+* Usernames link to the trackernetwork profile
+* Comes with [a handy MMR tracker](https://cdn.discordapp.com/attachments/533998516876607511/1089718586106458202/image.png)
+
 
 ## Installation
 
@@ -24,7 +25,7 @@ $ cd rl_playerinfo
 $ pip install -r requirements.txt
 ```
 
-Has been tested on python 3.10. Currently needs Chrome installed to run the webdriver (chromedriver), sorry Firefox andys.
+Has been tested on python 3.10. Currently, needs Chrome installed to run the webdriver (chromedriver), sorry Firefox andys.
 
 If you do not have python or pip installed, [refer to this article](https://www.dataquest.io/blog/install-pip-windows/) or use google.
 
@@ -61,9 +62,7 @@ If you want to save this data into your own database, configure `db_connect.py` 
 * The database push has a check to only do it for ranked game modes. This can be removed if you want to log casual games as well, but that can currently result in duplicate entries of players as one player leaves, a new player joins and all players are pushed into the database again. I could write more code to account for that, but I'm lazy and don't really care for casual logs.
 
 ## todo
-The backend of this is pretty ape brained. 
+The backend of this is pretty ape brained. Some of the front end too :) Unga bunga, web design is not poggers.
 * Ideally data would be passed from plugin to script over tcp, allowing the script to be run 24/7 on a RasPi or something
 * Firefox webdriver support.
-* Maybe another column for linked socials?
-* Perhaps a session MMR tracker too?
 

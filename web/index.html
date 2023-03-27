@@ -4,15 +4,22 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" href="assets/main.css">
+    {% block head %}{% endblock %}
 </head>
 <body>
 <!--    <h1>rockt leauge stat</h1>-->
     <div class="topnav">
-        <img class="rl_icon" src="assets/rl.svg" alt="rocket league">
-        <a href="/"><button><img class="play" src="assets/play2.png" alt="play"><p class="title">Now Playing</p></button></a>
-        <a href="https://github.com/jp1995/rl_playerinfo"><img class="github" src="assets/github.svg" alt="github"></a>
+        <img class="rl_icon" src="assets/icons/rl.svg" alt="rocket league">
+        <a href="/"><button class="topnavbutton"><img class="play" src="assets/icons/play2.png" alt="play"><p class="title">{% block playlist %}{% endblock %}</p></button></a>
+        <a href="https://github.com/jp1995/rl_playerinfo"><img class="github" src="assets/icons/github.svg" alt="github"></a>
     </div>
-
-    {% block body %}{% endblock %}
+    <div class="inlinetables">
+        <div class="trackertable">
+            {% block body %}{% endblock %}
+        </div>
+        <div class="mmrtable">
+            {% block MMRtrack %}{% endblock %}
+        </div>
+    </div>
 </body>
 </html>

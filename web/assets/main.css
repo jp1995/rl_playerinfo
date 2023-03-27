@@ -1,5 +1,5 @@
 body {
-    background-color: #030710;
+    background-color: #131314;
     color: #d3d3d3;
 
     font-family: Segoe UI, Roboto, Helvetica, sans-serif;
@@ -7,52 +7,64 @@ body {
 h1 {
     margin-top: 3vh;
 }
-table {
-    width: 70%;
-    border-collapse: collapse;
-    border-style: hidden;
-    margin-left: 4vh;
-    margin-top: 6vh;
+
+.inlinetables {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 2fr);
+    margin-top: 5vh;
 }
-tbody{
+
+@media screen and (max-width: 1400px) {
+    .inlinetables {
+        grid-template-columns: 1fr;
+    }
+}
+
+.trackertable table {
+    width: 95%;
+    border-collapse: collapse;
+    /*border-style: hidden;*/
+    margin-left: 4vh;
+}
+.trackertable tbody{
     background: linear-gradient(to bottom, #4d6387 50%, #ad5149 50%);
 }
 
-td:nth-child(5){
+.trackertable td:nth-child(5){
     padding-left: 6vh;
 }
-th:nth-child(5){
+.trackertable th:nth-child(5){
     padding-left: 6vh;
 }
 
-th {
+.trackertable th {
     background-color: #1d1d1d;
-    height: 5vh;
+    height: 56px;
     margin-left: -2vh;
     text-align: left;
     padding-left: 4vh;
 }
 
-tr {
+.trackertable tr:nth-child(n+2):nth-child(-n+6) {
     border: 2px solid black;
 }
 
-td:first-child {
+.trackertable td:first-child {
     padding-right: 8vh;
 }
 
-td:nth-child(n+2):nth-child(-n+4) img{
+.trackertable td:nth-child(n+2):nth-child(-n+4) img{
     margin-left: -2vh;
 }
 
-td:nth-child(n+2):nth-child(-n+4) {
+.trackertable td:nth-child(n+2):nth-child(-n+4) {
     background-color: rgba(0, 0, 0, 0.20);
 }
-th:nth-child(n+2):nth-child(-n+4) {
-    background-color: rgba(255, 255, 255, 0.10);
+.trackertable th:nth-child(n+2):nth-child(-n+4) {
+    background-color: #282829;
 }
 
-td {
+.trackertable td {
     margin: 2vh;
     height: 6vh;
     background-color: rgba(0, 0, 0, 0.3);
@@ -99,33 +111,34 @@ span {
 }
 
 .topnav {
-    background-color: #121212;
+    background-color: #1c1c1c;
     overflow: hidden;
-    height: 55px;
+    height: 60px;
     margin-left: -8px;
     margin-right: -8px;
     margin-top: -10px;
 }
 
 .rl_icon {
-    height: 48px;
-    width: 48px;
+    height: 50px;
+    width: 50px;
     float: left;
     padding-left: 30px;
     padding-right: 30px;
-    padding-top: 5px;
+    padding-top: 7px;
 }
 
-button {
+.topnavbutton {
     height: 100%;
-    width: 140px;
-    background-color: #1d1d1d;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: #252526;
     color: #d3d3d3;
     border: none;
 }
 .play {
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
     display: inline-block;
     -ms-transform: translateY(40%);
     transform: translateY(40%);
@@ -134,15 +147,16 @@ button {
 
 .title {
     display: inline-block;
-    font-size: 10pt;
+    font-size: 11pt;
+    /*font-family: "Helvetica";*/
     text-align: center;
-    -ms-transform: translateY(20%);
-    transform: translateY(20%);
+    -ms-transform: translateY(15%);
+    transform: translateY(15%);
 }
 .github {
     float: right;
-    width: 25px;
-    height: 25px;
+    width: 28px;
+    height: 28px;
     margin-right: 20px;
     -ms-transform: translateY(65%);
     transform: translateY(65%);

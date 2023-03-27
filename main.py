@@ -14,13 +14,18 @@ import os
 class rl_playerinfo:
     def __init__(self):
         appdata = os.getenv('APPDATA')
-        self.plugDir = f'{appdata}\\bakkesmod\\bakkesmod\\data\\PlayerNames\\'
+        self.plugDir = f'{appdata}\\bakkesmod\\bakkesmod\\data\\MatchDataScraper\\'
         self.mainDict = {}
         self.platformDict = {'0': 'unknown', '1': 'steam', '2': 'psn', '3': 'psn', '4': 'xbl',
                              '6': 'switch', '7': 'switch', '8': 'psynet', '11': 'epic'}
+        self.playlistIDs = {'0': 'Casual', '1': 'Casual Duel', '2': 'Casual Doubles', '3': 'Casual Standard',
+                            '4': 'Casual 4v4', '6': 'Private Match', '9': 'Flip Reset training', '10': 'Duel',
+                            '11': 'Doubles', '13': 'Standard', '27': 'Hoops',
+                            '28': 'Rumble', '29': 'Dropshot', '30': 'Snowday', '22': 'Tournament', '69': 'Main Menu'}
         self.api_base_url = 'https://api.tracker.gg/api/v2/rocket-league/standard/profile'
         self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
         self.storage = ''
+        self.playlistStorage = '69'
         self.webserver = subprocess.Popen("python app.py", cwd='./web/', shell=True)
         self.api_resps = []
 
@@ -34,11 +39,22 @@ class rl_playerinfo:
                 base = tb.read()
                 t.write(base)
 
+    def wipeMMR(self):
+        with open(self.plugDir + 'MMR.txt', 'w'):
+            pass
+
     def readNames(self):
         self.mainDict = {}
         with open(self.plugDir + "names.txt", encoding='utf-8') as f:
             lines = [line.rstrip() for line in f]
+        try:
+            return lines[0]
+        except IndexError:
+            return ''
 
+    def readPlaylist(self):
+        with open(self.plugDir + "playlist.txt", encoding='utf-8') as f:
+            lines = [line.rstrip() for line in f]
         try:
             return lines[0]
         except IndexError:
@@ -51,6 +67,14 @@ class rl_playerinfo:
             self.storage = strjson
 
             return strjson
+
+    def checkIfNewPlaylist(self):
+        playlistid = self.readPlaylist()
+
+        if playlistid != self.playlistStorage:
+            self.playlistStorage = playlistid
+            print('New ID differs from stored, updating page...')
+            self.writePlaylist()
 
     @staticmethod
     def notFound():
@@ -81,7 +105,7 @@ class rl_playerinfo:
             uid = item['data']['platformInfo']['platformUserIdentifier']
             item['data']['gameInfo'] = {}
             item['data']['gameInfo']['maxPlayers'] = gamedata['Match']['maxPlayers']
-            item['data']['gameInfo']['playlistID'] = gamedata['Match']['playlist']
+            # item['data']['gameInfo']['playlistID'] = gamedata['Match']['playlist']
             try:
                 item['data']['gameInfo']['team'] = gamedata['Match']['players'][uid]['team']
                 legit.append(uid)
@@ -100,6 +124,7 @@ class rl_playerinfo:
         urls = []
 
         gamedata = json.loads(strjson)
+
         for player in gamedata['Match']['players']:
             name = player
             platform_num = str(gamedata['Match']['players'][name]['platform'])
@@ -136,28 +161,6 @@ class rl_playerinfo:
         return sorted_rankdict
 
     @staticmethod
-    def hideSpecCols(table: list):
-        infl = []
-        prem = []
-        suss = []
-        for row in table[1:]:
-            infl.append(row[7])
-            prem.append(row[8])
-            suss.append(row[9])
-
-        if 'True' not in infl:
-            idx = table[0].index('Influencer')
-            [row.pop(idx) for row in table]
-        if 'True' not in prem:
-            idx = table[0].index('Premium')
-            [row.pop(idx) for row in table]
-        if 'True' not in suss:
-            idx = table[0].index('Sussy')
-            [row.pop(idx) for row in table]
-
-        return table
-
-    @staticmethod
     def sortPlayersByTeams(table: list):
         stable = sorted(table[1:], key=lambda x: int(x[-1]))
         for item in stable:
@@ -166,10 +169,21 @@ class rl_playerinfo:
 
         return sorted_table
 
+    def writePlaylist(self):
+        playlist_id = self.playlistStorage
+
+        with open('web/playlist.html', 'w', encoding='utf-8') as f:
+            f.write("{% extends 'index.html' %}\n{% block playlist %}\n")
+            if playlist_id in self.playlistIDs.keys():
+                f.write(f"Now playing: {self.playlistIDs[playlist_id]}")
+            else:
+                f.write("Now playing: Something interesting...")
+            f.write("\n{% endblock %}")
+
     @staticmethod
     def writeTable(listy: list):
         with open('web/table.html', 'w', encoding='utf-8') as f:
-            f.write("{% extends 'index.html' %}\n{% block head %}\n{% endblock %}\n{% block body %}\n")
+            f.write("{% extends 'playlist.html' %}\n{% block head %}\n{% endblock %}\n{% block body %}\n")
             f.write(tabulate(listy, headers='firstrow', tablefmt='unsafehtml', colalign='center', numalign='center'))
             f.write("\n{% endblock %}")
         print('Table generated')
@@ -209,7 +223,7 @@ class rl_playerinfo:
     def handleData(self, api_resps: list):
         table = [['Name', '1v1', '2v2', '3v3', 'Wins',
                   '<p title="Competitive games this season">Games <sup>*</sup></p>',
-                 'Reward level', 'Influencer', 'Premium', 'Sussy', 'Country', 'Platform']]
+                 'Reward level', 'Country', 'Platform']]
 
         for resp in api_resps:
             uid = resp['data']['platformInfo']['platformUserIdentifier']
@@ -230,9 +244,6 @@ class rl_playerinfo:
             if rewardlevel == 'None':
                 rewardlevel = 'NULL RR'
             totalprint.append(rewardlevel)
-            totalprint.append(resp['data']['userInfo']['isInfluencer'])
-            totalprint.append(resp['data']['userInfo']['isPremium'])
-            totalprint.append(str(resp['data']['userInfo']['isSuspicious']).replace('None', 'False'))
             totalprint.append(str(resp['data']['userInfo']['countryCode']))
             totalprint.append(resp['data']['platformInfo']['platformSlug'])
             totalprint.append(resp['data']['gameInfo']['team'])
@@ -241,7 +252,6 @@ class rl_playerinfo:
             formatted = formatTable(totalprint)
             table.append(formatted)
 
-        table = self.hideSpecCols(table)
         sorted_table = self.sortPlayersByTeams(table)
 
         self.writeTable(sorted_table)
@@ -253,16 +263,21 @@ class rl_playerinfo:
     def main(self):
         updateWebdriver()
         self.wipeNames()
+        self.wipeMMR()
         atexit.register(self.handleExit)
         while True:
             self.api_resps.clear()
+            self.checkIfNewPlaylist()
             strjson = self.checkIfNewNames()
             if strjson:
-                self.requests(strjson)
                 gameInfo = json.loads(strjson)
+                if 'players' not in gameInfo['Match']:
+                    continue
+                elif gameInfo['Match']['players'] is None:
+                    continue
+                self.requests(strjson)
                 # If you want database functionality, uncomment and set up your own db + edit db_connect.py
                 # if gameInfo['Match']['isRanked'] == 1:
-                #     print('Ranked match detected, logging into database.')
                 #     self.handleDBdata(self.api_resps)
                 self.handleData(self.api_resps)
             sleep(2)

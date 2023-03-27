@@ -1,0 +1,20 @@
+{% extends 'table.html' %}
+{% block MMRtrack %}
+<head>
+	<title>MMR Data</title>
+	<link rel="stylesheet" href="assets/mmr.css">
+	<link rel="stylesheet" href="assets/mmr_base.css">
+</head>
+<body>
+	<div class="navbar">
+		<div class="navbar__button">MMR</div>
+	</div>
+
+	<div id="mmr-data" class="mmrdata">
+		<div class="waitingmmr" id="mmr-placeholder">
+			<img src="assets/icons/waiting.svg" alt="waiting...">
+			<p class="notplaying">Awaiting MMR</p>
+		</div>
+	</div>
+</body>
+{% endblock %}

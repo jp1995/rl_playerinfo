@@ -1,0 +1,94 @@
+.mmrtable {
+    margin-right: 4vh;
+    margin-left: 2vh;
+    width: 60%;
+    color: #d3d3d3;
+}
+
+.navbar {
+    background-color: #1d1d1d;
+    height: 57px;
+    width: 100%;
+    display: flex;
+    position: relative;
+}
+
+
+.navbar__button {
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+    display: inherit;
+    flex-grow: 1;
+}
+
+.navbar__select {
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    width: 50%;
+    justify-content: center;
+    display: inherit;
+    align-items: center;
+    position: relative;
+    background-image: url("icons/mmr_select_downarrow.svg");
+    background-size: 11px;
+    background-repeat: no-repeat;
+    background-position: right 10px top 23px;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #1d1d1d;
+    border: none;
+    z-index: 1;
+    list-style: none;
+    width: 100%;
+}
+
+.dropdown-menu li {
+    padding: 15px;
+    cursor: pointer;
+    text-align: center;
+    border-top: 1px solid #282829;
+}
+
+.dropdown-menu li:hover {
+    background-color: #282829;
+}
+
+.mmrdata {
+    text-align: center;
+    font-size: 18pt;
+    height: 290px;
+    border: 5px solid #1d1d1d;
+    border-top: none;
+    background-color: #161616;
+}
+
+.mmrdata__item {
+    padding-top: 5vh;
+}
+
+.mmrdata__item p {
+    margin: 0;
+    height: 50px;
+}
+
+.active {
+    background-color: #282829;
+}
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
+}

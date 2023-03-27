@@ -1,0 +1,26 @@
+
+.navbar__button {
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    height: 55px;
+    width: 100%;
+}
+
+.waitingmmr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.waitingmmr img {
+    width: 128px;
+    margin-top: 70px;
+}
+
+.waitingmmr .notplaying {
+
+    color: dimgray;
+    font-size: 16px;
+}
