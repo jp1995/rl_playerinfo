@@ -25,7 +25,7 @@ $ cd rl_playerinfo
 $ pip install -r requirements.txt
 ```
 
-Has been tested on python 3.10. Currently, needs Chrome installed to run the webdriver (chromedriver), sorry Firefox andys.
+Has been tested on python 3.10. Chrome or Firefox needs to be installed.
 
 If you do not have python or pip installed, [refer to this article](https://www.dataquest.io/blog/install-pip-windows/) or use google.
 
@@ -64,5 +64,4 @@ If you want to save this data into your own database, configure `db_connect.py` 
 ## todo
 The backend of this is pretty ape brained. Some of the front end too :) Unga bunga, web design is not poggers.
 * Ideally data would be passed from plugin to script over tcp, allowing the script to be run 24/7 on a RasPi or something
-* Firefox webdriver support.
 

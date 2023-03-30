@@ -1,4 +1,5 @@
-from webdriver.updateWebdriver import updateWebdriver
+from webdriver.updateWebdriver import updateChromedriver
+from webdriver.webdriver_conf import is_chrome_installed
 from threaded_requests import threaded_requests
 from db_connect import db_push_tracker_stats
 from web.formatTable import formatTable
@@ -15,7 +16,6 @@ class rl_playerinfo:
     def __init__(self):
         appdata = os.getenv('APPDATA')
         self.plugDir = f'{appdata}\\bakkesmod\\bakkesmod\\data\\MatchDataScraper\\'
-        self.mainDict = {}
         self.platformDict = {'0': 'unknown', '1': 'steam', '2': 'psn', '3': 'psn', '4': 'xbl',
                              '6': 'switch', '7': 'switch', '8': 'psynet', '11': 'epic'}
         self.playlistIDs = {'0': 'Casual', '1': 'Casual Duel', '2': 'Casual Doubles', '3': 'Casual Standard',
@@ -28,8 +28,6 @@ class rl_playerinfo:
         self.playlistStorage = '69'
         self.webserver = subprocess.Popen("python app.py", cwd='./web/', shell=True)
         self.api_resps = []
-
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def wipeNames(self):
         with open(self.plugDir + 'names.txt', 'w'):
@@ -44,7 +42,6 @@ class rl_playerinfo:
             pass
 
     def readNames(self):
-        self.mainDict = {}
         with open(self.plugDir + "names.txt", encoding='utf-8') as f:
             lines = [line.rstrip() for line in f]
         try:
@@ -232,8 +229,6 @@ class rl_playerinfo:
             totalprint = []
 
             rankdict = self.rankDict(resp)
-            # print(json.dumps(resp, indent=4))
-            # quit()
             totalprint.append(resp['data']['platformInfo']['platformUserHandle'])
             for key, value in rankdict.items():
                 if key not in ['1v1_games', '2v2_games', '3v3_games']:
@@ -261,7 +256,8 @@ class rl_playerinfo:
         self.webserver.kill()
 
     def main(self):
-        updateWebdriver()
+        if is_chrome_installed():
+            updateChromedriver()
         self.wipeNames()
         self.wipeMMR()
         atexit.register(self.handleExit)
