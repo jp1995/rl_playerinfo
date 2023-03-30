@@ -2,12 +2,13 @@ from webdriver.updateWebdriver import updateChromedriver
 from webdriver.webdriver_conf import is_chrome_installed
 from threaded_requests import threaded_requests
 from db_connect import db_push_tracker_stats
+from multiprocessing import Process, Queue
 from web.formatTable import formatTable
+from TCPserver import run_tcp_server
 from tabulate import tabulate
 from time import sleep
 import subprocess
 import atexit
-import socket
 import json
 import os
 
@@ -24,54 +25,60 @@ class rl_playerinfo:
                             '28': 'Rumble', '29': 'Dropshot', '30': 'Snowday', '22': 'Tournament', '69': 'Main Menu'}
         self.api_base_url = 'https://api.tracker.gg/api/v2/rocket-league/standard/profile'
         self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
-        self.storage = ''
-        self.playlistStorage = '69'
         self.webserver = subprocess.Popen("python app.py", cwd='./web/', shell=True)
+        self.matchStorage = {}
+        self.playlistStorage = '69'
+        self.matchCurrent = {}
+        self.playlistCurrent = '69'
+        self.mmrCurrent = {}
         self.api_resps = []
 
-    def wipeNames(self):
-        with open(self.plugDir + 'names.txt', 'w'):
-            pass
+        self.q = Queue()
+        self.tcp_process = Process(target=run_tcp_server, args=(self.q,))
+        self.tcp_process.start()
+
+    def sort(self):
+        if not self.q.empty():
+            data = self.q.get()
+            try:
+                jdata = json.loads(data)
+                if 'Match' in jdata.keys():
+                    self.matchCurrent = jdata
+                elif 'Playlist' in jdata.keys():
+                    self.playlistCurrent = str(jdata['Playlist'])
+                elif list(jdata.keys())[0].isnumeric():
+                    self.mmrCurrent = jdata
+                    self.writeMMR()
+            except ValueError:
+                return None
+
+    @staticmethod
+    def createEmptyTable():
         with open('web/table_base.html', 'r', encoding='utf-8') as tb:
             with open('web/table.html', 'w', encoding='utf-8') as t:
                 base = tb.read()
                 t.write(base)
-
-    def wipeMMR(self):
-        with open(self.plugDir + 'MMR.txt', 'w'):
+        with open('web/mmr.txt', 'w') as create:
             pass
 
-    def readNames(self):
-        with open(self.plugDir + "names.txt", encoding='utf-8') as f:
-            lines = [line.rstrip() for line in f]
-        try:
-            return lines[0]
-        except IndexError:
-            return ''
 
-    def readPlaylist(self):
-        with open(self.plugDir + "playlist.txt", encoding='utf-8') as f:
-            lines = [line.rstrip() for line in f]
-        try:
-            return lines[0]
-        except IndexError:
-            return ''
+    def checkIfNewmatch(self):
+        if self.matchCurrent != self.matchStorage:
+            self.matchStorage = self.matchCurrent
 
-    def checkIfNewNames(self):
-        strjson = self.readNames()
-
-        if strjson != self.storage:
-            self.storage = strjson
-
-            return strjson
+            return self.matchCurrent
 
     def checkIfNewPlaylist(self):
-        playlistid = self.readPlaylist()
+        if self.playlistCurrent != self.playlistStorage:
+            self.playlistStorage = self.playlistCurrent
 
-        if playlistid != self.playlistStorage:
-            self.playlistStorage = playlistid
-            print('New ID differs from stored, updating page...')
             self.writePlaylist()
+
+    def writeMMR(self):
+        with open('web/mmr.txt', 'w+', encoding='utf-8') as f:
+            now = f.readline()
+            if now != self.mmrCurrent:
+                f.write(json.dumps(self.mmrCurrent))
 
     @staticmethod
     def notFound():
@@ -92,45 +99,40 @@ class rl_playerinfo:
 
             self.api_resps.append(data)
 
-    def responses_mod(self, resps: list, strjson: str):
+    def responses_mod(self, resps: list, matchData: dict):
         legit = []
-        gamedata = json.loads(strjson)
-
         self.responses_check(resps)
 
         for item in self.api_resps:
             uid = item['data']['platformInfo']['platformUserIdentifier']
             item['data']['gameInfo'] = {}
-            item['data']['gameInfo']['maxPlayers'] = gamedata['Match']['maxPlayers']
-            # item['data']['gameInfo']['playlistID'] = gamedata['Match']['playlist']
+            item['data']['gameInfo']['maxPlayers'] = matchData['Match']['maxPlayers']
             try:
-                item['data']['gameInfo']['team'] = gamedata['Match']['players'][uid]['team']
+                item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
                 legit.append(uid)
             except KeyError:
                 item['data']['gameInfo']['team'] = 0
 
-        for player in gamedata['Match']['players']:
+        for player in matchData['Match']['players']:
             for item in self.api_resps:
                 handle = item['data']['platformInfo']['platformUserHandle']
                 if player not in legit and handle == 'Player not found':
                     item['data']['platformInfo']['platformUserIdentifier'] = player
                     item['data']['platformInfo']['platformUserHandle'] = player + ' - No API response'
-                    item['data']['platformInfo']['platformSlug'] = self.platformDict[str(gamedata['Match']['players'][player]['platform'])]
+                    item['data']['platformInfo']['platformSlug'] = self.platformDict[str(matchData['Match']['players'][player]['platform'])]
 
-    def requests(self, strjson):
+    def requests(self, matchData):
         urls = []
 
-        gamedata = json.loads(strjson)
-
-        for player in gamedata['Match']['players']:
+        for player in matchData['Match']['players']:
             name = player
-            platform_num = str(gamedata['Match']['players'][name]['platform'])
+            platform_num = str(matchData['Match']['players'][name]['platform'])
             platform = self.platformDict[platform_num]
             api_url = f'{self.api_base_url}/{platform}/{name}'
             urls.append(api_url)
 
         resps = threaded_requests(urls, len(urls))
-        self.responses_mod(resps, strjson)
+        self.responses_mod(resps, matchData)
 
     @staticmethod
     def rankDict(resp: dict):
@@ -167,12 +169,12 @@ class rl_playerinfo:
         return sorted_table
 
     def writePlaylist(self):
-        playlist_id = self.playlistStorage
+        pid = self.playlistStorage
 
         with open('web/playlist.html', 'w', encoding='utf-8') as f:
             f.write("{% extends 'index.html' %}\n{% block playlist %}\n")
-            if playlist_id in self.playlistIDs.keys():
-                f.write(f"Now playing: {self.playlistIDs[playlist_id]}")
+            if pid in self.playlistIDs.keys():
+                f.write(f"Now playing: {self.playlistIDs[pid]}")
             else:
                 f.write("Now playing: Something interesting...")
             f.write("\n{% endblock %}")
@@ -229,6 +231,7 @@ class rl_playerinfo:
             totalprint = []
 
             rankdict = self.rankDict(resp)
+            
             totalprint.append(resp['data']['platformInfo']['platformUserHandle'])
             for key, value in rankdict.items():
                 if key not in ['1v1_games', '2v2_games', '3v3_games']:
@@ -258,20 +261,19 @@ class rl_playerinfo:
     def main(self):
         if is_chrome_installed():
             updateChromedriver()
-        self.wipeNames()
-        self.wipeMMR()
+        self.createEmptyTable()
         atexit.register(self.handleExit)
         while True:
             self.api_resps.clear()
+            self.sort()
             self.checkIfNewPlaylist()
-            strjson = self.checkIfNewNames()
-            if strjson:
-                gameInfo = json.loads(strjson)
-                if 'players' not in gameInfo['Match']:
+            matchData = self.checkIfNewmatch()
+            if matchData:
+                if 'players' not in matchData['Match']:
                     continue
-                elif gameInfo['Match']['players'] is None:
+                elif matchData['Match']['players'] is None:
                     continue
-                self.requests(strjson)
+                self.requests(matchData)
                 # If you want database functionality, uncomment and set up your own db + edit db_connect.py
                 # if gameInfo['Match']['isRanked'] == 1:
                 #     self.handleDBdata(self.api_resps)
