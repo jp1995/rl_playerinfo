@@ -22,5 +22,10 @@ void MatchDataScraper::writePlaylistID(int id) {
 		file << id;
 	}
 	file.close();
+
+	json p;
+	p["Playlist"] = id;
+	sendData(p);
+
 	LOG("Playlist id saved");
 }

@@ -58,5 +58,8 @@ void MatchDataScraper::writeMatchData(json arr) {
 		file << jsonstr;
 	}
 	file.close();
+
+	sendData(arr);
+
 	LOG("Match data saved");
 }

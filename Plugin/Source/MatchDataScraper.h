@@ -4,10 +4,14 @@
 #include "bakkesmod/plugin/pluginwindow.h"
 #include "bakkesmod/plugin/PluginSettingsWindow.h"
 #include "version.h"
+#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <nlohmann/json.hpp>
+#include <iostream>
 
 constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
 using json = nlohmann::json;
+using boost::asio::ip::tcp;
 
 class MatchDataScraper : public BakkesMod::Plugin::BakkesModPlugin
 {
@@ -17,6 +21,7 @@ class MatchDataScraper : public BakkesMod::Plugin::BakkesModPlugin
 	virtual void onLoad();
 	virtual void onUnload();
 	void handleCountdownStart(std::string eventName);
+	void sendData(const json& data);
 
 	std::unique_ptr<MMRNotifierToken> notifierToken;
 

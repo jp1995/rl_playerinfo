@@ -133,5 +133,8 @@ void MatchDataScraper::writePlayerMMR(float mmr, int& playlistID) {
         file << jMMR;
     }
     file.close();
+    
+    sendData(jMMR);
+
     LOG("Player MMR saved");
 }
