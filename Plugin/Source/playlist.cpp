@@ -15,14 +15,6 @@ int MatchDataScraper::getPlaylistID() {
 }
 
 void MatchDataScraper::writePlaylistID(int id) {
-	std::string src = pluginDataDir();
-
-	ofstream file(src + "\\playlist.txt", std::ofstream::out);
-	if (file.is_open()) {
-		file << id;
-	}
-	file.close();
-
 	json p;
 	p["Playlist"] = id;
 	sendData(p);

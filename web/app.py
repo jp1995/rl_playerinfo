@@ -18,9 +18,10 @@ print('Webserver started')
 
 @app.route('/')
 def index():
-    with open(plugDir + 'MMR.txt') as f:
+    with open('mmr.txt') as f:
         try:
             data = json.load(f)
+            data = {'MMR': data}
         except json.decoder.JSONDecodeError:
             render_table = render_template('MMR_base.html')
             return render_table

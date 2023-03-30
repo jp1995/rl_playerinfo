@@ -27,7 +27,6 @@ class rl_playerinfo:
         self.webserver = subprocess.Popen("python app.py", cwd='./web/', shell=True)
         self.matchStorage = {}
         self.playlistStorage = '69'
-        self.mmrStorage = {}
         self.matchCurrent = {}
         self.playlistCurrent = '69'
         self.mmrCurrent = {}
@@ -46,8 +45,9 @@ class rl_playerinfo:
                     self.matchCurrent = jdata
                 elif 'Playlist' in jdata.keys():
                     self.playlistCurrent = str(jdata['Playlist'])
-                elif 'MMR' in jdata.keys():
+                elif list(jdata.keys())[0].isnumeric():
                     self.mmrCurrent = jdata
+                    self.writeMMR()
             except ValueError:
                 return None
 
@@ -57,6 +57,8 @@ class rl_playerinfo:
             with open('web/table.html', 'w', encoding='utf-8') as t:
                 base = tb.read()
                 t.write(base)
+        with open('web/mmr.txt', 'w') as create:
+            pass
 
     def checkIfNewmatch(self):
         if self.matchCurrent != self.matchStorage:
@@ -69,6 +71,12 @@ class rl_playerinfo:
             self.playlistStorage = self.playlistCurrent
 
             self.writePlaylist()
+
+    def writeMMR(self):
+        with open('web/mmr.txt', 'w+', encoding='utf-8') as f:
+            now = f.readline()
+            if now != self.mmrCurrent:
+                f.write(json.dumps(self.mmrCurrent))
 
     @staticmethod
     def notFound():

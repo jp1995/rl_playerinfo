@@ -51,13 +51,6 @@ json MatchDataScraper::getMatchData() {
 
 void MatchDataScraper::writeMatchData(json arr) {
 	std::string jsonstr = arr.dump();
-	std::string src = pluginDataDir();
-	ofstream file(src + "\\names.txt", std::ofstream::out);
-
-	if (file.is_open()) {
-		file << jsonstr;
-	}
-	file.close();
 
 	sendData(arr);
 

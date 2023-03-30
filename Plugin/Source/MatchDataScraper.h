@@ -21,9 +21,9 @@ class MatchDataScraper : public BakkesMod::Plugin::BakkesModPlugin
 	virtual void onLoad();
 	virtual void onUnload();
 	void handleCountdownStart(std::string eventName);
-	void sendData(const json& data);
 
 	std::unique_ptr<MMRNotifierToken> notifierToken;
+	std::unordered_map<std::string, json> mmrData;
 
 	json getMatchData();
 	void writeMatchData(json jsonstr);
@@ -33,5 +33,11 @@ class MatchDataScraper : public BakkesMod::Plugin::BakkesModPlugin
 	int calculateStreak(json j, std::string safePID);
 	void writePlayerMMR(float mmr, int& playlistID);
 	json getSavedPlayerMMR();
+
+	void sendData(const json& data);
+	void asyncConnect(tcp::socket& socket, boost::asio::io_context& io_context);
+	void asyncWrite(tcp::socket& socket, const std::string& json_string);
+	void runIoContext(boost::asio::io_context& io_context);
+	void runTimer(boost::asio::steady_timer& timer, boost::asio::io_context& io_context);
 };
 
