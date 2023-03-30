@@ -1,4 +1,5 @@
-from webdriver.updateWebdriver import updateWebdriver
+from webdriver.updateWebdriver import updateChromedriver
+from webdriver.webdriver_conf import is_chrome_installed
 from threaded_requests import threaded_requests
 from db_connect import db_push_tracker_stats
 from multiprocessing import Process, Queue
@@ -59,6 +60,7 @@ class rl_playerinfo:
                 t.write(base)
         with open('web/mmr.txt', 'w') as create:
             pass
+
 
     def checkIfNewmatch(self):
         if self.matchCurrent != self.matchStorage:
@@ -229,7 +231,7 @@ class rl_playerinfo:
             totalprint = []
 
             rankdict = self.rankDict(resp)
-
+            
             totalprint.append(resp['data']['platformInfo']['platformUserHandle'])
             for key, value in rankdict.items():
                 if key not in ['1v1_games', '2v2_games', '3v3_games']:
@@ -257,7 +259,8 @@ class rl_playerinfo:
         self.webserver.kill()
 
     def main(self):
-        updateWebdriver()
+        if is_chrome_installed():
+            updateChromedriver()
         self.createEmptyTable()
         atexit.register(self.handleExit)
         while True:
