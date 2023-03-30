@@ -5,7 +5,7 @@ import os
 import re
 
 
-def webdriver_getversion():
+def chromedriver_getversion():
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     driver = webdriver.Chrome(chrome_options=options, executable_path=r'webdriver/chromedriver.exe')
@@ -23,8 +23,8 @@ def webdriver_getversion():
         return [True]
 
 
-def updateWebdriver():
-    checkv = webdriver_getversion()
+def updateChromedriver():
+    checkv = chromedriver_getversion()
     url = 'https://chromedriver.chromium.org/downloads'
     zipurl = 'https://chromedriver.storage.googleapis.com/'
     zipname = 'chromedriver_win32.zip'
@@ -52,6 +52,6 @@ def updateWebdriver():
             os.remove('webdriver/chromedriver_old.exe')
             os.remove('webdriver/LICENSE.chromedriver')
             print('Webdriver update successful!')
-            updateWebdriver()
+            updateChromedriver()
     else:
         return

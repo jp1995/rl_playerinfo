@@ -1,4 +1,6 @@
-from webdriver.webdriver_conf import webdriver_conf
+import signal
+
+from webdriver.webdriver_conf import chromedriver_conf, geckodriver_conf, choosedriver
 from threading import Thread
 import queue
 
@@ -17,7 +19,15 @@ def threaded_requests(addresses, no_workers):
                 content = self.queue.get()
                 if content == "":
                     break
-                resp = webdriver_conf(content).split(';">')[1].split('</pre>')[0]
+
+                if choosedriver() == 'Chrome':
+                    resp = chromedriver_conf(content).split(';">')[1].split('</pre>')[0]
+                elif choosedriver() == 'Firefox':
+                    resp = geckodriver_conf(content).split('json">')[1].split('</div>')[0]
+                else:
+                    'Chrome or Firefox not installed, cannot continue.'
+                    quit(signal.SIGTERM)
+
                 self.results.append(resp)
                 self.queue.task_done()
 
