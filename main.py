@@ -61,7 +61,6 @@ class rl_playerinfo:
         with open('web/mmr.txt', 'w') as create:
             pass
 
-
     def checkIfNewmatch(self):
         if self.matchCurrent != self.matchStorage:
             self.matchStorage = self.matchCurrent

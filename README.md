@@ -61,7 +61,3 @@ If you want to save this data into your own database, configure `db_connect.py` 
 
 * The database push has a check to only do it for ranked game modes. This can be removed if you want to log casual games as well, but that can currently result in duplicate entries of players as one player leaves, a new player joins and all players are pushed into the database again. I could write more code to account for that, but I'm lazy and don't really care for casual logs.
 
-## todo
-The backend of this is pretty ape brained. Some of the front end too :) Unga bunga, web design is not poggers.
-* Ideally data would be passed from plugin to script over tcp, allowing the script to be run 24/7 on a RasPi or something
-
