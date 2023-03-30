@@ -15,9 +15,11 @@ int MatchDataScraper::getPlaylistID() {
 }
 
 void MatchDataScraper::writePlaylistID(int id) {
-	json p;
-	p["Playlist"] = id;
-	sendData(p);
-
-	LOG("Playlist id saved");
+	if (pidStorage != id) {
+		pidStorage = id;
+		json p;
+		p["Playlist"] = id;
+		sendData(p);
+		LOG("Playlist id saved");
+	}
 }

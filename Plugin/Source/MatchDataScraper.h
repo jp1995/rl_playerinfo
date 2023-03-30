@@ -17,13 +17,14 @@ class MatchDataScraper : public BakkesMod::Plugin::BakkesModPlugin
 {
 	//Boilerplate
 	void loadHooks();
-	public: std::string pluginDataDir();
 	virtual void onLoad();
 	virtual void onUnload();
 	void handleCountdownStart(std::string eventName);
 
 	std::unique_ptr<MMRNotifierToken> notifierToken;
 	std::unordered_map<std::string, json> mmrData;
+	int pidStorage = 69;
+	json matchStorage;
 
 	json getMatchData();
 	void writeMatchData(json jsonstr);

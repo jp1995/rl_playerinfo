@@ -4,7 +4,6 @@
 
 using namespace std;
 MatchDataScraper MDS;
-std::string src = MDS.pluginDataDir();
 
 json MatchDataScraper::getSavedPlayerMMR() {
 
@@ -75,40 +74,26 @@ void MatchDataScraper::writePlayerMMR(float mmr, int& playlistID) {
     if (jMMR[safePID].contains("start")) {
         jMMR[safePID]["end"] = mmr;
 
-        if (jMMR[safePID].contains("delta")) {
-            float delta_a = jMMR[safePID]["delta"];
-            float mmr_delta = jMMR[safePID]["end"].get<float>() - jMMR[safePID]["start"].get<float>();
-            jMMR[safePID]["delta"] = mmr_delta;
-            float delta_b = jMMR[safePID]["delta"];
+        float delta_a = jMMR[safePID]["delta"];
+        float mmr_delta = jMMR[safePID]["end"].get<float>() - jMMR[safePID]["start"].get<float>();
+        jMMR[safePID]["delta"] = mmr_delta;
+        float delta_b = jMMR[safePID]["delta"];
 
-            if (!jMMR[safePID].contains("results")) {
-                jMMR[safePID]["results"] = nlohmann::json::array();
-            }
-            if (delta_b > delta_a) {
-                std::string result = "win";
-                jMMR[safePID]["results"].push_back(result);
-            }
-            else if (delta_b < delta_a) {
-                std::string result = "loss";
-                jMMR[safePID]["results"].push_back(result);
-            }
+        if (!jMMR[safePID].contains("results")) {
+            jMMR[safePID]["results"] = nlohmann::json::array();
         }
-        else {
-            float mmr_delta = jMMR[safePID]["end"].get<float>() - jMMR[safePID]["start"].get<float>();
-            jMMR[safePID]["delta"] = mmr_delta;
-
-            if (mmr_delta > 0) {
-                std::string result = "win";
-                jMMR[safePID]["results"].push_back(result);
-            }
-            else if (mmr_delta < 0) {
-                std::string result = "loss";
-                jMMR[safePID]["results"].push_back(result);
-            }
+        if (delta_b > delta_a) {
+            std::string result = "win";
+            jMMR[safePID]["results"].push_back(result);
+        }
+        else if (delta_b < delta_a) {
+            std::string result = "loss";
+            jMMR[safePID]["results"].push_back(result);
         }
     }
     else {
         jMMR[safePID]["start"] = mmr;
+        jMMR[safePID]["end"] = mmr;
         jMMR[safePID]["delta"] = 0.0;
         jMMR[safePID]["results"] = nlohmann::json::array();
     }
@@ -125,8 +110,11 @@ void MatchDataScraper::writePlayerMMR(float mmr, int& playlistID) {
         }
     }
 
-    mmrData["MMR"] = jMMR;
-    sendData(jMMR);
+    if (mmrData["MMR"] != jMMR) {
+        mmrData["MMR"] = jMMR;
+        sendData(jMMR);
+    }
+    
 
     LOG("Player MMR saved");
 }
