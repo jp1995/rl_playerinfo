@@ -83,7 +83,6 @@ class rl_playerinfo:
         for item in resps:
             try:
                 data = json.loads(item)
-                print(data)
             except json.decoder.JSONDecodeError:
                 print('Tracker network appears down')
                 continue
