@@ -1,15 +1,15 @@
 from webdriver.updateWebdriver import updateWebdriver
 from threaded_requests import threaded_requests
 from db_connect import db_push_tracker_stats
+from multiprocessing import Process, Queue
 from web.formatTable import formatTable
+from TCPserver import run_tcp_server
 from tabulate import tabulate
 from time import sleep
-import TCPserver
 import subprocess
 import atexit
 import json
 import os
-from multiprocessing import Process, Queue
 
 
 class rl_playerinfo:
@@ -33,12 +33,13 @@ class rl_playerinfo:
         self.api_resps = []
 
         self.q = Queue()
-        self.tcp_process = Process(target=TCPserver.run_tcp_server, args=(self.q,))
+        self.tcp_process = Process(target=run_tcp_server, args=(self.q,))
         self.tcp_process.start()
 
     def sort(self):
         if not self.q.empty():
             data = self.q.get()
+            print(data)
             try:
                 jdata = json.loads(data)
                 if 'Match' in jdata.keys():
@@ -105,7 +106,6 @@ class rl_playerinfo:
             uid = item['data']['platformInfo']['platformUserIdentifier']
             item['data']['gameInfo'] = {}
             item['data']['gameInfo']['maxPlayers'] = matchData['Match']['maxPlayers']
-            # item['data']['gameInfo']['playlistID'] = gamedata['Match']['playlist']
             try:
                 item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
                 legit.append(uid)
@@ -230,8 +230,7 @@ class rl_playerinfo:
             totalprint = []
 
             rankdict = self.rankDict(resp)
-            # print(json.dumps(resp, indent=4))
-            # quit()
+
             totalprint.append(resp['data']['platformInfo']['platformUserHandle'])
             for key, value in rankdict.items():
                 if key not in ['1v1_games', '2v2_games', '3v3_games']:
@@ -264,8 +263,8 @@ class rl_playerinfo:
         atexit.register(self.handleExit)
         while True:
             self.api_resps.clear()
-            self.checkIfNewPlaylist()
             self.sort()
+            self.checkIfNewPlaylist()
             matchData = self.checkIfNewmatch()
             if matchData:
                 if 'players' not in matchData['Match']:

@@ -1,8 +1,10 @@
 import asyncio
 
+
 async def handle_plugin(reader, writer, q):
-    data = await reader.read(1024)
+    data = await reader.read(2048)
     q.put(data)
+
 
 async def serve(q):
     HOST = ''
@@ -13,6 +15,7 @@ async def serve(q):
 
     async with server:
         await server.serve_forever()
+
 
 def run_tcp_server(q):
     asyncio.run(serve(q))

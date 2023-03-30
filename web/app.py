@@ -11,6 +11,7 @@ plugDir = f'{appdata}\\bakkesmod\\bakkesmod\\data\\MatchDataScraper\\'
 app = Flask(__name__, template_folder='.', static_folder='assets')
 app.jinja_env.auto_reload = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.logger.disabled = True
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.DEBUG)
