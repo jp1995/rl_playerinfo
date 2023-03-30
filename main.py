@@ -39,7 +39,6 @@ class rl_playerinfo:
     def sort(self):
         if not self.q.empty():
             data = self.q.get()
-            print(data)
             try:
                 jdata = json.loads(data)
                 if 'Match' in jdata.keys():
