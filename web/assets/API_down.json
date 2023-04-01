@@ -3,7 +3,7 @@
         "platformInfo": {
             "platformSlug": null,
             "platformUserId": null,
-            "platformUserHandle": "Player not found",
+            "platformUserHandle": "API: No response",
             "platformUserIdentifier": "0"
         },
         "userInfo": {

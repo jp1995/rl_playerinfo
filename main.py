@@ -23,6 +23,8 @@ class rl_playerinfo:
                             '4': 'Casual 4v4', '6': 'Private Match', '9': 'Flip Reset training', '10': 'Duel',
                             '11': 'Doubles', '13': 'Standard', '27': 'Hoops',
                             '28': 'Rumble', '29': 'Dropshot', '30': 'Snowday', '22': 'Tournament', '69': 'Main Menu'}
+        self.soc_base_urls = {'twitch': 'https://twitch.tv/', 'reddit': 'https://www.reddit.com/user/',
+                              'twitter': 'https://twitter.com/'}
         self.api_base_url = 'https://api.tracker.gg/api/v2/rocket-league/standard/profile'
         self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
         self.webserver = subprocess.Popen("python app.py", cwd='./web/', shell=True)
@@ -40,6 +42,7 @@ class rl_playerinfo:
     def sort(self):
         if not self.q.empty():
             data = self.q.get()
+            print(f'Received: {data}')
             try:
                 jdata = json.loads(data)
                 if 'Match' in jdata.keys():
@@ -80,9 +83,13 @@ class rl_playerinfo:
                 f.write(json.dumps(self.mmrCurrent))
 
     @staticmethod
-    def notFound():
-        with open('web/not_found.json', 'r', encoding='utf-8') as f:
-            json = f.read()
+    def notFound(errorType: str):
+        if errorType == 'API_down':
+            with open('web/assets/API_down.json', 'r', encoding='utf-8') as f:
+                json = f.read()
+        else:
+            with open('web/assets/not_found.json', 'r', encoding='utf-8') as f:
+                json = f.read()
         return json
 
     def responses_check(self, resps: list):
@@ -91,10 +98,11 @@ class rl_playerinfo:
                 data = json.loads(item)
             except json.decoder.JSONDecodeError:
                 print('Tracker network appears down')
+                data = json.loads(self.notFound('API_down'))
                 continue
             if 'data' not in data:
                 print(f"Something broke.\nPossibly hit a smurf so new the API doesn't even know about them")
-                data = json.loads(self.notFound())
+                data = json.loads(self.notFound('API_unknown'))
 
             self.api_resps.append(data)
 
@@ -166,6 +174,20 @@ class rl_playerinfo:
         sorted_table = [table[0]] + stable
 
         return sorted_table
+
+    def getSocialURLs(self, listy: list):
+        outl = []
+        if listy:
+            if len(listy) > 0:
+                for d in listy:
+                    if d['platformSlug'] in list(self.soc_base_urls.keys()):
+                        url = self.soc_base_urls[d['platformSlug']]+d['platformUserHandle']
+                        outl.append(url)
+                return outl
+            else:
+                return ['-']
+        else:
+            return ['-']
 
     def writePlaylist(self):
         pid = self.playlistStorage
@@ -243,6 +265,8 @@ class rl_playerinfo:
             totalprint.append(rewardlevel)
             totalprint.append(str(resp['data']['userInfo']['countryCode']))
             totalprint.append(resp['data']['platformInfo']['platformSlug'])
+            socialURLs = self.getSocialURLs(resp['data']['userInfo']['socialAccounts'])
+            totalprint.append(socialURLs)
             totalprint.append(resp['data']['gameInfo']['team'])
             totalprint.append(gen_url)
 

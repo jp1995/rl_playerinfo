@@ -1,0 +1,44 @@
+{
+    "data": {
+        "platformInfo": {
+            "platformSlug": null,
+            "platformUserId": null,
+            "platformUserHandle": "API: Player unknwon",
+            "platformUserIdentifier": "0"
+        },
+        "userInfo": {
+            "userId": null,
+            "isPremium": false,
+            "isVerified": false,
+            "isInfluencer": false,
+            "isPartner": false,
+            "countryCode": null,
+            "socialAccounts": null,
+            "isSuspicious": null
+        },
+        "segments": [
+            {
+                "type": "overview",
+                "attributes": {},
+                "metadata": {
+                    "name": "Lifetime"
+                },
+                "stats": {
+                    "wins": {
+                        "value": 0,
+                        "displayValue": "0"
+                    },
+                    "seasonRewardLevel": {
+                        "metadata": {
+                            "rankName": "NULL RR"
+                        }
+                    }
+                }
+            }
+        ],
+        "gameInfo": {
+            "maxPlayers": 2,
+            "team": 1
+        }
+    }
+}

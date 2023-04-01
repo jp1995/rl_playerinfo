@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" href="assets/main.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let titletransition = document.querySelector(".title");
+            setTimeout(function() {
+                titletransition.classList.add("visible");
+            }, 100);
+        });
+    </script>
     {% block head %}{% endblock %}
 </head>
 <body>

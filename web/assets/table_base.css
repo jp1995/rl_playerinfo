@@ -44,10 +44,9 @@
 .trackertable .waiting {
     width: 128px;
     margin-top: -4vh;
-    margin-left: -2.5vh;
 }
 
 .trackertable .notplaying {
     color: dimgray;
-    margin-left: -2vh;
+    margin-left: -1.5vh;
 }

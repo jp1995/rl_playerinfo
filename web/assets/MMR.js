@@ -1,10 +1,34 @@
+
+window.onload = function() {
+    const button = document.querySelector('.navbar__button');
+    button.addEventListener('click', toggleButton);
+
+    const navbarButton = document.querySelector('.navbar__button');
+    const navbarSelect = document.querySelector('.navbar__select');
+    const dropdownli = document.querySelectorAll('.dropdown-li')
+
+    navbarButton.addEventListener('click', () => {
+    navbarSelect.classList.remove('active');
+    navbarButton.classList.add('active');
+    });
+
+    dropdownli.forEach((dropdownli) => {
+        dropdownli.addEventListener('click', (event) => {
+            navbarButton.classList.remove('active');
+            navbarSelect.classList.add('active');
+    });
+});
+
+// Set initial active state to the navbar__button
+navbarButton.classList.add('active');
+};
 function toggleData(mmrId) {
     let items = document.querySelectorAll('.mmrdata__item');
     for (let i = 0; i < items.length; i++) {
         items[i].classList.remove('visible');
         items[i].classList.add('hidden');
-    }
 
+    }
     document.querySelector('#' + CSS.escape(mmrId)).classList.add('visible');
     document.querySelector('#' + CSS.escape(mmrId)).classList.remove('hidden');
 
@@ -14,8 +38,7 @@ function toggleData(mmrId) {
     navbarButton.textContent = selectedValue;
 }
 
-const button = document.querySelector('.navbar__button');
-button.addEventListener('click', toggleButton);
+
 
 function toggleButton() {
     // Update the "Previous" text to the default value
@@ -27,22 +50,5 @@ function toggleDropdown() {
     dropdown.classList.toggle('hidden');
 }
 
-const navbarButton = document.querySelector('.navbar__button');
-const navbarSelect = document.querySelector('.navbar__select');
-const dropdownli = document.querySelectorAll('.dropdown-li')
-
-navbarButton.addEventListener('click', () => {
-    navbarSelect.classList.remove('active');
-    navbarButton.classList.add('active');
-});
-
-dropdownli.forEach((dropdownli) => {
-    dropdownli.addEventListener('click', (event) => {
-        navbarButton.classList.remove('active');
-        navbarSelect.classList.add('active');
-    });
-});
 
 
-// Set initial active state to the navbar__button
-navbarButton.classList.add('active');

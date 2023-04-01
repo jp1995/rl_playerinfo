@@ -2,7 +2,12 @@ import signal
 from selenium import webdriver
 from time import sleep
 import winreg
+import random
 
+useragentarray = []
+
+for i in range(111, 81, -1):
+    useragentarray.append("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{}/0.0 Safari/537.36".format(i))
 
 def chromedriver_conf(url):
     options = webdriver.ChromeOptions()
@@ -16,16 +21,16 @@ def chromedriver_conf(url):
     driver = webdriver.Chrome(chrome_options=options, executable_path=r'webdriver/chromedriver.exe')
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     driver.execute_cdp_cmd('Network.setUserAgentOverride', {
-        "userAgent": 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'})
+        "userAgent": random.choice(useragentarray)})
+    driver.implicitly_wait(5)
     driver.get(url)
-    sleep(2)
+    sleep(random.uniform(2, 3.5))
     page = driver.execute_script('return document.body.innerHTML')
     driver.quit()
     return page
 
 
 def geckodriver_conf(url):
-
     if is_firefox_installed():
         firefox_bin = get_firefox_path()
     else:
@@ -42,13 +47,13 @@ def geckodriver_conf(url):
     profile.set_preference("dom.webnotifications.enabled", False)
     profile.set_preference("media.navigator.enabled", False)
     profile.set_preference('useAutomationExtension', False)
-    profile.set_preference('general.useragent.override',
-                           'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36')
+    profile.set_preference('general.useragent.override', random.choice(useragentarray))
     profile.update_preferences()
     driver = webdriver.Firefox(firefox_profile=profile, options=options, executable_path=r'webdriver/geckodriver.exe')
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+    driver.implicitly_wait(5)
     driver.get(url)
-    sleep(2)
+    sleep(random.uniform(2, 3.5))
     page = driver.execute_script('return document.body.innerHTML')
     driver.quit()
     return page

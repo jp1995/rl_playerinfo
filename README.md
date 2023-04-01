@@ -2,12 +2,12 @@
 
 A rocket league session info tool that condenses interesting tracker data for all players in the match.
 
-![output](https://cdn.discordapp.com/attachments/533998516876607511/1013614330308214814/unknown.png)
+![output](https://cdn.discordapp.com/attachments/533998516876607511/1091743564150603847/new3.png)
 
 * For every rank, the second value is winstreak.
 * Games is a sum of ranked games this season.
 * Usernames link to the trackernetwork profile
-* Comes with [a handy MMR tracker](https://cdn.discordapp.com/attachments/533998516876607511/1089718586106458202/image.png)
+* Comes with a simple MMR tracker
 
 
 ## Installation
@@ -43,6 +43,7 @@ After installing, simply run the script.
 `python main.py`
 
 The client should then be available at http://127.0.0.1:5500/. It will fill once match data is received from the plugin.
+<hr style="margin-top: -10px;margin-bottom: -5px;width: 200px">
 
 #### Autorun
 
@@ -54,10 +55,17 @@ Add the following to launch options and modify accordingly.
 Windows has some limitations when it comes to running things in parallel in a single cmd window (which is how %command% handles it). This solution can sometimes dump some *interesting* errors but everything appears to work nicely.
 
 You could also run the script as a Windows service.
+<hr style="margin-top: -10px;margin-bottom: -5px;width: 200px">
 
 #### Database connection
 
 If you want to save this data into your own database, configure `db_connect.py` to your liking and uncomment the relevant lines in the `main` function of `main.py`.
 
 * The database push has a check to only do it for ranked game modes. This can be removed if you want to log casual games as well, but that can currently result in duplicate entries of players as one player leaves, a new player joins and all players are pushed into the database again. I could write more code to account for that, but I'm lazy and don't really care for casual logs.
+<hr style="margin-top: -10px;margin-bottom: -5px;width: 200px">
 
+#### API disclaimer
+
+The tracker network API is public, but there are some basic measures against scraping.
+This may change. There's no official support or guarantees for future access.
+API availability is decent, but sometimes requests fail.

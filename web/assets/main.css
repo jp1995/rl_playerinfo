@@ -26,6 +26,7 @@ h1 {
     /*border-style: hidden;*/
     margin-left: 4vh;
 }
+
 .trackertable tbody{
     background: linear-gradient(to bottom, #4d6387 50%, #ad5149 50%);
 }
@@ -46,11 +47,12 @@ h1 {
 }
 
 .trackertable tr:nth-child(n+2):nth-child(-n+6) {
-    border: 2px solid black;
+    border-top: 2px solid black;
 }
 
 .trackertable td:first-child {
-    padding-right: 8vh;
+    min-width: 220px;
+    max-width: 300px;
 }
 
 .trackertable td:nth-child(n+2):nth-child(-n+4) img{
@@ -85,6 +87,30 @@ h1 {
 .platform {
     height: 32px;
     width: 32px;
+}
+
+.namecontainer {
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.nameurl {
+    display: inline-block;
+    margin-left: -10px;
+}
+
+.socialscontainer {
+    margin-right: 25px;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.social {
+    height: 24px;
+    width: 24px;
+    padding-left: 6px;
 }
 
 a:link {
@@ -148,11 +174,17 @@ span {
 .title {
     display: inline-block;
     font-size: 11pt;
-    /*font-family: "Helvetica";*/
     text-align: center;
     -ms-transform: translateY(15%);
     transform: translateY(15%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
 }
+
+.title.visible {
+    opacity: 1;
+}
+
 .github {
     float: right;
     width: 28px;
