@@ -33,7 +33,6 @@ class rl_playerinfo:
         self.matchCurrent = {}
         self.playlistCurrent = '69'
         self.mmrCurrent = {}
-        self.maxPlayers = 0
         self.api_resps = []
 
         self.q = Queue()
@@ -114,7 +113,7 @@ class rl_playerinfo:
         for item in self.api_resps:
             uid = item['data']['platformInfo']['platformUserIdentifier']
             item['data']['gameInfo'] = {}
-            self.maxPlayers = item['data']['gameInfo']['maxPlayers'] = matchData['Match']['maxPlayers']
+            item['data']['gameInfo']['maxPlayers'] = matchData['Match']['maxPlayers']
             try:
                 item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
                 legit.append(uid)
@@ -275,9 +274,6 @@ class rl_playerinfo:
             table.append(formatted)
 
         sorted_table = self.sortPlayersByTeams(table)
-
-        if len(sorted_table) != self.maxPlayers:
-            pass
 
         self.writeTable(sorted_table)
 
