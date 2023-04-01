@@ -31,11 +31,28 @@ platforms = ['unknown', 'steam', 'xbl', 'psn', 'switch', 'epic']
 def formatTable(listy: list):
     print(listy)
     outlist = []
-
     url = listy[-1]
-    outlist.append(f'<a href="{url}">{listy[0]}</a>')
+    urllink = f'<div class="namecontainer"><a href="{url}" class="nameurl">{listy[0]}' \
+              f'</a><div class="socialscontainer">'
+
+    for social in listy[-3]:
+        if 'twitter' in social:
+            soclink = f'<a href="{social}"><img class="social" src="assets/icons/twitter.svg" alt="twitter"></a>'
+            urllink += soclink
+        elif 'twitch' in social:
+            soclink = f'<a href="{social}"><img class="social" src="assets/icons/twitch.svg" alt="twitch"></a>'
+            urllink += soclink
+        elif 'reddit' in social:
+            soclink = f'<a href="{social}"><img class="social" src="assets/icons/twitch.svg" alt="twitch"></a>'
+            urllink += soclink
+
+    urllink += '</div></div>'
+
+    outlist.append(urllink)
     del listy[0]
     del listy[-1]
+    del listy[-2]
+
 
     for item in listy:
         for key, value in icondict.items().__reversed__():

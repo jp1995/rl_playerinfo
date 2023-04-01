@@ -2,11 +2,10 @@
 {% block MMRtrack %}
 <head>
     <title>MMR Data</title>
+    <script src="assets/MMR.js" type="text/javascript"></script>
     <link rel="stylesheet" href="assets/mmr.css">
-    <script src="assets/MMR.js"></script>
 </head>
 <body>
-
 <div class="navbar">
     {% for key, value in data.MMR.items() %}
     {% if value.active %}
@@ -37,5 +36,6 @@
     </div>
     {% endfor %}
 </div>
+
 </body>
 {% endblock %}

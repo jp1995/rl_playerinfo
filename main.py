@@ -23,6 +23,8 @@ class rl_playerinfo:
                             '4': 'Casual 4v4', '6': 'Private Match', '9': 'Flip Reset training', '10': 'Duel',
                             '11': 'Doubles', '13': 'Standard', '27': 'Hoops',
                             '28': 'Rumble', '29': 'Dropshot', '30': 'Snowday', '22': 'Tournament', '69': 'Main Menu'}
+        self.soc_base_urls = {'twitch': 'https://twitch.tv/', 'reddit': 'https://www.reddit.com/user/',
+                              'twitter': 'https://twitter.com/'}
         self.api_base_url = 'https://api.tracker.gg/api/v2/rocket-league/standard/profile'
         self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
         self.webserver = subprocess.Popen("python app.py", cwd='./web/', shell=True)
@@ -40,6 +42,7 @@ class rl_playerinfo:
     def sort(self):
         if not self.q.empty():
             data = self.q.get()
+            print(data)
             try:
                 jdata = json.loads(data)
                 if 'Match' in jdata.keys():
@@ -167,6 +170,20 @@ class rl_playerinfo:
 
         return sorted_table
 
+    def getSocialURLs(self, listy: list):
+        outl = []
+        if listy:
+            if len(listy) > 0:
+                for d in listy:
+                    if d['platformSlug'] in list(self.soc_base_urls.keys()):
+                        url = self.soc_base_urls[d['platformSlug']]+d['platformUserHandle']
+                        outl.append(url)
+                return outl
+            else:
+                return ['-']
+        else:
+            return ['-']
+
     def writePlaylist(self):
         pid = self.playlistStorage
 
@@ -221,7 +238,7 @@ class rl_playerinfo:
     def handleData(self, api_resps: list):
         table = [['Name', '1v1', '2v2', '3v3', 'Wins',
                   '<p title="Competitive games this season">Games <sup>*</sup></p>',
-                 'Reward level', 'Country', 'Platform']]
+                 'Reward level', 'Country', 'Platform', 'Socials']]
 
         for resp in api_resps:
             uid = resp['data']['platformInfo']['platformUserIdentifier']
@@ -243,8 +260,11 @@ class rl_playerinfo:
             totalprint.append(rewardlevel)
             totalprint.append(str(resp['data']['userInfo']['countryCode']))
             totalprint.append(resp['data']['platformInfo']['platformSlug'])
+            socialURLs = self.getSocialURLs(resp['data']['userInfo']['socialAccounts'])
+            totalprint.append(socialURLs)
             totalprint.append(resp['data']['gameInfo']['team'])
             totalprint.append(gen_url)
+
 
             formatted = formatTable(totalprint)
             table.append(formatted)
