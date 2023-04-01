@@ -47,7 +47,7 @@ h1 {
 }
 
 .trackertable tr:nth-child(n+2):nth-child(-n+6) {
-    border: 2px solid black;
+    border-top: 2px solid black;
 }
 
 .trackertable td:first-child {

@@ -29,7 +29,7 @@
 <div id="mmr-data" class="mmrdata">
     {% for key, value in data.MMR.items() %}
     <div class="mmrdata__item {% if value.active %}visible{% else %}hidden{% endif %}" id="mmr-{{ key }}">
-        <p>Delta: {{ value.delta }}</p>
+        <p>MMR: {{ value.delta }}</p>
         <p>Wins: {{ value.results.count('win') }}</p>
         <p>Losses: {{ value.results.count('loss') }}</p>
         <p>Streak: {{ value.streak }}</p>

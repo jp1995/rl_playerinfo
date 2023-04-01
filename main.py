@@ -33,6 +33,7 @@ class rl_playerinfo:
         self.matchCurrent = {}
         self.playlistCurrent = '69'
         self.mmrCurrent = {}
+        self.maxPlayers = 0
         self.api_resps = []
 
         self.q = Queue()
@@ -42,7 +43,7 @@ class rl_playerinfo:
     def sort(self):
         if not self.q.empty():
             data = self.q.get()
-            print(data)
+            print(f'Received: {data}')
             try:
                 jdata = json.loads(data)
                 if 'Match' in jdata.keys():
@@ -83,9 +84,13 @@ class rl_playerinfo:
                 f.write(json.dumps(self.mmrCurrent))
 
     @staticmethod
-    def notFound():
-        with open('web/not_found.json', 'r', encoding='utf-8') as f:
-            json = f.read()
+    def notFound(errorType: str):
+        if errorType == 'API_down':
+            with open('web/assets/API_down.json', 'r', encoding='utf-8') as f:
+                json = f.read()
+        else:
+            with open('web/assets/not_found.json', 'r', encoding='utf-8') as f:
+                json = f.read()
         return json
 
     def responses_check(self, resps: list):
@@ -94,10 +99,11 @@ class rl_playerinfo:
                 data = json.loads(item)
             except json.decoder.JSONDecodeError:
                 print('Tracker network appears down')
+                data = json.loads(self.notFound('API_down'))
                 continue
             if 'data' not in data:
                 print(f"Something broke.\nPossibly hit a smurf so new the API doesn't even know about them")
-                data = json.loads(self.notFound())
+                data = json.loads(self.notFound('API_unknown'))
 
             self.api_resps.append(data)
 
@@ -108,7 +114,7 @@ class rl_playerinfo:
         for item in self.api_resps:
             uid = item['data']['platformInfo']['platformUserIdentifier']
             item['data']['gameInfo'] = {}
-            item['data']['gameInfo']['maxPlayers'] = matchData['Match']['maxPlayers']
+            self.maxPlayers = item['data']['gameInfo']['maxPlayers'] = matchData['Match']['maxPlayers']
             try:
                 item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
                 legit.append(uid)
@@ -265,11 +271,13 @@ class rl_playerinfo:
             totalprint.append(resp['data']['gameInfo']['team'])
             totalprint.append(gen_url)
 
-
             formatted = formatTable(totalprint)
             table.append(formatted)
 
         sorted_table = self.sortPlayersByTeams(table)
+
+        if len(sorted_table) != self.maxPlayers:
+            pass
 
         self.writeTable(sorted_table)
 
