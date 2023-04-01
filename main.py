@@ -238,7 +238,7 @@ class rl_playerinfo:
     def handleData(self, api_resps: list):
         table = [['Name', '1v1', '2v2', '3v3', 'Wins',
                   '<p title="Competitive games this season">Games <sup>*</sup></p>',
-                 'Reward level', 'Country', 'Platform', 'Socials']]
+                 'Reward level', 'Country', 'Platform']]
 
         for resp in api_resps:
             uid = resp['data']['platformInfo']['platformUserIdentifier']

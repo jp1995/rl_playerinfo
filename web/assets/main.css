@@ -174,7 +174,6 @@ span {
 .title {
     display: inline-block;
     font-size: 11pt;
-    /*font-family: "Helvetica";*/
     text-align: center;
     -ms-transform: translateY(15%);
     transform: translateY(15%);
