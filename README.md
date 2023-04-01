@@ -43,9 +43,9 @@ After installing, simply run the script.
 `python main.py`
 
 The client should then be available at http://127.0.0.1:5500/. It will fill once match data is received from the plugin.
+<hr style="margin-top: -10px;margin-bottom: -5px;width: 200px">
 
 #### Autorun
-<hr style="margin-top: -10px;margin-bottom: -5px;width: 200px">
 
 Alternatively, autorun the script when Rocket League is launched in Steam.
 Add the following to launch options and modify accordingly.
@@ -55,16 +55,16 @@ Add the following to launch options and modify accordingly.
 Windows has some limitations when it comes to running things in parallel in a single cmd window (which is how %command% handles it). This solution can sometimes dump some *interesting* errors but everything appears to work nicely.
 
 You could also run the script as a Windows service.
+<hr style="margin-top: -10px;margin-bottom: -5px;width: 200px">
 
 #### Database connection
-<hr style="margin-top: -10px;margin-bottom: -5px;width: 200px">
 
 If you want to save this data into your own database, configure `db_connect.py` to your liking and uncomment the relevant lines in the `main` function of `main.py`.
 
 * The database push has a check to only do it for ranked game modes. This can be removed if you want to log casual games as well, but that can currently result in duplicate entries of players as one player leaves, a new player joins and all players are pushed into the database again. I could write more code to account for that, but I'm lazy and don't really care for casual logs.
+<hr style="margin-top: -10px;margin-bottom: -5px;width: 200px">
 
 #### API disclaimer
-<hr style="margin-top: -10px;margin-bottom: -5px;width: 200px">
 
 The tracker network API is public, but there are some basic measures against scraping.
 This may change. There's no official support or guarantees for future access.
