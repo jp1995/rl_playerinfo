@@ -1,13 +1,13 @@
 from datetime import datetime
 import mysql.connector as db
-from return_to_monke import dbpass
+# from return_to_monke import dbpass
 
 
-connection = db.connect(
-    user='rl_playerinfo',
-    password=dbpass,
-    host='localhost',
-    database='rl_playerinfo')
+# connection = db.connect(
+#     user='rl_playerinfo',
+#     password='dbpass',
+#     host='localhost',
+#     database='rl_playerinfo')
 
 
 def db_push_tracker_stats(listy: list):
