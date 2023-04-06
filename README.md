@@ -16,8 +16,8 @@ A rocket league session info tool that condenses interesting tracker data for al
 
 ```bash
 # Clone the repo
-$ git clone https://github.com/jp1995/rl_playerinfo
-
+$ git clone https://github.com/jp1995/rl_playerinfo # or Code > Download ZIP
+    
 # Change your current directory to rl_playerinfo
 $ cd rl_playerinfo
 
@@ -68,4 +68,8 @@ If you want to save this data into your own database, configure `db_connect.py` 
 
 The tracker network API is public, but there are some basic measures against scraping.
 This may change. There's no official support or guarantees for future access.
-API availability is decent, but sometimes requests fail.
+API availability is decent, but sometimes requests fail. Peak times have been particularly bad for the API, and consequently the rest of the TN site lately.
+
+## todo
+
+* Some kind of caching system to not query the same player again during one match. In casual games players leave and join, and the API really doesn't seem to like it when you query the same players multiple times in a short interval.
