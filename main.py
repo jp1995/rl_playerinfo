@@ -85,62 +85,55 @@ class rl_playerinfo:
     @staticmethod
     def notFound(errorType: str):
         if errorType == 'API_down':
+            print('Tracker network appears down')
             with open('web/assets/API_down.json', 'r', encoding='utf-8') as f:
                 json = f.read()
         elif errorType == 'API_error':
+            print('API: An unhandled exception has occured in the system')
             with open('web/assets/API_error.json', 'r', encoding='utf-8') as f:
                 json = f.read()
-        elif errorType == 'AI':
-            with open('web/assets/bot.json', 'r', encoding='utf-8') as f:
-                json = f.read()
         elif errorType == 'API_unknown':
+            print('API: Player is likely very new')
             with open('web/assets/API_unknown.json', 'r', encoding='utf-8') as f:
                 json = f.read()
         return json
 
     @staticmethod
-    def isBot(team: int):
+    def isBot():
         with open('web/assets/bot.json', 'r', encoding='utf-8') as f:
             j = f.read()
-            jsonstr = json.loads(j)
-            jsonstr['data']['gameInfo']['team'] == team
-            jd = json.dumps(jsonstr)
-        return jd
+        return j
 
     def responses_check(self, resps: list):
         for item in resps:
-            print(item)
             try:
                 data = json.loads(item)
             except json.decoder.JSONDecodeError:
-                print('Tracker network appears down')
                 data = json.loads(self.notFound('API_down'))
                 self.api_resps.append(data)
                 continue
+
             if 'errors' in list(data.keys()):
                 if 'unhandled exception' in data['errors'][0]['message']:
                     data = json.loads(self.notFound('API_error'))
-                    print('API: An unhandled exception has occured in the system')
-                elif 'platform is invalid' in data['errors'][0]['message']:
-                    data = json.loads(self.notFound('AI'))
-                    print('API: Player is likely AI')
                 elif 'We could not find the player' in data['errors'][0]['message']:
                     data = json.loads(self.notFound('API_unknown'))
-                    print('API: Player is likely very new')
 
             self.api_resps.append(data)
 
     def responses_mod(self, resps: list, matchData: dict):
         legit = []
+        errorhandles = ['Unknown to API', 'API Server Error', 'No API Response', 'AI']
         self.responses_check(resps)
 
         for item in self.api_resps:
             uid = item['data']['platformInfo']['platformUserIdentifier']
-            item['data']['gameInfo'] = {}
-            item['data']['gameInfo']['maxPlayers'] = matchData['Match']['maxPlayers']
             try:
-                item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
-                legit.append(uid)
+                if item['data']['platformInfo']['platformSlug']:
+                    item['data']['gameInfo'] = {}
+                    item['data']['gameInfo']['maxPlayers'] = matchData['Match']['maxPlayers']
+                    item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
+                    legit.append(uid)
             except KeyError:
                 pass
 
@@ -148,30 +141,9 @@ class rl_playerinfo:
             for item in self.api_resps:
                 handle = item['data']['platformInfo']['platformUserHandle']
                 if player not in legit:
-                    if handle == 'API: Server Error':
+                    if handle in errorhandles:
                         item['data']['platformInfo']['platformUserIdentifier'] = player
-                        item['data']['platformInfo']['platformUserHandle'] = player + ' - API Server Error'
-                        item['data']['gameInfo']['team'] = matchData['Match']['players'][player]['team']
-                        item['data']['platformInfo']['platformSlug'] = self.platformDict[
-                            str(matchData['Match']['players'][player]['platform'])]
-                        break
-                    elif handle == 'API: No Response':
-                        item['data']['platformInfo']['platformUserIdentifier'] = player
-                        item['data']['platformInfo']['platformUserHandle'] = player + ' - No API response'
-                        item['data']['gameInfo']['team'] = matchData['Match']['players'][player]['team']
-                        item['data']['platformInfo']['platformSlug'] = self.platformDict[
-                            str(matchData['Match']['players'][player]['platform'])]
-                        break
-                    elif handle == 'API: Unknown player':
-                        item['data']['platformInfo']['platformUserIdentifier'] = player
-                        item['data']['platformInfo']['platformUserHandle'] = player + ' - Unknown to API'
-                        item['data']['gameInfo']['team'] = matchData['Match']['players'][player]['team']
-                        item['data']['platformInfo']['platformSlug'] = self.platformDict[
-                            str(matchData['Match']['players'][player]['platform'])]
-                        break
-                    elif handle == 'AI':
-                        item['data']['platformInfo']['platformUserIdentifier'] = player
-                        item['data']['platformInfo']['platformUserHandle'] = player + ' - AI'
+                        item['data']['platformInfo']['platformUserHandle'] = player + ' - ' + handle
                         item['data']['gameInfo']['team'] = matchData['Match']['players'][player]['team']
                         item['data']['platformInfo']['platformSlug'] = self.platformDict[
                             str(matchData['Match']['players'][player]['platform'])]
@@ -188,20 +160,13 @@ class rl_playerinfo:
         for player in matchData['Match']['players']:
             platform_num = str(matchData['Match']['players'][player]['platform'])
             if platform_num == '0':
-                team = matchData['Match']['players'][player]['team']
-                bot = self.isBot(team)
-                print(f'Bot {player} found, placed in team {team}')
-                bots.append(bot)
+                bots.append(self.isBot())
                 continue
-
-            platform = self.platformDict[platform_num]
-            api_url = f'{self.api_base_url}/{platform}/{player}'
+            api_url = f'{self.api_base_url}/{self.platformDict[platform_num]}/{player}'
             urls.append(api_url)
-        print(urls)
-        resps = threaded_requests(urls, len(urls))
-        for i in bots:
-            resps.append(i)
 
+        resps = threaded_requests(urls, len(urls))
+        resps.extend(bots)
         self.responses_mod(resps, matchData)
 
     @staticmethod

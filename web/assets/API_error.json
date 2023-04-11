@@ -3,7 +3,7 @@
         "platformInfo": {
             "platformSlug": null,
             "platformUserId": null,
-            "platformUserHandle": "API: Server Error",
+            "platformUserHandle": "API Server Error",
             "platformUserIdentifier": "0"
         },
         "userInfo": {
