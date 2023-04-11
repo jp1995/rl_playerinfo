@@ -68,8 +68,10 @@ If you want to save this data into your own database, configure `db_connect.py` 
 
 The tracker network API is public, but there are some basic measures against scraping.
 This may change. There's no official support or guarantees for future access.
-API availability is decent, but sometimes requests fail. Peak times have been particularly bad for the API, and consequently the rest of the TN site lately.
+API availability is decent, but sometimes requests fail. There can be instability during peak times, this can last for days.
 
-## todo
+## Functionality todo
 
-* Some kind of caching system to not query the same player again during one match. In casual games players leave and join, and the API really doesn't seem to like it when you query the same players multiple times in a short interval.
+* Some kind of caching system to not query the same player again during one match. In casual games players leave and join, this would help if API is not doing well.
+* Save previous matches, add ability to view them in the client.
+* MMR storage and merge should really happen in script, in case of a game crash.
