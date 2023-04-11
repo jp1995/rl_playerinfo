@@ -32,7 +32,7 @@ class rl_playerinfo:
         self.playlistStorage = '69'
         self.matchCurrent = {}
         self.playlistCurrent = '69'
-        self.mmrCurrent = {}
+        self.mmrNew = {}
         self.api_resps = []
 
         self.q = Queue()
@@ -50,7 +50,7 @@ class rl_playerinfo:
                 elif 'Playlist' in jdata.keys():
                     self.playlistCurrent = str(jdata['Playlist'])
                 elif list(jdata.keys())[0].isnumeric():
-                    self.mmrCurrent = jdata
+                    self.mmrNew = jdata
                     self.writeMMR()
             except ValueError:
                 return None
@@ -78,9 +78,9 @@ class rl_playerinfo:
 
     def writeMMR(self):
         with open('web/mmr.txt', 'w+', encoding='utf-8') as f:
-            now = f.readline()
-            if now != self.mmrCurrent:
-                f.write(json.dumps(self.mmrCurrent))
+            mmrOld = f.readline()
+            if mmrOld != self.mmrNew:
+                f.write(json.dumps(self.mmrNew))
 
     @staticmethod
     def notFound(errorType: str):
