@@ -32,7 +32,7 @@ class rl_playerinfo:
         self.playlistStorage = '69'
         self.matchCurrent = {}
         self.playlistCurrent = '69'
-        self.mmrCurrent = {}
+        self.mmrNew = {}
         self.api_resps = []
 
         self.q = Queue()
@@ -50,7 +50,7 @@ class rl_playerinfo:
                 elif 'Playlist' in jdata.keys():
                     self.playlistCurrent = str(jdata['Playlist'])
                 elif list(jdata.keys())[0].isnumeric():
-                    self.mmrCurrent = jdata
+                    self.mmrNew = jdata
                     self.writeMMR()
             except ValueError:
                 return None
@@ -78,67 +78,95 @@ class rl_playerinfo:
 
     def writeMMR(self):
         with open('web/mmr.txt', 'w+', encoding='utf-8') as f:
-            now = f.readline()
-            if now != self.mmrCurrent:
-                f.write(json.dumps(self.mmrCurrent))
+            mmrOld = f.readline()
+            if mmrOld != self.mmrNew:
+                f.write(json.dumps(self.mmrNew))
 
     @staticmethod
     def notFound(errorType: str):
         if errorType == 'API_down':
+            print('Tracker network appears down')
             with open('web/assets/API_down.json', 'r', encoding='utf-8') as f:
                 json = f.read()
-        else:
-            with open('web/assets/not_found.json', 'r', encoding='utf-8') as f:
+        elif errorType == 'API_error':
+            print('API: An unhandled exception has occured in the system')
+            with open('web/assets/API_error.json', 'r', encoding='utf-8') as f:
+                json = f.read()
+        elif errorType == 'API_unknown':
+            print('API: Player is likely very new')
+            with open('web/assets/API_unknown.json', 'r', encoding='utf-8') as f:
                 json = f.read()
         return json
+
+    @staticmethod
+    def isBot():
+        with open('web/assets/bot.json', 'r', encoding='utf-8') as f:
+            j = f.read()
+        return j
 
     def responses_check(self, resps: list):
         for item in resps:
             try:
                 data = json.loads(item)
             except json.decoder.JSONDecodeError:
-                print('Tracker network appears down')
                 data = json.loads(self.notFound('API_down'))
+                self.api_resps.append(data)
                 continue
-            if 'data' not in data:
-                print(f"Something broke.\nPossibly hit a smurf so new the API doesn't even know about them")
-                data = json.loads(self.notFound('API_unknown'))
+
+            if 'errors' in list(data.keys()):
+                if 'unhandled exception' in data['errors'][0]['message']:
+                    data = json.loads(self.notFound('API_error'))
+                elif 'We could not find the player' in data['errors'][0]['message']:
+                    data = json.loads(self.notFound('API_unknown'))
 
             self.api_resps.append(data)
 
     def responses_mod(self, resps: list, matchData: dict):
         legit = []
+        errorhandles = ['Unknown to API', 'API Server Error', 'No API Response', 'AI']
         self.responses_check(resps)
 
         for item in self.api_resps:
             uid = item['data']['platformInfo']['platformUserIdentifier']
-            item['data']['gameInfo'] = {}
-            item['data']['gameInfo']['maxPlayers'] = matchData['Match']['maxPlayers']
             try:
-                item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
-                legit.append(uid)
+                if item['data']['platformInfo']['platformSlug']:
+                    item['data']['gameInfo'] = {}
+                    item['data']['gameInfo']['maxPlayers'] = matchData['Match']['maxPlayers']
+                    item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
+                    legit.append(uid)
             except KeyError:
-                item['data']['gameInfo']['team'] = 0
+                pass
 
         for player in matchData['Match']['players']:
             for item in self.api_resps:
                 handle = item['data']['platformInfo']['platformUserHandle']
-                if player not in legit and handle == 'Player not found':
-                    item['data']['platformInfo']['platformUserIdentifier'] = player
-                    item['data']['platformInfo']['platformUserHandle'] = player + ' - No API response'
-                    item['data']['platformInfo']['platformSlug'] = self.platformDict[str(matchData['Match']['players'][player]['platform'])]
+                if player not in legit:
+                    if handle in errorhandles:
+                        item['data']['platformInfo']['platformUserIdentifier'] = player
+                        item['data']['platformInfo']['platformUserHandle'] = player + ' - ' + handle
+                        item['data']['gameInfo']['team'] = matchData['Match']['players'][player]['team']
+                        item['data']['platformInfo']['platformSlug'] = self.platformDict[
+                            str(matchData['Match']['players'][player]['platform'])]
+                        break
+                else:
+                    break
+            else:
+                break
 
     def requests(self, matchData):
         urls = []
+        bots = []
 
         for player in matchData['Match']['players']:
-            name = player
-            platform_num = str(matchData['Match']['players'][name]['platform'])
-            platform = self.platformDict[platform_num]
-            api_url = f'{self.api_base_url}/{platform}/{name}'
+            platform_num = str(matchData['Match']['players'][player]['platform'])
+            if platform_num == '0':
+                bots.append(self.isBot())
+                continue
+            api_url = f'{self.api_base_url}/{self.platformDict[platform_num]}/{player}'
             urls.append(api_url)
 
         resps = threaded_requests(urls, len(urls))
+        resps.extend(bots)
         self.responses_mod(resps, matchData)
 
     @staticmethod
@@ -280,6 +308,7 @@ class rl_playerinfo:
     def handleExit(self):
         print('Closing webserver gracefully')
         self.webserver.kill()
+        self.tcp_process.kill()
 
     def main(self):
         if is_chrome_installed():

@@ -46,8 +46,12 @@ h1 {
     padding-left: 4vh;
 }
 
-.trackertable tr:nth-child(n+2):nth-child(-n+6) {
+.trackertable tr {
     border-top: 2px solid black;
+}
+
+.trackertable tr:first-child {
+    border: none;
 }
 
 .trackertable td:first-child {
