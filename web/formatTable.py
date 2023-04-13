@@ -26,33 +26,27 @@ icondict = {'NULL': '<img class="tier" src="../assets/icons/unranked.png" alt="u
             'Supersonic I': '<img class="tier" src="../assets/icons/gc1.png" alt="gc1">'}
 
 platforms = ['unknown', 'steam', 'xbl', 'psn', 'switch', 'epic']
+social_icons = {'twitter': 'assets/icons/twitter.svg', 'twitch': 'assets/icons/twitch.svg', 'reddit': 'assets/icons/reddit.svg'}
 
 
 def formatTable(listy: list):
     print(listy)
     outlist = []
     url = listy[-1]
-    urllink = f'<div class="namecontainer"><a href="{url}" class="nameurl">{listy[0]}' \
-              f'</a><div class="socialscontainer">'
+    urllink = f'<div class="namecontainer"><a href="{url}" class="nameurl">{listy[0]}</a><div class="socialscontainer">'
 
     for social in listy[-3]:
-        if 'twitter' in social:
-            soclink = f'<a href="{social}"><img class="social" src="assets/icons/twitter.svg" alt="twitter"></a>'
-            urllink += soclink
-        elif 'twitch' in social:
-            soclink = f'<a href="{social}"><img class="social" src="assets/icons/twitch.svg" alt="twitch"></a>'
-            urllink += soclink
-        elif 'reddit' in social:
-            soclink = f'<a href="{social}"><img class="social" src="assets/icons/twitch.svg" alt="twitch"></a>'
-            urllink += soclink
+        for key, value in social_icons.items():
+            if key in social:
+                soclink = f'<a href="{social}"><img class="social" src="{value}" alt="{key}"></a>'
+                urllink += soclink
 
     urllink += '</div></div>'
-
     outlist.append(urllink)
+
     del listy[0]
     del listy[-1]
     del listy[-2]
-
 
     for item in listy:
         for key, value in icondict.items().__reversed__():
@@ -75,12 +69,10 @@ def formatTable(listy: list):
             continue
 
     # Exclude already used winstreak items
-    for item in listy[3:]:
-        outlist.append(item)
+    outlist.extend(listy[3:])
     # Replace reward level string with icon
-    del outlist[7]
-    outlist.insert(7, outlist[4])
-    del outlist[4]
+    outlist[7:8] = [outlist[4]]
+    outlist[4:5] = []
 
     flag = outlist[7].lower()
     flaglink = f'<img class="flag" src="https://flagicons.lipis.dev/flags/4x3/{flag}.svg" alt="{flag}" title="{flag}">'

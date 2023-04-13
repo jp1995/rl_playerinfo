@@ -3,10 +3,6 @@ from livereload import Server
 from MMR import modMMRjson
 import logging
 import json
-import os
-
-appdata = os.getenv('APPDATA')
-plugDir = f'{appdata}\\bakkesmod\\bakkesmod\\data\\MatchDataScraper\\'
 
 app = Flask(__name__, template_folder='.', static_folder='assets')
 app.jinja_env.auto_reload = True
@@ -16,6 +12,7 @@ app.logger.disabled = True
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.DEBUG)
 print('Webserver started')
+
 
 @app.route('/')
 def index():
@@ -35,5 +32,4 @@ def index():
 if __name__ == '__main__':
     server = Server(app.wsgi_app)
     server.watch('.')
-    server.watch(plugDir+'MMR.txt')
     server.serve(root='.')

@@ -13,10 +13,11 @@ import mysql.connector as db
 def db_push_tracker_stats(listy: list):
     now = datetime.now()
     date_created = now.strftime("%d/%m/%Y %H:%M:%S")
+    errors = ['Unknown to API', 'API Server Error', 'No API Response', ' - AI']
 
     for dicty in listy:
         # For general player stats, making them actually usable, modify as needed
-        if dicty['name'] == '' or dicty['name'] == '' or 'No API response' in dicty['name']:
+        if dicty['name'] == '' or dicty['name'] == '' or any(errors) in dicty['name']:
             continue
 
         dicty['date_created'] = date_created

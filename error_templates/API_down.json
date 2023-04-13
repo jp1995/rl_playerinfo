@@ -2,24 +2,16 @@
     "data": {
         "platformInfo": {
             "platformSlug": null,
-            "platformUserId": null,
-            "platformUserHandle": "Unknown to API",
+            "platformUserHandle": "No API Response",
             "platformUserIdentifier": "0"
         },
         "userInfo": {
-            "userId": null,
-            "isPremium": false,
-            "isVerified": false,
-            "isInfluencer": false,
-            "isPartner": false,
             "countryCode": null,
-            "socialAccounts": null,
-            "isSuspicious": null
+            "socialAccounts": null
         },
         "segments": [
             {
                 "type": "overview",
-                "attributes": {},
                 "metadata": {
                     "name": "Lifetime"
                 },
