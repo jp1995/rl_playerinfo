@@ -1,5 +1,4 @@
-from flask import Flask, render_template
-from livereload import Server
+from flask import Flask, render_template, jsonify
 from web.MMR import modMMRjson
 import logging
 import json
@@ -19,6 +18,11 @@ def run_webserver():
 
     @app.route('/')
     def index():
+        render_table = render_template('index.html')
+        return render_table
+
+    @app.route('/update_mmr')
+    def update_mmr():
         with open('mmr.txt') as f:
             try:
                 data = json.load(f)
@@ -26,10 +30,21 @@ def run_webserver():
             except json.decoder.JSONDecodeError:
                 data = ''
 
-        render_table = render_template('index.html', data=modMMRjson(data))
-        return render_table
+        if data == '':
+            render_mmr = render_template('MMR_base.html')
+        else:
+            render_mmr = render_template('MMR.html', data=modMMRjson(data))
 
-    server = Server(app)
-    server.serve()
-    server.watch('.')
-    server.serve(root='.')
+        return jsonify({'html': render_mmr})
+
+    @app.route('/update_playlist')
+    def update_playlist():
+        render_content = render_template('playlist.html')
+        return jsonify({'html': render_content})
+
+    @app.route('/update_match')
+    def update_match():
+        render_match = render_template('table.html')
+        return jsonify({'html': render_match})
+
+    app.run()
