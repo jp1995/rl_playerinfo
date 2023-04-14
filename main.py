@@ -4,11 +4,11 @@ from threaded_requests import threaded_requests
 from db_connect import db_push_tracker_stats
 from multiprocessing import Process, Queue
 from web.formatTable import formatTable
-from web.MMR import playlistDict
 from TCPserver import run_tcp_server
+from web.app import run_webserver
+from web.MMR import playlistDict
 from tabulate import tabulate
 from time import sleep
-import subprocess
 import atexit
 import json
 
@@ -17,12 +17,11 @@ class rl_playerinfo:
     def __init__(self):
         self.platformDict = {'0': 'unknown', '1': 'steam', '2': 'psn', '3': 'psn', '4': 'xbl',
                              '6': 'switch', '7': 'switch', '8': 'psynet', '11': 'epic'}
-        self.playlistIDs = playlistDict
         self.soc_base_urls = {'twitch': 'https://twitch.tv/', 'reddit': 'https://www.reddit.com/user/',
                               'twitter': 'https://twitter.com/'}
         self.api_base_url = 'https://api.tracker.gg/api/v2/rocket-league/standard/profile'
         self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
-        self.webserver = subprocess.Popen("python app.py", cwd='./web/', shell=True)
+        self.playlistIDs = playlistDict
         self.rankDict = {}
         self.matchStorage = {}
         self.playlistStorage = '69'
@@ -33,7 +32,7 @@ class rl_playerinfo:
 
         self.q = Queue()
         self.tcp_process = Process(target=run_tcp_server, args=(self.q,))
-        self.tcp_process.start()
+        self.webserver = Process(target=run_webserver)
 
     """
     Plugin output is pulled from the TCP server queue and inserted into class variables.
@@ -60,14 +59,16 @@ class rl_playerinfo:
     """
     On script start the empty `Awaiting Session` table is loaded into table.html. mmr.txt is created or emptied.
     """
-    @staticmethod
-    def createEmptyTable():
+    def createStartupFiles(self):
         with open('web/table_base.html', 'r', encoding='utf-8') as tb:
             with open('web/table.html', 'w', encoding='utf-8') as t:
                 base = tb.read()
                 t.write(base)
         with open('web/mmr.txt', 'w') as create:
             pass
+        with open('web/playlist.html', 'w') as create:
+            pass
+        self.writePlaylist()
 
     """
     This really only checks for differences, it will also run in casual games when someone leaves/joins.
@@ -134,23 +135,26 @@ class rl_playerinfo:
     """
     matchData is integrated into the responses.
     In case of an API error or bot, displayed clearly with the relvant name and platform.
-    Problem: unnecessary iterations in the nested loop. Fix?
+    The two loops could be combined, but it seems to create problems with really annoying workarounds.
     """
     def responses_mod(self, resps: list, matchData: dict):
         valid_players = []
         errorhandles = ['Unknown to API', 'API Server Error', 'No API Response', 'AI']
         self.responses_check(resps)
 
+        # First the clean responses are found
         for item in self.api_resps:
-            for player in matchData['Match']['players']:
-                uid = item['data']['platformInfo']['platformUserIdentifier']
-                platform_slug = item['data']['platformInfo'].get('platformSlug', None)
-                if platform_slug is not None:
-                    item['data']['gameInfo'] = {}
-                    item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
-                    valid_players.append(uid)
-                    continue
+            print(item['data']['platformInfo'])
+            uid = item['data']['platformInfo'].get('platformUserIdentifier', None)
+            platform_slug = item['data']['platformInfo'].get('platformSlug', None)
+            if platform_slug is not None:
+                item['data']['gameInfo'] = {}
+                item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
+                valid_players.append(uid)
 
+        # And then errors are handled.
+        for player in matchData['Match']['players']:
+            for item in self.api_resps:
                 handle = item['data']['platformInfo']['platformUserHandle']
                 if player not in valid_players and handle in errorhandles:
                     item['data']['platformInfo']['platformUserIdentifier'] = player
@@ -158,7 +162,7 @@ class rl_playerinfo:
                     item['data']['gameInfo']['team'] = matchData['Match']['players'][player]['team']
                     item['data']['platformInfo']['platformSlug'] = self.platformDict[
                         str(matchData['Match']['players'][player]['platform'])]
-                    continue
+                    break
 
     """
     API is only queried if player is not a bot. Afterwards, the bot templates (if any) are appended to the responses.
@@ -231,12 +235,10 @@ class rl_playerinfo:
         pid = self.playlistStorage
 
         with open('web/playlist.html', 'w', encoding='utf-8') as f:
-            f.write("{% extends 'index.html' %}\n{% block playlist %}\n")
             if pid in self.playlistIDs.keys():
                 f.write(f"Now playing: {self.playlistIDs[pid]}")
             else:
                 f.write("Now playing: Something interesting...")
-            f.write("\n{% endblock %}")
 
     """
     Yes, theoretically someone could sql inject into your local db here, with tablefmt='unsafehtml'.
@@ -245,9 +247,7 @@ class rl_playerinfo:
     @staticmethod
     def writeTable(listy: list):
         with open('web/table.html', 'w', encoding='utf-8') as f:
-            f.write("{% extends 'playlist.html' %}\n{% block head %}\n{% endblock %}\n{% block body %}\n")
             f.write(tabulate(listy, headers='firstrow', tablefmt='unsafehtml', colalign='center', numalign='center'))
-            f.write("\n{% endblock %}")
         print('Table generated')
 
     """
@@ -334,7 +334,9 @@ class rl_playerinfo:
     def main(self):
         if is_chrome_installed():
             updateChromedriver()
-        self.createEmptyTable()
+        self.createStartupFiles()
+        self.webserver.start()
+        self.tcp_process.start()
         atexit.register(self.handleExit)
         while True:
             self.api_resps.clear()

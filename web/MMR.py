@@ -12,6 +12,8 @@ playlistDict = {'0': 'Casual', '1': 'Casual Duel', '2': 'Casual Doubles', '3': '
 
 
 def modMMRjson(jsonDict):
+    if jsonDict == '':
+        return ''
 
     for key in list(jsonDict["MMR"].keys()):
         playlist_name = playlistDict.get(key, None)
