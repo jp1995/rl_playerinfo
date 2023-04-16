@@ -41,7 +41,7 @@ json MatchDataScraper::getMatchData() {
 				j["Match"]["players"][UIDstr]["team"] = teamindex;
 				j["Match"]["players"][UIDstr]["platform"] = platform;
 			}
-			else if (platform == 7) {
+			else if (platform == 7 or platform == 4) {
 				j["Match"]["players"][switchUIDstr]["team"] = teamindex;
 				j["Match"]["players"][switchUIDstr]["platform"] = platform;
 			}
