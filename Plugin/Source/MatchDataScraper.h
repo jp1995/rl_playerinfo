@@ -31,10 +31,11 @@ class MatchDataScraper : public BakkesMod::Plugin::BakkesModPlugin
 	int getPlaylistID();
 	void writePlaylistID(int idstring);
 	void getPlayerMMR(UniqueIDWrapper id);
-	int calculateStreak(json j, std::string safePID);
-	void writePlayerMMR(float mmr, int& playlistID);
+	void calcPlayerMMR(float mmr, int& playlistID);
+	void writePlayerMMR(const json& jMMR);
+	json activeCheck(json& jMMR, const std::string& safePID);
+	json calcStreak(json jMMR, const std::string& safePID, int delta_a, int delta_b);
 	json getSavedPlayerMMR();
-
 	void sendData(const json& data);
 	void asyncConnect(tcp::socket& socket, boost::asio::io_context& io_context);
 	void asyncWrite(tcp::socket& socket, const std::string& json_string);

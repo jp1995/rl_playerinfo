@@ -30,7 +30,6 @@ social_icons = {'twitter': 'assets/icons/twitter.svg', 'twitch': 'assets/icons/t
 
 
 def formatTable(listy: list):
-    print(listy)
     outlist = []
     url = listy[-1]
     urllink = f'<div class="namecontainer"><a href="{url}" class="nameurl">{listy[0]}</a><div class="socialscontainer">'

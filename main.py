@@ -90,6 +90,7 @@ class rl_playerinfo:
             mmrOld = f.readline()
             if mmrOld != self.mmrNew:
                 f.write(json.dumps(self.mmrNew))
+                print('MMR updated\n')
 
     """
     Appropriate error template is loaded and returned.
@@ -144,12 +145,19 @@ class rl_playerinfo:
 
         # First the clean responses are found
         for item in self.api_resps:
-            print(item['data']['platformInfo'])
             uid = item['data']['platformInfo'].get('platformUserIdentifier', None)
             platform_slug = item['data']['platformInfo'].get('platformSlug', None)
             if platform_slug is not None:
                 item['data']['gameInfo'] = {}
-                item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
+                # fix to scuffed API implementation for switch players
+                try:
+                    item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
+                except KeyError:
+                    if platform_slug == 'switch':
+                        item['data']['gameInfo']['team'] = matchData['Match']['players'][uid.lower()]['team']
+                    else:
+                        item['data']['gameInfo']['team'] = 0
+                        print('UID != matchData player, switch workaround did not work, teams can be incorrect')
                 valid_players.append(uid)
 
         # And then errors are handled.
@@ -209,7 +217,7 @@ class rl_playerinfo:
         return sorted_rankdict
 
     """
-    The table is divided in half in the css, with the top half being blue and bottom half being red. Moving blue to top.
+    In the css, the table is divided in half, with the top half being blue and bottom half being red. Moving blue to top.
     """
     @staticmethod
     def sortPlayersByTeams(table: list):
@@ -248,7 +256,7 @@ class rl_playerinfo:
     def writeTable(listy: list):
         with open('web/table.html', 'w', encoding='utf-8') as f:
             f.write(tabulate(listy, headers='firstrow', tablefmt='unsafehtml', colalign='center', numalign='center'))
-        print('Table generated')
+        print('Table generated\n')
 
     """
     Data to be inserted into the database is collected.
