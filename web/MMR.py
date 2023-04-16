@@ -12,20 +12,24 @@ playlistDict = {'0': 'Casual', '1': 'Casual Duel', '2': 'Casual Doubles', '3': '
 
 
 def modMMRjson(jsonDict):
-    if jsonDict == '':
-        return ''
+    if jsonDict is None:
+        return None
 
     for key in list(jsonDict["MMR"].keys()):
         playlist_name = playlistDict.get(key, None)
-        if playlist_name:
+        if playlist_name and len(key) < 3:
             jsonDict["MMR"][playlist_name] = jsonDict["MMR"].pop(key)
 
     for key, value in jsonDict["MMR"].items():
-        if math.copysign(1, value['delta']) == 1:
+        if type(value['delta']) == str:
+            continue
+        elif math.copysign(1, value['delta']) == 1:
             jsonDict['MMR'][key]['delta'] = '+'+str(round(value['delta'], 1))
         else:
             jsonDict['MMR'][key]['delta'] = str(round(value['delta'], 1))
-        if math.copysign(1, value['streak']) == 1:
+        if type(value['streak']) == str:
+            continue
+        elif math.copysign(1, value['streak']) == 1:
             jsonDict['MMR'][key]['streak'] = '+'+str(value['streak'])
         else:
             jsonDict['MMR'][key]['streak'] = str(value['streak'])

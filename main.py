@@ -23,6 +23,7 @@ class rl_playerinfo:
         self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
         self.playlistIDs = playlistDict
         self.rankDict = {}
+        self.mmrOld = {}
         self.matchStorage = {}
         self.playlistStorage = '69'
         self.matchCurrent = {}
@@ -32,7 +33,8 @@ class rl_playerinfo:
 
         self.q = Queue()
         self.tcp_process = Process(target=run_tcp_server, args=(self.q,))
-        self.webserver = Process(target=run_webserver)
+        self.wq = Queue()
+        self.webserver = Process(target=run_webserver, args=(self.wq,))
 
     """
     Plugin output is pulled from the TCP server queue and inserted into class variables.
@@ -86,11 +88,10 @@ class rl_playerinfo:
             self.writePlaylist()
 
     def writeMMR(self):
-        with open('web/mmr.txt', 'w+', encoding='utf-8') as f:
-            mmrOld = f.readline()
-            if mmrOld != self.mmrNew:
-                f.write(json.dumps(self.mmrNew))
-                print('MMR updated\n')
+        if self.mmrOld != self.mmrNew:
+            self.mmrOld = self.mmrNew
+            self.wq.put(json.dumps(self.mmrNew))
+            print('MMR updated')
 
     """
     Appropriate error template is loaded and returned.

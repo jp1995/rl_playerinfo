@@ -4,7 +4,10 @@ import json
 import os
 
 
-def run_webserver():
+data = None
+
+
+def run_webserver(wq):
     os.chdir('./web/')
     app = Flask(__name__, template_folder='.', static_folder='assets')
     app.jinja_env.auto_reload = True
@@ -18,18 +21,16 @@ def run_webserver():
 
     @app.route('/update_mmr')
     def update_mmr():
-        with open('mmr.txt') as f:
-            try:
-                data = json.load(f)
+        global data
+        print(f'Data is now: {data}')
+
+        if not wq.empty():
+            data = wq.get()
+            data = json.loads(data)
+            if 'MMR' not in data.keys():
                 data = {'MMR': data}
-            except json.decoder.JSONDecodeError:
-                data = ''
 
-        if data == '':
-            render_mmr = render_template('MMR_base.html')
-        else:
-            render_mmr = render_template('MMR.html', data=modMMRjson(data))
-
+        render_mmr = render_template('MMR.html', data=modMMRjson(data))
         return jsonify({'html': render_mmr})
 
     @app.route('/update_playlist')
