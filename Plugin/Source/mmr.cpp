@@ -33,43 +33,55 @@ void MatchDataScraper::getPlayerMMR(UniqueIDWrapper id) {
 
 	float mmr = gameWrapper->GetMMRWrapper().GetPlayerMMR(primaryID, playlistID);
 
-	writePlayerMMR(mmr, playlistID);
+    calcPlayerMMR(mmr, playlistID);
 }
 
-int MatchDataScraper::calculateStreak(json j, std::string safePID) {
-	int streak = 0;
-	bool lastResultWasWin = true;
+json MatchDataScraper::calcStreak(json jMMR, const std::string& safePID, int delta_a, int delta_b) {
+    int wins = jMMR[safePID]["wins"];
+    int losses = jMMR[safePID]["losses"];
+    int streak = jMMR[safePID]["streak"];
 
-	auto& results = j[safePID]["results"];
-	if (results.size() > 0) {
-		lastResultWasWin = (results[results.size() - 1] == "win");
-	}
+    if (delta_b > delta_a) {
+        wins++;
+        if (streak >= 0) {
+            streak++;
+        }
+        else {
+            streak = 1;
+        }
+    }
+    else if (delta_b < delta_a) {
+        losses++;
+        if (streak <= 0) {
+            streak--;
+        }
+        else {
+            streak = -1;
+        }
+    }
 
-	for (int i = results.size() - 1; i >= 0; i--) {
-		if ((results[i] == "win" && lastResultWasWin) || (results[i] == "loss" && !lastResultWasWin)) {
-			streak++;
-		}
-		else {
-			break;
-		}
-		lastResultWasWin = (results[i] == "win");
-	}
+    jMMR[safePID]["wins"] = wins;
+    jMMR[safePID]["losses"] = losses;
+    jMMR[safePID]["streak"] = streak;
 
-	if (results.size() > 0) {
-		if (results[results.size() - 1] == "loss" && !lastResultWasWin) {
-			streak = -streak;
-		}
-		else if (results[results.size() - 1] == "win" && lastResultWasWin) {
-			streak = +streak;
-		}
-	}
-
-	return streak;
+    return jMMR;
 }
 
-void MatchDataScraper::writePlayerMMR(float mmr, int& playlistID) {
+json MatchDataScraper::activeCheck(json& jMMR, const std::string& safePID) {
+    for (auto& [key, value] : jMMR.items()) {
+        if (key == safePID) {
+            jMMR[key]["active"] = true;
+        }
+        else {
+            jMMR[key]["active"] = false;
+        }
+    }
+    return jMMR;
+}
+
+void MatchDataScraper::calcPlayerMMR(float mmr, int& playlistID) {
     std::string safePID = to_string(playlistID);
-    json jMMR = getSavedPlayerMMR();  
+    json jMMR = getSavedPlayerMMR();
 
     if (jMMR[safePID].contains("start")) {
         jMMR[safePID]["end"] = mmr;
@@ -79,42 +91,28 @@ void MatchDataScraper::writePlayerMMR(float mmr, int& playlistID) {
         jMMR[safePID]["delta"] = mmr_delta;
         float delta_b = jMMR[safePID]["delta"];
 
-        if (!jMMR[safePID].contains("results")) {
-            jMMR[safePID]["results"] = nlohmann::json::array();
-        }
-        if (delta_b > delta_a) {
-            std::string result = "win";
-            jMMR[safePID]["results"].push_back(result);
-        }
-        else if (delta_b < delta_a) {
-            std::string result = "loss";
-            jMMR[safePID]["results"].push_back(result);
-        }
+        jMMR = calcStreak(jMMR, safePID, delta_a, delta_b);
     }
     else {
         jMMR[safePID]["start"] = mmr;
         jMMR[safePID]["end"] = mmr;
         jMMR[safePID]["delta"] = 0.0;
-        jMMR[safePID]["results"] = nlohmann::json::array();
+        jMMR[safePID]["wins"] = 0;
+        jMMR[safePID]["losses"] = 0;
+        jMMR[safePID]["streak"] = 0;
     }
 
-    int streak = calculateStreak(jMMR, safePID);
-    jMMR[safePID]["streak"] = streak;
-    
-    for (auto& [key, value] : jMMR.items()) {
-        if (key == safePID) {
-            jMMR[key]["active"] = true;
-        }
-        else {
-            jMMR[key]["active"] = false;
-        }
-    }
+    jMMR = activeCheck(jMMR, safePID);
+
+    writePlayerMMR(jMMR);
+}
+
+void MatchDataScraper::writePlayerMMR(const json& jMMR) {
 
     if (mmrData["MMR"] != jMMR) {
         mmrData["MMR"] = jMMR;
         sendData(jMMR);
     }
-    
 
     LOG("Player MMR saved");
 }

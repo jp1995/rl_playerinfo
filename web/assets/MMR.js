@@ -8,20 +8,21 @@ window.onload = function() {
     const dropdownli = document.querySelectorAll('.dropdown-li')
 
     navbarButton.addEventListener('click', () => {
-    navbarSelect.classList.remove('active');
-    navbarButton.classList.add('active');
+        navbarSelect.classList.remove('active');
+        navbarButton.classList.add('active');
     });
 
     dropdownli.forEach((dropdownli) => {
         dropdownli.addEventListener('click', (event) => {
             navbarButton.classList.remove('active');
             navbarSelect.classList.add('active');
+        });
     });
-});
 
-// Set initial active state to the navbar__button
-navbarButton.classList.add('active');
+    // Set initial active state to the navbar__button
+    navbarButton.classList.add('active');
 };
+
 function toggleData(mmrId) {
     let items = document.querySelectorAll('.mmrdata__item');
     for (let i = 0; i < items.length; i++) {

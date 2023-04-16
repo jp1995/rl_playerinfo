@@ -19,7 +19,6 @@ def chromedriver_getversion():
               f'Chrome version {bVersion}\n')
         return [False, bVersion]
     else:
-        print('Driver version matches Chrome version, continuing\n')
         return [True]
 
 
@@ -35,10 +34,8 @@ def updateChromedriver():
         findurl = re.findall(rf"ChromeDriver {checkv[1]}.+?(?=</a>|</strong>)", resp.text)
 
         if len(findurl) > 0:
-            print(findurl)
             dlver = findurl[0].split(' ')[1].split('</span')[0]
             zipurl += f'{dlver}/{zipname}'
-            print(zipurl)
             dlzip = requests.get(zipurl)
 
             with open(f'webdriver/{zipname}', 'wb') as out_file:

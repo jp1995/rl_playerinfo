@@ -1,5 +1,3 @@
-{% extends 'table.html' %}
-{% block MMRtrack %}
 <head>
     <title>MMR Data</title>
     <script src="assets/MMR.js" type="text/javascript"></script>
@@ -30,12 +28,11 @@
     {% for key, value in data.MMR.items() %}
     <div class="mmrdata__item {% if value.active %}visible{% else %}hidden{% endif %}" id="mmr-{{ key }}">
         <p>MMR: {{ value.delta }}</p>
-        <p>Wins: {{ value.results.count('win') }}</p>
-        <p>Losses: {{ value.results.count('loss') }}</p>
+        <p>Wins: {{ value.wins }}</p>
+        <p>Losses: {{ value.losses}}</p>
         <p>Streak: {{ value.streak }}</p>
     </div>
     {% endfor %}
 </div>
 
 </body>
-{% endblock %}

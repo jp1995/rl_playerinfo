@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "MatchDataScraper.h"
 #include <fstream>
+#include <cctype>
 
 using namespace std;
 
@@ -31,10 +32,18 @@ json MatchDataScraper::getMatchData() {
 
 			std::string name = pri.GetPlayerName().ToString();
 			std::string UIDstr = std::to_string(uid);
+			std::string switchUIDstr = "";
+			for (char c : UIDstr) {
+				switchUIDstr += std::tolower(c);
+			}
 
 			if (platform == 1) {
 				j["Match"]["players"][UIDstr]["team"] = teamindex;
 				j["Match"]["players"][UIDstr]["platform"] = platform;
+			}
+			else if (platform == 7) {
+				j["Match"]["players"][switchUIDstr]["team"] = teamindex;
+				j["Match"]["players"][switchUIDstr]["platform"] = platform;
 			}
 			else {
 				j["Match"]["players"][name]["team"] = teamindex;
