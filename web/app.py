@@ -1,7 +1,6 @@
 from flask import Flask, render_template
 from livereload import Server
 from web.MMR import modMMRjson
-import logging
 import json
 import os
 
@@ -10,12 +9,9 @@ def run_webserver():
     os.chdir('./web/')
     app = Flask(__name__, template_folder='.', static_folder='assets')
     app.jinja_env.auto_reload = True
-    app.config['TEMPLATES_AUTO_RELOAD'] = True
-    app.logger.disabled = True
+    # app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-    log = logging.getLogger('werkzeug')
-    log.setLevel(logging.DEBUG)
-    print('Webserver started')
+    print("Webserver started: http://127.0.0.1:5500")
 
     @app.route('/')
     def index():
@@ -29,7 +25,7 @@ def run_webserver():
         render_table = render_template('index.html', data=modMMRjson(data))
         return render_table
 
-    server = Server(app)
-    server.serve()
+    server = Server(app.wsgi_app)
+    server._setup_logging = lambda: None
     server.watch('.')
     server.serve(root='.')
