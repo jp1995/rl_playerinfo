@@ -23,14 +23,8 @@
     </div>
     <div class="inlinetables">
         <div class="trackertable">
-
         </div>
         <div class="mmrtable">
-            {% if not data %}
-                {% include "MMR_base.html" %}
-            {% else %}
-                {% include "MMR.html" %}
-            {% endif %}
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -76,9 +70,13 @@
             }
 
             // Call the updateMMR and updatePlaylist functions
+            let mmrData = "{{ mmrData }}";
+            let matchData = "{{ matchData }}";
+
             updateMMR();
-            updatePlaylist();
             updateMatch();
+            updatePlaylist();
+
         });
     </script>
 </body>

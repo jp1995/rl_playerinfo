@@ -1,0 +1,43 @@
+{% if matchData %}
+
+<table>
+<thead>
+<tr><th>Name</th><th>1v1</th><th>2v2</th><th>3v3</th><th>Wins</th><th><p title="Competitive games this season">Games <sup>*</sup></p></th><th>Reward level</th><th>Country</th><th>Platform</th></tr>
+</thead>
+<tbody>
+{% for player in matchData[1:] %}
+<tr>
+    <td>{{ player['handleLink']|safe }}</td>
+    <td>{{ player['1v1']|safe }}</td>
+    <td>{{ player['2v2']|safe }}</td>
+    <td>{{ player['3v3']|safe }}</td>
+    <td>{{ player['Wins']|safe }}</td>
+    <td>{{ player['Games']|safe }}</td>
+    <td>{{ player['Rewardlevel']|safe }}</td>
+    <td>{{ player['Country']|safe }}</td>
+    <td>{{ player['Platform']|safe }}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% else %}
+
+<head>
+    <link rel="stylesheet" href="assets/table_base.css">
+</head>
+<table class="tabletop">
+<thead>
+<tr><th>Name</th><th>1v1</th><th>2v2</th><th>3v3</th><th>Wins</th><th>Games</th><th>Reward level</th><th>Country</th><th>Platform</th></tr>
+</thead>
+</table>
+<table class="tablebottom">
+<tbody>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td><img class="waiting" src="assets/icons/waiting.svg" alt="waiting..."></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td><p class="notplaying">Awaiting Session</p></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+
+{% endif %}
