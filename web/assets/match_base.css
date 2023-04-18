@@ -1,4 +1,9 @@
-.waitingnavbar {
+.basetable_container {
+    margin-left: 4vh;
+    margin-right: 2.5vh;
+}
+
+.basetablenav {
     background-color: #1d1d1d;
     height: 57px;
     width: 100%;
@@ -6,7 +11,7 @@
     position: relative;
 }
 
-.waitingnavbar__button {
+.basetablenav div {
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
@@ -17,20 +22,28 @@
     display: inherit;
 }
 
-.waitingmmr {
+.basetable {
+    text-align: center;
+    font-size: 18pt;
+    height: 320px;
+    border: 5px solid #1d1d1d;
+    border-top: none;
+    background-color: #161616;
+}
+
+.basetablewaiting {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
 }
 
-.waitingmmr img {
+.basetablewaiting img {
     width: 105px;
-    margin-top: 70px;
+    margin-top: 7%;
 }
 
-.waitingmmr .notplaying {
-
+.basetablewaiting .notplaying {
     color: dimgray;
     font-size: 16px;
 }

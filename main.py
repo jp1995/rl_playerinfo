@@ -7,7 +7,6 @@ from web.formatTable import formatTable
 from TCPserver import run_tcp_server
 from web.app import run_webserver
 from web.MMR import playlistDict
-from tabulate import tabulate
 from time import sleep
 import atexit
 import json
@@ -23,8 +22,9 @@ class rl_playerinfo:
         self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
         self.playlistIDs = playlistDict
         self.rankDict = {}
+        self.mmrOld = {}
         self.matchStorage = {}
-        self.playlistStorage = '69'
+        self.playlistStorage = ''
         self.matchCurrent = {}
         self.playlistCurrent = '69'
         self.mmrNew = {}
@@ -32,7 +32,10 @@ class rl_playerinfo:
 
         self.q = Queue()
         self.tcp_process = Process(target=run_tcp_server, args=(self.q,))
-        self.webserver = Process(target=run_webserver)
+        self.mmrq = Queue()
+        self.matchq = Queue()
+        self.playlistq = Queue()
+        self.webserver = Process(target=run_webserver, args=(self.mmrq, self.matchq, self.playlistq,))
 
     """
     Plugin output is pulled from the TCP server queue and inserted into class variables.
@@ -57,20 +60,6 @@ class rl_playerinfo:
             return None
 
     """
-    On script start the empty `Awaiting Session` table is loaded into table.html. mmr.txt is created or emptied.
-    """
-    def createStartupFiles(self):
-        with open('web/table_base.html', 'r', encoding='utf-8') as tb:
-            with open('web/table.html', 'w', encoding='utf-8') as t:
-                base = tb.read()
-                t.write(base)
-        with open('web/mmr.txt', 'w') as create:
-            pass
-        with open('web/playlist.html', 'w') as create:
-            pass
-        self.writePlaylist()
-
-    """
     This really only checks for differences, it will also run in casual games when someone leaves/joins.
     """
     def checkIfNewmatch(self):
@@ -79,18 +68,28 @@ class rl_playerinfo:
 
             return self.matchCurrent
 
+    def writeMatch(self, listy: list):
+        self.matchq.put(listy)
+        print('Table generated\n')
+
     def checkIfNewPlaylist(self):
         if self.playlistCurrent != self.playlistStorage:
             self.playlistStorage = self.playlistCurrent
 
             self.writePlaylist()
 
+    def writePlaylist(self):
+        pid = self.playlistStorage
+        if pid in self.playlistIDs.keys():
+            self.playlistq.put(self.playlistIDs[pid])
+        else:
+            self.playlistq.put('Now playing: Something interesting...')
+
     def writeMMR(self):
-        with open('web/mmr.txt', 'w+', encoding='utf-8') as f:
-            mmrOld = f.readline()
-            if mmrOld != self.mmrNew:
-                f.write(json.dumps(self.mmrNew))
-                print('MMR updated\n')
+        if self.mmrOld != self.mmrNew:
+            self.mmrOld = self.mmrNew
+            self.mmrq.put(json.dumps(self.mmrNew))
+            print('MMR updated')
 
     """
     Appropriate error template is loaded and returned.
@@ -220,13 +219,10 @@ class rl_playerinfo:
     In the css, the table is divided in half, with the top half being blue and bottom half being red. Moving blue to top.
     """
     @staticmethod
-    def sortPlayersByTeams(table: list):
-        stable = sorted(table[1:], key=lambda x: int(x[-1]))
-        for item in stable:
-            del item[-1]
-        sorted_table = [table[0]] + stable
-
-        return sorted_table
+    def sortPlayersByTeams(matchdicts: list):
+        sorted_matchdicts = ['Match']
+        sorted_matchdicts.extend(sorted(matchdicts, key=lambda x: x['Team']))
+        return sorted_matchdicts
 
     def getSocialURLs(self, listy: list):
         if listy:
@@ -238,25 +234,6 @@ class rl_playerinfo:
             return outl
         else:
             return ['-']
-
-    def writePlaylist(self):
-        pid = self.playlistStorage
-
-        with open('web/playlist.html', 'w', encoding='utf-8') as f:
-            if pid in self.playlistIDs.keys():
-                f.write(f"Now playing: {self.playlistIDs[pid]}")
-            else:
-                f.write("Now playing: Something interesting...")
-
-    """
-    Yes, theoretically someone could sql inject into your local db here, with tablefmt='unsafehtml'.
-    Need to write a function that checks names. Or total rewrite of the table creation, without tabulate.
-    """
-    @staticmethod
-    def writeTable(listy: list):
-        with open('web/table.html', 'w', encoding='utf-8') as f:
-            f.write(tabulate(listy, headers='firstrow', tablefmt='unsafehtml', colalign='center', numalign='center'))
-        print('Table generated\n')
 
     """
     Data to be inserted into the database is collected.
@@ -293,42 +270,40 @@ class rl_playerinfo:
     The list of lists that makes up the table is created.
     """
     def handleData(self, api_resps: list):
-        table = [['Name', '1v1', '2v2', '3v3', 'Wins',
-                  '<p title="Competitive games this season">Games <sup>*</sup></p>',
-                  'Reward level', 'Country', 'Platform']]
+        table = []
 
         for resp in api_resps:
             uid = resp['data']['platformInfo']['platformUserIdentifier']
             platform = resp['data']['platformInfo']['platformSlug']
             gen_url = f'{self.gen_base_url}/{platform}/{uid}/overview'
-            totalprint = []
 
-            self.rankDict = self.createRankDict(resp)
-
-            totalprint.append(resp['data']['platformInfo']['platformUserHandle'])
-            for key, value in self.rankDict.items():
-                if key not in ['1v1_games', '2v2_games', '3v3_games']:
-                    totalprint.append(f'{value}')
-            totalprint.append(resp['data']['segments'][0]['stats']['wins']['value'])
-            totalprint.append(self.rankDict['1v1_games'] + self.rankDict['2v2_games'] + self.rankDict['3v3_games'])
+            rawtable = {}
             rewardlevel = resp['data']['segments'][0]['stats']['seasonRewardLevel']['metadata']['rankName']
             rewardlevel = rewardlevel if rewardlevel != 'None' else 'NULL RR'
-            totalprint.append(rewardlevel)
-            totalprint.append(str(resp['data']['userInfo']['countryCode']))
-            totalprint.append(resp['data']['platformInfo']['platformSlug'])
+            self.rankDict = self.createRankDict(resp)
             socialURLs = self.getSocialURLs(resp['data']['userInfo']['socialAccounts'])
-            totalprint.append(socialURLs)
-            totalprint.append(resp['data']['gameInfo']['team'])
-            totalprint.append(gen_url)
 
-            formatted = formatTable(totalprint)
+            rawtable['Handle'] = resp['data']['platformInfo']['platformUserHandle']
+            for key, value in self.rankDict.items():
+                if key not in ['1v1_games', '2v2_games', '3v3_games']:
+                    rawtable[key] = f'{value}'
+            rawtable['Wins'] = resp['data']['segments'][0]['stats']['wins']['value']
+            rawtable['Games'] = self.rankDict['1v1_games'] + self.rankDict['2v2_games'] + self.rankDict['3v3_games']
+            rawtable['Rewardlevel'] = rewardlevel
+            rawtable['Country'] = str(resp['data']['userInfo']['countryCode'])
+            rawtable['Platform'] = resp['data']['platformInfo']['platformSlug']
+            rawtable['socialURLs'] = socialURLs
+            rawtable['Team'] = resp['data']['gameInfo']['team']
+            rawtable['URL'] = gen_url
+
+            formatted = formatTable(rawtable)
             table.append(formatted)
 
         sorted_table = self.sortPlayersByTeams(table)
-        self.writeTable(sorted_table)
+        self.writeMatch(sorted_table)
 
     """
-    The Flask server and TCP server are closed gracefully.
+    The Flask server and TCP server are closed "gracefully".
     """
     def handleExit(self):
         self.webserver.kill()
@@ -342,7 +317,6 @@ class rl_playerinfo:
     def main(self):
         if is_chrome_installed():
             updateChromedriver()
-        self.createStartupFiles()
         self.webserver.start()
         self.tcp_process.start()
         atexit.register(self.handleExit)

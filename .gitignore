@@ -2,8 +2,5 @@
 /webdriver/__pycache__/
 /web/__pycache__/
 /__pycache__/
-docs/
+/docs/
 return_to_monke.py
-web/table.html
-web/mmr.txt
-web/playlist.html

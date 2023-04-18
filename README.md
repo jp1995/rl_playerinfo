@@ -70,9 +70,8 @@ The tracker network API is public, but there are some basic measures against scr
 This may change. There's no official support or guarantees for future access.
 API availability is decent, but sometimes requests fail. There can be instability during peak times, this can last for days.
 
-## Functionality todo
+## Functionality todo (maybe)
 
 * Some kind of caching system to not query the same player again during one match. In casual games players leave and join, this would help if API is not doing well.
 * Save previous matches, add ability to view them in the client.
-* clean template autoreloads (check branch).
 * MMR storage and merge should really happen in script, in case of a game crash.

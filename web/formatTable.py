@@ -26,63 +26,68 @@ icondict = {'NULL': '<img class="tier" src="../assets/icons/unranked.png" alt="u
             'Supersonic I': '<img class="tier" src="../assets/icons/gc1.png" alt="gc1">'}
 
 platforms = ['unknown', 'steam', 'xbl', 'psn', 'switch', 'epic']
-social_icons = {'twitter': 'assets/icons/twitter.svg', 'twitch': 'assets/icons/twitch.svg', 'reddit': 'assets/icons/reddit.svg'}
+social_icons = {'twitter': 'assets/icons/twitter.svg', 'twitch': 'assets/icons/twitch.svg',
+                'reddit': 'assets/icons/reddit.svg'}
 
 
-def formatTable(listy: list):
-    outlist = []
-    url = listy[-1]
-    urllink = f'<div class="namecontainer"><a href="{url}" class="nameurl">{listy[0]}</a><div class="socialscontainer">'
+def formatTable(rawMatch: dict):
+    formattedMatch = {}
+    url = rawMatch['URL']
+    handleLink = f'<div class="namecontainer">' \
+                 f'<a href="{url}" class="nameurl">{rawMatch["Handle"]}</a>' \
+                 f'<div class="socialscontainer">'
 
-    for social in listy[-3]:
+    for social in rawMatch['socialURLs']:
         for key, value in social_icons.items():
             if key in social:
                 soclink = f'<a href="{social}"><img class="social" src="{value}" alt="{key}"></a>'
-                urllink += soclink
+                handleLink += soclink
 
-    urllink += '</div></div>'
-    outlist.append(urllink)
+    handleLink += '</div></div>'
+    formattedMatch['handleLink'] = handleLink
 
-    del listy[0]
-    del listy[-1]
-    del listy[-2]
+    keys = ['1v1', '2v2', '3v3', 'Rewardlevel']
 
-    for item in listy:
+    for rawkey in keys:
         for key, value in icondict.items().__reversed__():
-            if isinstance(item, str):
-                if item == key == 'NULL':
-                    outlist.append(value+f'<span>I, {listy[listy.index(item)+1]}</span>')
-                    listy.remove(item)
-                    break
-                if item == 'NULL RR':
-                    outlist.append(icondict['NULL'])
-                    break
-                if item == key.replace(' I', '').replace(' II', '').replace(' III', ''):
-                    outlist.append(icondict[f'{key.split(" ")[0]} I'])
-                    break
-                if item.startswith(key) and item != 'NULL':
-                    outlist.append(value+f'<span>{item.split(" ")[-1]}, {listy[listy.index(item)+1]}</span>')
-                    listy.remove(item)
-                    break
+            if rawMatch[rawkey] == key == 'NULL':
+                # outlist.append(value + f'<span>I, {listy[listy.index(item) + 1]}</span>')
+                formattedMatch[rawkey] = value + f'<span>I, {rawMatch[f"{rawkey}_winstreak"]}</span>'
+                break
+            if rawMatch[rawkey] == 'NULL RR':
+                # outlist.append(icondict['NULL'])
+                formattedMatch[rawkey] = icondict['NULL']
+                break
+            if rawMatch[rawkey] == key.replace(' I', '').replace(' II', '').replace(' III', ''):
+                # outlist.append(icondict[f'{key.split(" ")[0]} I'])
+                formattedMatch[rawkey] = icondict[f'{key.split(" ")[0]} I']
+                break
+            if rawMatch[rawkey].startswith(key) and rawMatch[rawkey] != 'NULL':
+                # outlist.append(value + f'<span>{item.split(" ")[-1]}, {listy[listy.index(item) + 1]}</span>')
+                formattedMatch[rawkey] = value + f'<span>I, {rawMatch[f"{rawkey}_winstreak"]}</span>'
+                break
         else:
             continue
 
-    # Exclude already used winstreak items
-    outlist.extend(listy[3:])
-    # Replace reward level string with icon
-    outlist[7:8] = [outlist[4]]
-    outlist[4:5] = []
+    for key in ['Wins', 'Games', 'Team']:
+        formattedMatch[key] = rawMatch[key]
 
-    flag = outlist[7].lower()
+    # # Exclude already used winstreak items
+    # outlist.extend(listy[3:])
+    # # Replace reward level string with icon
+    # outlist[7:8] = [outlist[4]]
+    # outlist[4:5] = []
+
+    flag = rawMatch['Country'].lower()
     flaglink = f'<img class="flag" src="https://flagicons.lipis.dev/flags/4x3/{flag}.svg" alt="{flag}" title="{flag}">'
     if flag != 'none':
-        outlist = outlist[:7]+[flaglink]+outlist[8:]
+        formattedMatch['Country'] = flaglink
     else:
-        outlist = outlist[:7] + ['-'] + outlist[8:]
+        formattedMatch['Country'] = '-'
 
-    platform = outlist[8]
+    platform = rawMatch['Platform']
     platlink = f'<img class="platform" src="assets/icons/{platform}.svg" alt="{platform}" title="{platform}">'
     if platform in platforms:
-        outlist = outlist[:8] + [platlink] + outlist[9:]
+        formattedMatch['Platform'] = platlink
 
-    return outlist
+    return formattedMatch

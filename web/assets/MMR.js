@@ -1,27 +1,29 @@
+(function() {
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
 
-window.onload = function() {
-    const button = document.querySelector('.navbar__button');
-    button.addEventListener('click', toggleButton);
+        const button = document.querySelector('.navbar__button');
+        button.addEventListener('click', toggleButton);
 
-    const navbarButton = document.querySelector('.navbar__button');
-    const navbarSelect = document.querySelector('.navbar__select');
-    const dropdownli = document.querySelectorAll('.dropdown-li')
+        const navbarButton = document.querySelector('.navbar__button');
+        const navbarSelect = document.querySelector('.navbar__select');
+        const dropdownli = document.querySelectorAll('.dropdown-li')
 
-    navbarButton.addEventListener('click', () => {
-        navbarSelect.classList.remove('active');
-        navbarButton.classList.add('active');
-    });
-
-    dropdownli.forEach((dropdownli) => {
-        dropdownli.addEventListener('click', (event) => {
-            navbarButton.classList.remove('active');
-            navbarSelect.classList.add('active');
+        navbarButton.addEventListener('click', () => {
+            navbarSelect.classList.remove('active');
+            navbarButton.classList.add('active');
         });
-    });
 
-    // Set initial active state to the navbar__button
-    navbarButton.classList.add('active');
-};
+        dropdownli.forEach((dropdownli) => {
+            dropdownli.addEventListener('click', (event) => {
+                navbarButton.classList.remove('active');
+                navbarSelect.classList.add('active');
+            });
+        });
+
+        // Active class is added to navbar__button
+        navbarButton.classList.add('active');
+    }
+})();
 
 function toggleData(mmrId) {
     let items = document.querySelectorAll('.mmrdata__item');
@@ -33,7 +35,7 @@ function toggleData(mmrId) {
     document.querySelector('#' + CSS.escape(mmrId)).classList.add('visible');
     document.querySelector('#' + CSS.escape(mmrId)).classList.remove('hidden');
 
-    // Update navbar__select text with selected value
+    // navbar__select text is updated with selected value
     const selectedValue = mmrId.split('-')[1];
     const navbarButton = document.querySelector('.navbar__select_header');
     navbarButton.textContent = selectedValue;
