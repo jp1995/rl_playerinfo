@@ -2,7 +2,16 @@
 
 <table>
 <thead>
-<tr><th>Name</th><th>1v1</th><th>2v2</th><th>3v3</th><th>Wins</th><th><p title="Competitive games this season">Games <sup>*</sup></p></th><th>Reward level</th><th>Country</th><th>Platform</th></tr>
+<tr>
+    <th>Name</th>
+    <th>1v1</th>
+    <th>2v2</th>
+    <th>3v3</th>
+    <th>Wins</th>
+    <th><p title="Competitive games this season">Games <sup>*</sup></p></th>
+    <th>Reward level</th>
+    <th>Country</th>
+    <th>Platform</th></tr>
 </thead>
 <tbody>
 {% for player in matchData[1:] %}
@@ -22,21 +31,28 @@
 
 {% else %}
 
-<div class="basetable">
-<table class="tabletop">
-<thead>
-<tr><th>Name</th><th>1v1</th><th>2v2</th><th>3v3</th><th>Wins</th><th>Games</th><th>Reward level</th><th>Country</th><th>Platform</th></tr>
-</thead>
-</table>
-<table class="tablebottom">
-<tbody>
-<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td><td><img class="waiting" src="assets/icons/waiting.svg" alt="waiting..."></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td><td><p class="notplaying">Awaiting Session</p></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-</tbody>
-</table>
-</div>
+<body>
+    <div class="basetable_container">
+	<div class="basetablenav">
+		<div>Name</div>
+        <div>1v1</div>
+        <div>2v2</div>
+        <div>3v3</div>
+        <div>Wins</div>
+        <div>Games</div>
+        <div>Reward level</div>
+        <div>Country</div>
+        <div>Platform</div>
+	</div>
+
+	<div class="basetable">
+		<div class="basetablewaiting" id="mmr-placeholder">
+			<img src="assets/icons/waiting.svg" alt="waiting...">
+			<p class="notplaying">Awaiting Match</p>
+		</div>
+	</div>
+    </div>
+</body>
+
 
 {% endif %}
