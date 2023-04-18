@@ -148,15 +148,15 @@ class rl_playerinfo:
             platform_slug = item['data']['platformInfo'].get('platformSlug', None)
             if platform_slug is not None:
                 item['data']['gameInfo'] = {}
-                # fix to scuffed API implementation for switch players
+                # Sometiems switch/xbl playername has different capitalisation from UID..?
                 try:
                     item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
                 except KeyError:
-                    if platform_slug == 'switch':
+                    if platform_slug == 'switch' or platform_slug == 'xbl':
                         item['data']['gameInfo']['team'] = matchData['Match']['players'][uid.lower()]['team']
                     else:
                         item['data']['gameInfo']['team'] = 0
-                        print('UID != matchData player, switch workaround did not work, teams can be incorrect')
+                        print('UID != matchData player, switch/xbl workaround did not work, teams can be incorrect')
                 valid_players.append(uid)
 
         # And then errors are handled.

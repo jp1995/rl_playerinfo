@@ -8,6 +8,7 @@ import re
 def chromedriver_getversion():
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome(chrome_options=options, executable_path=r'webdriver/chromedriver.exe')
 
     bVersion = driver.capabilities['browserVersion'].split('.')[0]
