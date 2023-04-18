@@ -7,7 +7,6 @@ from web.formatTable import formatTable
 from TCPserver import run_tcp_server
 from web.app import run_webserver
 from web.MMR import playlistDict
-from tabulate import tabulate
 from time import sleep
 import atexit
 import json

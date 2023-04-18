@@ -1,10 +1,20 @@
+.waitingnavbar {
+    background-color: #1d1d1d;
+    height: 57px;
+    width: 100%;
+    display: flex;
+    position: relative;
+}
 
-.navbar__button {
+.waitingnavbar__button {
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
     height: 55px;
     width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: inherit;
 }
 
 .waitingmmr {
@@ -15,7 +25,7 @@
 }
 
 .waitingmmr img {
-    width: 128px;
+    width: 98px;
     margin-top: 70px;
 }
 

@@ -1,4 +1,5 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template
+from flask_socketio import SocketIO
 from web.MMR import modMMRjson
 import json
 import os
@@ -14,6 +15,7 @@ def run_webserver(mmrq, matchq, playlistq):
     app = Flask(__name__, template_folder='.', static_folder='assets')
     app.jinja_env.auto_reload = True
 
+    socketio = SocketIO(app, cors_allowed_origins='*')
     print("Webserver started")
 
     @app.route('/')
@@ -21,7 +23,28 @@ def run_webserver(mmrq, matchq, playlistq):
         render_table = render_template('index.html')
         return render_table
 
-    @app.route('/update_mmr')
+    @socketio.on('rq_current_mmr')
+    def get_mmr():
+        global data
+
+        render_mmr = render_template('MMR.html', mmrData=modMMRjson(data))
+        socketio.emit('reply_mmr_update', {'html': render_mmr})
+
+    @socketio.on('rq_current_playlist')
+    def get_playlist():
+        global playlistData
+
+        render_playlist = render_template('playlist.html', playlistData=playlistData)
+        socketio.emit('reply_playlist_update', {'html': render_playlist})
+
+    @socketio.on('rq_current_match')
+    def get_playlist():
+        global matchData
+
+        render_match = render_template('match.html', matchData=matchData)
+        socketio.emit('reply_match_update', {'html': render_match})
+
+    @socketio.on('request_mmr')
     def update_mmr():
         global data
 
@@ -31,10 +54,13 @@ def run_webserver(mmrq, matchq, playlistq):
             if 'Playlist' not in data.keys():
                 if 'MMR' not in data.keys():
                     data = {'MMR': data}
-        render_mmr = render_template('MMR.html', mmrData=modMMRjson(data))
-        return jsonify({'html': render_mmr})
+            with app.app_context():
+                render_mmr = render_template('MMR.html', mmrData=modMMRjson(data))
+            socketio.emit('reply_mmr_update', {'html': render_mmr})
+        socketio.start_background_task(update_mmr)
+        socketio.sleep(2)
 
-    @app.route('/update_playlist')
+    @socketio.on('request_playlist')
     def update_playlist():
         global playlistData
 
@@ -42,10 +68,13 @@ def run_webserver(mmrq, matchq, playlistq):
             data = playlistq.get()
             playlistData = data
 
-        render_content = render_template('playlist.html', playlistData=playlistData)
-        return jsonify({'html': render_content})
+            with app.app_context():
+                render_playlist = render_template('playlist.html', playlistData=playlistData)
+            socketio.emit('reply_playlist_update', {'html': render_playlist})
+        socketio.start_background_task(update_playlist)
+        socketio.sleep(2)
 
-    @app.route('/update_match')
+    @socketio.on('request_match')
     def update_match():
         global matchData
 
@@ -53,8 +82,10 @@ def run_webserver(mmrq, matchq, playlistq):
             data = matchq.get()
             if data[0] == 'Match':
                 matchData = data
+            with app.app_context():
+                render_match = render_template('match.html', matchData=matchData)
+            socketio.emit('reply_match_update', {'html': render_match})
+        socketio.start_background_task(update_match)
+        socketio.sleep(2)
 
-        render_match = render_template('match.html', matchData=matchData)
-        return jsonify({'html': render_match})
-
-    app.run()
+    socketio.run(app)

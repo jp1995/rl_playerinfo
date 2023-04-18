@@ -1,0 +1,74 @@
+.basetable table {
+    width: 95%;
+    border-collapse: collapse;
+    /*border-style: hidden;*/
+    margin-left: 4vh;
+}
+
+.basetable thead {
+    position: relative;
+    /*box-shadow: 0 0 0 1px #1d1d1d;*/
+    z-index: 1;
+}
+
+.basetable .tablebottom {
+    margin-top: 0;
+}
+
+.basetable tbody{
+    background: linear-gradient(to bottom, #4d6387 50%, #ad5149 50%);
+    border: 5px solid #1d1d1d;
+    border-collapse: collapse;
+    z-index: -1;
+}
+
+.basetable th {
+    height: 56px;
+    margin-left: -2vh;
+    text-align: left;
+    padding-left: 4vh;
+    background-color: #1d1d1d;
+}
+
+.basetable tr {
+    border-collapse: collapse;
+    border-top: hidden;
+}
+
+.basetable tr:nth-child(n+2):nth-child(-n+6) {
+    border-top: none;
+    border-bottom: none;
+}
+
+.basetable td:nth-child(n+2):nth-child(-n+4) {
+    background-color: #161616;
+}
+.basetable th:nth-child(n+2):nth-child(-n+4) {
+    background-color: #1d1d1d;
+}
+
+.basetable td {
+    margin: 2vh;
+    height: 6vh;
+    padding-left: 4vh;
+    background-color: #161616;
+}
+
+.basetable td:first-child {
+    min-width: 220px;
+    max-width: 300px;
+}
+
+.basetable td:nth-child(n+2):nth-child(-n+4) img{
+    margin-left: -2vh;
+}
+
+.basetable .waiting {
+    width: 98px;
+    margin-top: -4vh;
+}
+
+.basetable .notplaying {
+    color: dimgray;
+    margin-left: -3vh;
+}

@@ -1,25 +1,29 @@
-const button = document.querySelector('.navbar__button');
-button.addEventListener('click', toggleButton);
+(function() {
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
 
-const navbarButton = document.querySelector('.navbar__button');
-const navbarSelect = document.querySelector('.navbar__select');
-const dropdownli = document.querySelectorAll('.dropdown-li')
+        const button = document.querySelector('.navbar__button');
+        button.addEventListener('click', toggleButton);
 
-navbarButton.addEventListener('click', () => {
-    navbarSelect.classList.remove('active');
-    navbarButton.classList.add('active');
-});
+        const navbarButton = document.querySelector('.navbar__button');
+        const navbarSelect = document.querySelector('.navbar__select');
+        const dropdownli = document.querySelectorAll('.dropdown-li')
 
-dropdownli.forEach((dropdownli) => {
-    dropdownli.addEventListener('click', (event) => {
-        navbarButton.classList.remove('active');
-        navbarSelect.classList.add('active');
-    });
-});
+        navbarButton.addEventListener('click', () => {
+            navbarSelect.classList.remove('active');
+            navbarButton.classList.add('active');
+        });
 
-// Active class is added to navbar__button
-navbarButton.classList.add('active');
+        dropdownli.forEach((dropdownli) => {
+            dropdownli.addEventListener('click', (event) => {
+                navbarButton.classList.remove('active');
+                navbarSelect.classList.add('active');
+            });
+        });
 
+        // Active class is added to navbar__button
+        navbarButton.classList.add('active');
+    }
+})();
 
 function toggleData(mmrId) {
     let items = document.querySelectorAll('.mmrdata__item');
