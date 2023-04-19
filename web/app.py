@@ -58,7 +58,7 @@ def run_webserver(mmrq, matchq, playlistq):
                 render_mmr = render_template('MMR.html', mmrData=modMMRjson(data))
             socketio.emit('reply_mmr_update', {'html': render_mmr})
         socketio.start_background_task(update_mmr)
-        socketio.sleep(2)
+        socketio.sleep(1)
 
     @socketio.on('request_playlist')
     def update_playlist():
@@ -72,7 +72,7 @@ def run_webserver(mmrq, matchq, playlistq):
                 render_playlist = render_template('playlist.html', playlistData=playlistData)
             socketio.emit('reply_playlist_update', {'html': render_playlist})
         socketio.start_background_task(update_playlist)
-        socketio.sleep(2)
+        socketio.sleep(1)
 
     @socketio.on('request_match')
     def update_match():
@@ -86,6 +86,6 @@ def run_webserver(mmrq, matchq, playlistq):
                 render_match = render_template('match.html', matchData=matchData)
             socketio.emit('reply_match_update', {'html': render_match})
         socketio.start_background_task(update_match)
-        socketio.sleep(2)
+        socketio.sleep(1)
 
     socketio.run(app)

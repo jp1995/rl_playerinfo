@@ -7,7 +7,7 @@ import queue
 """I totally wrote all of this myself and definitely didn't copy from SO :)"""
 
 
-def threaded_requests(addresses, no_workers):
+def threaded_requests(addresses, no_workers, useragent_arr):
     class Worker(Thread):
         def __init__(self, request_queue):
             Thread.__init__(self)
@@ -21,9 +21,9 @@ def threaded_requests(addresses, no_workers):
                     break
 
                 if choosedriver() == 'Chrome':
-                    resp = chromedriver_conf(content).split(';">')[1].split('</pre>')[0]
+                    resp = chromedriver_conf(content, useragent_arr).split(';">')[1].split('</pre>')[0]
                 elif choosedriver() == 'Firefox':
-                    resp = geckodriver_conf(content).split('json">')[1].split('</div>')[0]
+                    resp = geckodriver_conf(content, useragent_arr).split('json">')[1].split('</div>')[0]
                 else:
                     'Chrome or Firefox not installed, cannot continue.'
                     quit(signal.SIGTERM)

@@ -72,6 +72,7 @@ API availability is decent, but sometimes requests fail. There can be instabilit
 
 ## Functionality todo (maybe)
 
+* The time it takes to generate the match table is pretty slow and there's a lot to optimize
 * Some kind of caching system to not query the same player again during one match. In casual games players leave and join, this would help if API is not doing well.
 * Save previous matches, add ability to view them in the client.
 * MMR storage and merge should really happen in script, in case of a game crash.

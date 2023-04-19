@@ -33,7 +33,7 @@ json MatchDataScraper::getMatchData() {
 			std::string name = pri.GetPlayerName().ToString();
 			std::string UIDstr = std::to_string(uid);
 			std::string switchUIDstr = "";
-			for (char c : UIDstr) {
+			for (char c : name) {
 				switchUIDstr += std::tolower(c);
 			}
 

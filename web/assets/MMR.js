@@ -44,7 +44,7 @@ function toggleData(mmrId) {
 
 
 function toggleButton() {
-    // Update the "Previous" text to the default value
+    // The navbar__select value is returned to 'Previous'
     document.querySelector('.navbar__select_header').textContent = 'Previous';
 }
 

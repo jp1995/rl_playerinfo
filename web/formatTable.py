@@ -51,19 +51,15 @@ def formatTable(rawMatch: dict):
     for rawkey in keys:
         for key, value in icondict.items().__reversed__():
             if rawMatch[rawkey] == key == 'NULL':
-                # outlist.append(value + f'<span>I, {listy[listy.index(item) + 1]}</span>')
                 formattedMatch[rawkey] = value + f'<span>I, {rawMatch[f"{rawkey}_winstreak"]}</span>'
                 break
             if rawMatch[rawkey] == 'NULL RR':
-                # outlist.append(icondict['NULL'])
                 formattedMatch[rawkey] = icondict['NULL']
                 break
             if rawMatch[rawkey] == key.replace(' I', '').replace(' II', '').replace(' III', ''):
-                # outlist.append(icondict[f'{key.split(" ")[0]} I'])
                 formattedMatch[rawkey] = icondict[f'{key.split(" ")[0]} I']
                 break
             if rawMatch[rawkey].startswith(key) and rawMatch[rawkey] != 'NULL':
-                # outlist.append(value + f'<span>{item.split(" ")[-1]}, {listy[listy.index(item) + 1]}</span>')
                 formattedMatch[rawkey] = value + f'<span>I, {rawMatch[f"{rawkey}_winstreak"]}</span>'
                 break
         else:
@@ -71,12 +67,6 @@ def formatTable(rawMatch: dict):
 
     for key in ['Wins', 'Games', 'Team']:
         formattedMatch[key] = rawMatch[key]
-
-    # # Exclude already used winstreak items
-    # outlist.extend(listy[3:])
-    # # Replace reward level string with icon
-    # outlist[7:8] = [outlist[4]]
-    # outlist[4:5] = []
 
     flag = rawMatch['Country'].lower()
     flaglink = f'<img class="flag" src="https://flagicons.lipis.dev/flags/4x3/{flag}.svg" alt="{flag}" title="{flag}">'

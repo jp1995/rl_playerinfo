@@ -14,12 +14,15 @@ import json
 
 class rl_playerinfo:
     def __init__(self):
+        self.useragentarr = []
         self.platformDict = {'0': 'unknown', '1': 'steam', '2': 'psn', '3': 'psn', '4': 'xbl',
                              '6': 'switch', '7': 'switch', '8': 'psynet', '11': 'epic'}
         self.soc_base_urls = {'twitch': 'https://twitch.tv/', 'reddit': 'https://www.reddit.com/user/',
                               'twitter': 'https://twitter.com/'}
         self.api_base_url = 'https://api.tracker.gg/api/v2/rocket-league/standard/profile'
         self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
+        for i in range(111, 81, -1):
+            self.useragentarr.append("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{}/0.0 Safari/537.36".format(i))
         self.playlistIDs = playlistDict
         self.rankDict = {}
         self.mmrOld = {}
@@ -185,7 +188,7 @@ class rl_playerinfo:
             api_url = f'{self.api_base_url}/{self.platformDict[platform_num]}/{player}'
             urls.append(api_url)
 
-        resps = threaded_requests(urls, len(urls))
+        resps = threaded_requests(urls, len(urls), self.useragentarr)
         resps.extend(bots)
         self.responses_mod(resps, matchData)
 

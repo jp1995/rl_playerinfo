@@ -4,13 +4,8 @@ from time import sleep
 import winreg
 import random
 
-useragentarray = []
 
-for i in range(111, 81, -1):
-    useragentarray.append("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{}/0.0 Safari/537.36".format(i))
-
-
-def chromedriver_conf(url):
+def chromedriver_conf(url, useragentarray):
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--disable-blink-features")
@@ -31,7 +26,7 @@ def chromedriver_conf(url):
     return page
 
 
-def geckodriver_conf(url):
+def geckodriver_conf(url, useragentarray):
     if is_firefox_installed():
         firefox_bin = get_firefox_path()
     else:
