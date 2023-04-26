@@ -22,7 +22,8 @@ class rl_playerinfo:
         self.api_base_url = 'https://api.tracker.gg/api/v2/rocket-league/standard/profile'
         self.gen_base_url = 'https://rocketleague.tracker.network/rocket-league/profile'
         for i in range(111, 81, -1):
-            self.useragentarr.append("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{}/0.0 Safari/537.36".format(i))
+            self.useragentarr.append("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+                                     " Chrome/{}/0.0 Safari/537.36".format(i))
         self.playlistIDs = playlistDict
         self.rankDict = {}
         self.mmrOld = {}
@@ -219,7 +220,7 @@ class rl_playerinfo:
         return sorted_rankdict
 
     """
-    In the css, the table is divided in half, with the top half being blue and bottom half being red. Moving blue to top.
+    In the css, the table is divided in half, with the top being blue and bottom being red. Moving blue to top.
     """
     @staticmethod
     def sortPlayersByTeams(matchdicts: list):
@@ -255,7 +256,7 @@ class rl_playerinfo:
             dbdump_dict.update(self.rankDict)
 
             dbdump_dict['wins'] = resp['data']['segments'][0]['stats']['wins']['value']
-            dbdump_dict['games_this_season'] = self.rankDict['1v1_games'] + self.rankDict['2v2_games'] + self.rankDict['3v3_games']
+            dbdump_dict['games_this_season'] = sum(self.rankDict[k] for k in ['1v1_games', '2v2_games', '3v3_games'])
             rewardlevel = resp['data']['segments'][0]['stats']['seasonRewardLevel']['metadata']['rankName']
             dbdump_dict['rewardlevel'] = rewardlevel if rewardlevel != 'None' else 'NULL'
             dbdump_dict['influencer'] = resp['data']['userInfo']['isInfluencer']
@@ -291,7 +292,7 @@ class rl_playerinfo:
                 if key not in ['1v1_games', '2v2_games', '3v3_games']:
                     rawtable[key] = f'{value}'
             rawtable['Wins'] = resp['data']['segments'][0]['stats']['wins']['value']
-            rawtable['Games'] = self.rankDict['1v1_games'] + self.rankDict['2v2_games'] + self.rankDict['3v3_games']
+            rawtable['Games'] = sum(self.rankDict[k] for k in ['1v1_games', '2v2_games', '3v3_games'])
             rawtable['Rewardlevel'] = rewardlevel
             rawtable['Country'] = str(resp['data']['userInfo']['countryCode'])
             rawtable['Platform'] = resp['data']['platformInfo']['platformSlug']

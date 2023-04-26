@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         titletransition.classList.add("visible");
     }, 100);
 
-    const socket = io.connect('http://localhost:5000');
+    const socket = io.connect('/');
 
     socket.on("connect",() => {
         // the update loop is started

@@ -8,6 +8,7 @@
 
 using boost::asio::ip::tcp;
 using json = nlohmann::json;
+MatchDataScraper MDS_TCP;
 
 void MatchDataScraper::sendData(const json& data) {
     std::string json_string = data.dump();
@@ -21,7 +22,7 @@ void MatchDataScraper::sendData(const json& data) {
 
 void MatchDataScraper::asyncConnect(tcp::socket& socket, boost::asio::io_context& io_context) {
     tcp::resolver resolver(io_context);
-    tcp::resolver::query query("localhost", "8371");
+    tcp::resolver::query query(MDS_TCP.script_device_ip, "8371");
 
     boost::asio::async_connect(socket, resolver.resolve(query),
         [&](const boost::system::error_code& error, const tcp::endpoint&) {

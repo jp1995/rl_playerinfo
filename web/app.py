@@ -88,4 +88,4 @@ def run_webserver(mmrq, matchq, playlistq):
         socketio.start_background_task(update_match)
         socketio.sleep(1)
 
-    socketio.run(app)
+    socketio.run(app, host='0.0.0.0', port=5000)

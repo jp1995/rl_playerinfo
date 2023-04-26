@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "MatchDataScraper.h"
 #include <nlohmann/json.hpp>
+#include <fstream>
 
 using namespace std;
 using json = nlohmann::json;
@@ -13,6 +14,12 @@ void MatchDataScraper::loadHooks() {
 	gameWrapper->HookEvent("Function GameEvent_TA.Countdown.BeginState", std::bind(&MatchDataScraper::handleCountdownStart, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GFxData_MainMenu_TA.MainMenuAdded", std::bind(&MatchDataScraper::handleCountdownStart, this, std::placeholders::_1));}
 
+std::string MatchDataScraper::pluginDataDir() {
+	std::filesystem::path stream_src(gameWrapper->GetDataFolder() / "MatchDataScraper");
+	std::string src_string = stream_src.generic_string();
+	return src_string;
+}
+
 void MatchDataScraper::onLoad() {
 	_globalCvarManager = cvarManager;
 	cvarManager->log("Plugin loaded!");
@@ -23,6 +30,13 @@ void MatchDataScraper::onLoad() {
 			getPlayerMMR(id);
 		}
 	);
+
+	std::string src = pluginDataDir();
+	namespace fs = std::filesystem;
+	if (!fs::is_directory(src) || !fs::exists(src)) {
+		fs::create_directory(src);
+	}
+	writeDefaultSettings();
 }
 
 void MatchDataScraper::onUnload() {

@@ -3,6 +3,7 @@
 #include "bakkesmod/plugin/bakkesmodplugin.h"
 #include "bakkesmod/plugin/pluginwindow.h"
 #include "bakkesmod/plugin/PluginSettingsWindow.h"
+#include "GuiBase.h"
 #include "version.h"
 #include <boost/asio.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -13,13 +14,22 @@ constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_M
 using json = nlohmann::json;
 using boost::asio::ip::tcp;
 
-class MatchDataScraper : public BakkesMod::Plugin::BakkesModPlugin
+class MatchDataScraper : public BakkesMod::Plugin::BakkesModPlugin,
+	public SettingsWindowBase
 {
-	//Boilerplate
 	void loadHooks();
+	public: std::string pluginDataDir();
 	virtual void onLoad();
 	virtual void onUnload();
 	void handleCountdownStart(std::string eventName);
+
+	void writeDefaultSettings();
+	json readSettings();
+	void settingsIntoVars();
+	void writeSettings(json j);
+	void RenderSettings() override;
+	std::string script_device_ip;
+	bool settingsIntoVarsDone = false;
 
 	std::unique_ptr<MMRNotifierToken> notifierToken;
 	std::unordered_map<std::string, json> mmrData;
