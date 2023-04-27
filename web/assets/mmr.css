@@ -1,7 +1,5 @@
 .mmrtable {
-    margin-right: 4vh;
-    margin-left: 2vh;
-    width: 60%;
+    width: 100%;
     color: #d3d3d3;
 }
 
@@ -91,4 +89,10 @@
 
 .visible {
     /*display: block;*/
+}
+
+@media (max-width: 1024px) {
+    .mmrtable {
+        margin-top: 4vh;
+    }
 }

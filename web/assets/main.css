@@ -9,54 +9,49 @@ h1 {
 }
 
 .inlinetables {
-    display: grid;
-    grid-template-columns: minmax(0, 4fr) minmax(0, 2fr);
+    display: inline-grid;
+    grid-template-columns: minmax(0, 8fr) minmax(0, 3fr);
+    grid-column-gap: 15vh;
     margin-top: 5vh;
+    margin-left: 4vh;
 }
 
-@media screen and (max-width: 1400px) {
+@media screen and (min-width: 1025px) and (max-width: 1500px) {
     .inlinetables {
+        display: grid;
+        grid-template-columns: 1fr;
+        margin-left: 0;
+    }
+
+    .trackertable table{
+        width: 100% !important;
+    }
+
+    .trackertable {
+        justify-self: center;
+    }
+
+    .trackertable td:nth-child(n+2):nth-child(-n+4) {
+        width: 55px;
+    }
+
+    .mmrtable {
+        margin-top: 4vh;
+        width: 40% !important;
+        justify-self: center;
+    }
+
+}
+
+@media screen and (max-width: 1024px) {
+    .inlinetables {
+        display: grid;
         grid-template-columns: 1fr;
     }
-}
 
-.tier {
-    height: 42px;
-    width: 42px;
-}
-
-.flag {
-    height: 20px;
-    width: 32px;
-}
-
-.platform {
-    height: 32px;
-    width: 32px;
-}
-
-.namecontainer {
-    display: inline-flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-
-.nameurl {
-    display: inline-block;
-    margin-left: -10px;
-}
-
-.socialscontainer {
-    margin-right: 25px;
-    margin-top: 5px;
-    display: inline-block;
-}
-
-.social {
-    height: 24px;
-    width: 24px;
-    padding-left: 6px;
+    .mmrtable {
+        justify-self: center;
+    }
 }
 
 a:link {

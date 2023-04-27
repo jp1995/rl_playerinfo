@@ -1,57 +1,194 @@
 .trackertable table {
-    width: 95%;
-    border-collapse: collapse;
-    /*border-style: hidden;*/
-    margin-left: 4vh;
+    width: 110%;
 }
 
-.trackertable tbody{
-    background: linear-gradient(to bottom, #4d6387 50%, #ad5149 50%);
+@media (min-width: 1026px) {
+    .trackertable table {
+        border-collapse: collapse;
+        margin-right: 0;
+    }
+
+    .trackertable tbody{
+        background: linear-gradient(to bottom, #36455E 50%, #793933 50%);
+    }
+
+    .trackertable td:nth-child(5){
+        padding-left: 6vh;
+    }
+    .trackertable th:nth-child(5){
+        padding-left: 6vh;
+    }
+
+    .trackertable th {
+        background-color: #1d1d1d;
+        margin-left: -2vh;
+        text-align: left;
+        padding-left: 4vh;
+    }
+
+    .trackertable tr {
+        border-top: 2px solid black;
+    }
+
+    .trackertable tr:first-child {
+        border: none;
+    }
+
+    .trackertable td:first-child {
+        min-width: 220px;
+        max-width: 300px;
+    }
+
+    .trackertable td:nth-child(n+2):nth-child(-n+4) img{
+        margin-left: -2vh;
+    }
+
+    .trackertable td:nth-child(n+2):nth-child(-n+4) {
+        background-color: rgba(255, 255, 255, 0.05);
+        min-width: 2.5vw;
+    }
+    .trackertable th:nth-child(n+2):nth-child(-n+4) {
+        background-color: rgba(255, 255, 255, 0.07);
+    }
+
+    .trackertable td {
+        margin: 2vh;
+        height: 6vh;
+        color: #c7c5c5;
+        padding-left: 4vh;
+    }
+
+    .tier {
+        height: 42px;
+        width: 42px;
+    }
+
+    .flag {
+        height: 20px;
+        width: 32px;
+    }
+
+    .platform {
+        height: 32px;
+        width: 32px;
+    }
+
+    .namecontainer {
+        display: inline-flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .nameurl {
+        display: inline-block;
+        margin-left: -10px;
+    }
+
+    .socialscontainer {
+        margin-right: 25px;
+        margin-top: 5px;
+        display: inline-block;
+    }
+
+    .social {
+        height: 24px;
+        width: 24px;
+        padding-left: 6px;
+    }
 }
 
-.trackertable td:nth-child(5){
-    padding-left: 6vh;
-}
-.trackertable th:nth-child(5){
-    padding-left: 6vh;
+@media screen and (max-width: 1024px) {
+    .trackertable table {
+        margin-bottom: 5vh;
+        margin-left: 2vh;
+        margin-top: 5vh;
+        width: 95%;
+        font-family: Segoe UI, Roboto, Helvetica, sans-serif;
+        font-size: 26pt;
+    }
+
+    .trackertable tbody {
+        background: linear-gradient(to right, #36455E 50%, #793933 50%);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+
+    }
+
+    .trackertable th, td {
+        display: block;
+        min-height: 10vh;
+    }
+
+    .trackertable tr {
+        display: inline-block;
+        border-right: 1px solid black;
+    }
+
+    .trackertable td {
+        border-bottom: 1px solid black;
+        text-align: center;
+
+
+    }
+    .trackertable th {
+        background-color: #1d1d1d;
+        border-bottom: 1px solid black;
+        text-align: center;
+        min-width: 15vw;
+        width: 15vw;
+    }
+
+    .trackertable thead {
+        width: 15vw;
+    }
+
+    tr:nth-child(n+1) {
+        width: inherit;
+    }
+
+    .trackertable td:nth-child(n+2):nth-child(-n+4) {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+    .trackertable th:nth-child(n+2):nth-child(-n+4) {
+        background-color: #282829;
+    }
+    .tier {
+        height: 10vw;
+        width: 10vw;
+    }
+
+    .flag {
+        height: 7vw;
+        width: 10vw;
+    }
+
+    .platform {
+        height: 10vw;
+        width: 10vw;
+    }
+
+    .namecontainer {
+        display: inline-flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .nameurl {
+        display: inline-block;
+    }
+
+    .socialscontainer {
+        margin-right: 25px;
+        margin-top: 5px;
+        display: table-row;
+    }
+
+    .social {
+        height: 24px;
+        width: 24px;
+        padding-left: 6px;
+    }
 }
 
-.trackertable th {
-    background-color: #1d1d1d;
-    height: 56px;
-    margin-left: -2vh;
-    text-align: left;
-    padding-left: 4vh;
-}
-
-.trackertable tr {
-    border-top: 2px solid black;
-}
-
-.trackertable tr:first-child {
-    border: none;
-}
-
-.trackertable td:first-child {
-    min-width: 220px;
-    max-width: 300px;
-}
-
-.trackertable td:nth-child(n+2):nth-child(-n+4) img{
-    margin-left: -2vh;
-}
-
-.trackertable td:nth-child(n+2):nth-child(-n+4) {
-    background-color: rgba(0, 0, 0, 0.20);
-}
-.trackertable th:nth-child(n+2):nth-child(-n+4) {
-    background-color: #282829;
-}
-
-.trackertable td {
-    margin: 2vh;
-    height: 6vh;
-    background-color: rgba(0, 0, 0, 0.3);
-    color: #c7c5c5;
-    padding-left: 4vh;
-}
