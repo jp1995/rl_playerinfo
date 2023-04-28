@@ -5,7 +5,7 @@
 
 .navbar {
     background-color: #1d1d1d;
-    height: 57px;
+    height: 6vh;
     width: 100%;
     display: flex;
     position: relative;
@@ -33,9 +33,9 @@
     align-items: center;
     position: relative;
     background-image: url("icons/mmr_select_downarrow.svg");
-    background-size: 11px;
+    background-size: 1vh;
     background-repeat: no-repeat;
-    background-position: right 10px top 23px;
+    background-position: right 1vw top 2.7vh;
 }
 
 .dropdown-menu {
@@ -48,13 +48,15 @@
     z-index: 1;
     list-style: none;
     width: 100%;
+    display: table;
 }
 
 .dropdown-menu li {
-    padding: 15px;
-    cursor: pointer;
+    height: 6vh;
+    display: table-cell;
+    vertical-align: middle;
     text-align: center;
-    border-top: 1px solid #282829;
+    border-top: 2px solid #282829;
 }
 
 .dropdown-menu li:hover {
@@ -64,7 +66,7 @@
 .mmrdata {
     text-align: center;
     font-size: 18pt;
-    height: 290px;
+    height: 32vh;
     border: 5px solid #1d1d1d;
     border-top: none;
     background-color: #161616;
@@ -76,7 +78,7 @@
 
 .mmrdata__item p {
     margin: 0;
-    height: 50px;
+    height: 6vh;
 }
 
 .active {
@@ -91,8 +93,36 @@
     /*display: block;*/
 }
 
-@media (max-width: 1024px) {
+@media screen and (max-width: 1024px) {
     .mmrtable {
-        margin-top: 4vh;
+        margin-top: 3vh;
     }
+
+    .navbar {
+        height: 7vh;
+    }
+
+    .navbar__button, .navbar__select {
+        font-size: 26pt !important;
+    }
+
+    .dropdown-menu li {
+        font-size: 26pt !important;
+        height: 7vh;
+        /*padding-top: 1vh;*/
+    }
+
+    .mmrdata {
+        font-size: 36pt;
+        height: 20vh;
+    }
+    .mmrdata__item {
+        padding: 0;
+        padding-top: 2.5vh;
+    }
+    .mmrdata__item p {
+        margin: 0;
+        height: 4vh;
+    }
+
 }
