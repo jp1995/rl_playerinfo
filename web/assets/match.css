@@ -3,6 +3,10 @@
 }
 
 @media (min-width: 1026px) {
+    .mobile-view {
+        display: none;
+    }
+
     .trackertable table {
         border-collapse: collapse;
         margin-right: 0;
@@ -99,96 +103,37 @@
 }
 
 @media screen and (max-width: 1024px) {
-    .trackertable table {
-        margin-bottom: 5vh;
-        margin-left: 2vh;
-        margin-top: 5vh;
-        width: 95%;
-        font-family: Segoe UI, Roboto, Helvetica, sans-serif;
-        font-size: 26pt;
+    table {
+        display: none;
+    }
+    .mobile-view {
+        display: flex !important;
+        flex-direction: column;
+        height: 100vh;
     }
 
-    .trackertable tbody {
-        background: linear-gradient(to right, #36455E 50%, #793933 50%);
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-
+    .card {
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+        margin: 16px;
+        background-color: #fff;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .trackertable th, td {
-        display: block;
-        min-height: 10vh;
+    .data {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 8px;
+        font-size: 14px;
+        line-height: 1.4;
+        color: #555;
     }
 
-    .trackertable tr {
-        display: inline-block;
-        border-right: 1px solid black;
-    }
-
-    .trackertable td {
-        border-bottom: 1px solid black;
-        text-align: center;
-
-
-    }
-    .trackertable th {
-        background-color: #1d1d1d;
-        border-bottom: 1px solid black;
-        text-align: center;
-        min-width: 15vw;
-        width: 15vw;
-    }
-
-    .trackertable thead {
-        width: 15vw;
-    }
-
-    tr:nth-child(n+1) {
-        width: inherit;
-    }
-
-    .trackertable td:nth-child(n+2):nth-child(-n+4) {
-        background-color: rgba(255, 255, 255, 0.08);
-    }
-    .trackertable th:nth-child(n+2):nth-child(-n+4) {
-        background-color: #282829;
-    }
-    .tier {
-        height: 10vw;
-        width: 10vw;
-    }
-
-    .flag {
-        height: 7vw;
-        width: 10vw;
-    }
-
-    .platform {
-        height: 10vw;
-        width: 10vw;
-    }
-
-    .namecontainer {
-        display: inline-flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    }
-
-    .nameurl {
-        display: inline-block;
-    }
-
-    .socialscontainer {
-        margin-right: 25px;
-        margin-top: 5px;
-        display: table-row;
-    }
-
-    .social {
-        height: 24px;
-        width: 24px;
-        padding-left: 6px;
+    .label {
+        font-weight: bold;
+        margin-right: 8px;
     }
 }
 
