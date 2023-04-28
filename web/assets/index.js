@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+$(function() {
 
     //  Doesn't work on template update atm
     let titletransition = document.querySelector(".title");
@@ -17,20 +17,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     socket.on('reply_mmr_update', function(data) {
         console.log(data)
-        let mmrtable = document.querySelector('.mmrtable');
-        mmrtable.innerHTML = data.html;
+        $('.mmrtable').html(data.html);
     });
 
     socket.on('reply_match_update', function(data) {
         console.log(data)
-        let match = document.querySelector('.trackertable');
-        match.innerHTML = data.html;
+        $('.trackertable').html(data.html);
     });
 
     socket.on('reply_playlist_update', function(data) {
         console.log(data)
-        let playlist = document.querySelector('.title');
-        playlist.innerHTML = data.html;
+        $('.title').html(data.html);
     });
 
     // refresh doesn't break the site
