@@ -1,13 +1,11 @@
 .mmrtable {
-    margin-right: 4vh;
-    margin-left: 2vh;
-    width: 60%;
+    width: 100%;
     color: #d3d3d3;
 }
 
 .navbar {
     background-color: #1d1d1d;
-    height: 57px;
+    height: 6vh;
     width: 100%;
     display: flex;
     position: relative;
@@ -17,7 +15,7 @@
 .navbar__button {
     border: none;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 12pt;
     font-weight: bold;
     justify-content: center;
     align-items: center;
@@ -27,7 +25,7 @@
 
 .navbar__select {
     cursor: pointer;
-    font-size: 16px;
+    font-size: 12pt;
     font-weight: bold;
     width: 50%;
     justify-content: center;
@@ -35,9 +33,9 @@
     align-items: center;
     position: relative;
     background-image: url("icons/mmr_select_downarrow.svg");
-    background-size: 11px;
+    background-size: 1vh;
     background-repeat: no-repeat;
-    background-position: right 10px top 23px;
+    background-position: right 1vw top 2.6vh;
 }
 
 .dropdown-menu {
@@ -53,10 +51,11 @@
 }
 
 .dropdown-menu li {
-    padding: 15px;
-    cursor: pointer;
+    height: 6vh;
+    display: block;
     text-align: center;
-    border-top: 1px solid #282829;
+    border-top: 2px solid #282829;
+    line-height: 6vh;
 }
 
 .dropdown-menu li:hover {
@@ -66,19 +65,19 @@
 .mmrdata {
     text-align: center;
     font-size: 18pt;
-    height: 290px;
+    height: 32vh;
     border: 5px solid #1d1d1d;
     border-top: none;
     background-color: #161616;
 }
 
 .mmrdata__item {
-    padding-top: 5vh;
+    padding-top: 6vh;
 }
 
 .mmrdata__item p {
     margin: 0;
-    height: 50px;
+    height: 5vh;
 }
 
 .active {
@@ -89,6 +88,32 @@
     display: none;
 }
 
-.visible {
-    /*display: block;*/
+@media screen and (max-width: 1024px) {
+    .mmrtable {
+        margin-top: 3vh;
+        width: 83%;
+    }
+    .navbar {
+        height: 7vh;
+    }
+    .navbar__button, .navbar__select {
+        font-size: 26pt !important;
+        background-position: right 2vw top 3.2vh;
+    }
+    .dropdown-menu li {
+        font-size: 26pt !important;
+        height: 7vh;
+        line-height: 7vh;
+    }
+    .mmrdata {
+        font-size: 36pt;
+        height: 24vh;
+    }
+    .mmrdata__item {
+        padding-top: 3vh;
+    }
+    .mmrdata__item p {
+        margin: 0;
+        height: 5vh;
+    }
 }

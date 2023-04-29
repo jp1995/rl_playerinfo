@@ -46,24 +46,19 @@ def formatTable(rawMatch: dict):
     handleLink += '</div></div>'
     formattedMatch['handleLink'] = handleLink
 
-    keys = ['1v1', '2v2', '3v3', 'Rewardlevel']
-
-    for rawkey in keys:
-        for key, value in icondict.items().__reversed__():
-            if rawMatch[rawkey] == key == 'NULL':
-                formattedMatch[rawkey] = value + f'<span>I, {rawMatch[f"{rawkey}_winstreak"]}</span>'
-                break
+    for rawkey in ['1v1', '2v2', '3v3', 'Rewardlevel']:
+        rank = rawMatch.get(rawkey)
+        if rawkey == 'Rewardlevel':
             if rawMatch[rawkey] == 'NULL RR':
                 formattedMatch[rawkey] = icondict['NULL']
-                break
-            if rawMatch[rawkey] == key.replace(' I', '').replace(' II', '').replace(' III', ''):
-                formattedMatch[rawkey] = icondict[f'{key.split(" ")[0]} I']
-                break
-            if rawMatch[rawkey].startswith(key) and rawMatch[rawkey] != 'NULL':
-                formattedMatch[rawkey] = value + f'<span>I, {rawMatch[f"{rawkey}_winstreak"]}</span>'
-                break
-        else:
-            continue
+            else:
+                formattedMatch[rawkey] = icondict[f'{rank} I']
+        elif rawMatch[rawkey] == 'NULL' and rawkey != 'Rewardlevel':
+            formattedMatch[rawkey] = icondict[rank] + f'<span>I, {rawMatch[f"{rawkey}_winstreak"]}</span>'
+        elif rawMatch[rawkey] != 'NULL' and rawkey != 'Rewardlevel' and 'Division' in rank:
+            rankNoDiv = rank.split('Division')[0].strip()
+            div = rank.split('Division')[1].strip()
+            formattedMatch[rawkey] = icondict[rankNoDiv] + f'<span>{div}, {rawMatch[f"{rawkey}_winstreak"]}</span>'
 
     for key in ['Wins', 'Games', 'Team']:
         formattedMatch[key] = rawMatch[key]

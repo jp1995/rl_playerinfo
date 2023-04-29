@@ -1,27 +1,22 @@
 .trackertable table {
-    width: 95%;
+    width: 110%;
+}
+
+.trackertable table {
     border-collapse: collapse;
-    /*border-style: hidden;*/
-    margin-left: 4vh;
+    margin-right: 0;
 }
 
 .trackertable tbody{
-    background: linear-gradient(to bottom, #4d6387 50%, #ad5149 50%);
-}
-
-.trackertable td:nth-child(5){
-    padding-left: 6vh;
-}
-.trackertable th:nth-child(5){
-    padding-left: 6vh;
+    background: linear-gradient(to bottom, #36455E 50%, #793933 50%);
 }
 
 .trackertable th {
     background-color: #1d1d1d;
-    height: 56px;
     margin-left: -2vh;
     text-align: left;
     padding-left: 4vh;
+    height: 6vh;
 }
 
 .trackertable tr {
@@ -33,8 +28,8 @@
 }
 
 .trackertable td:first-child {
-    min-width: 220px;
-    max-width: 300px;
+    min-width: 12vw;
+    max-width: 16vw;
 }
 
 .trackertable td:nth-child(n+2):nth-child(-n+4) img{
@@ -42,16 +37,120 @@
 }
 
 .trackertable td:nth-child(n+2):nth-child(-n+4) {
-    background-color: rgba(0, 0, 0, 0.20);
+    background-color: rgba(255, 255, 255, 0.05);
+    min-width: 2.5vw;
 }
 .trackertable th:nth-child(n+2):nth-child(-n+4) {
-    background-color: #282829;
+    background-color: rgba(255, 255, 255, 0.07);
 }
 
 .trackertable td {
     margin: 2vh;
     height: 6vh;
-    background-color: rgba(0, 0, 0, 0.3);
     color: #c7c5c5;
     padding-left: 4vh;
 }
+
+.tier {
+    height: 4.5vh;
+    width: 4.5vh;
+}
+
+.flag {
+    height: 2vh;
+    width: 3.5vh;
+}
+
+.platform {
+    height: 3.5vh;
+    width: 3.5vh;
+}
+
+.namecontainer {
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.nameurl {
+    display: inline-block;
+    margin-left: -0.5vw;
+}
+
+.socialscontainer {
+    margin-right: 1vw;
+    margin-top: 0.7vh;
+    display: inline-block;
+}
+
+.social {
+    height: 2.6vh;
+    width: 2.6vh;
+    padding-left: 0.3vw;
+}
+
+@media screen and (max-width: 1024px) {
+    .inlinetables {
+        margin-left: 0;
+        margin-top: 8vh;
+    }
+    .trackertable {
+        justify-self: center;
+    }
+    .trackertable table{
+        width: 100% !important;
+        font-size: 26pt !important;
+    }
+    table td:nth-child(6),
+    table td:nth-child(7),
+    table td:nth-child(8),
+    table td:nth-child(9),
+    table th:nth-child(6),
+    table th:nth-child(7),
+    table th:nth-child(8),
+    table th:nth-child(9) {
+        display: none;
+    }
+    .socialscontainer {
+        display: none;
+    }
+    .trackertable td {
+        height: 7vh;
+    }
+    .trackertable th {
+        height: 7vh;
+    }
+    .trackertable td:first-child {
+        padding-left: 2vh !important;
+        min-width: 28vw;
+    }
+    .trackertable th:first-child {
+        padding-left: 2vh !important;
+    }
+    .trackertable td:nth-child(n+2):nth-child(-n+4) {
+        min-width: 8vw !important;
+        width: 12vw;
+    }
+    .trackertable td:nth-child(n+2):nth-child(-n+4) img {
+        margin-left: -3vh;
+    }
+    .trackertable th:nth-child(n+2):nth-child(-n+4) {
+        min-width: 8vw !important;
+        width: 8vw;
+        padding-left: 6vw;
+    }
+    .trackertable td:nth-child(5) {
+        padding-left: 2vh;
+        padding-right: 2vh;
+    }
+    .trackertable th:nth-child(5) {
+        padding-left: 2vh;
+    }
+    .tier {
+        height: 4.5vh;
+        width: 4.5vh;
+    }
+
+}
+

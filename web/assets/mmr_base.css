@@ -1,6 +1,7 @@
+
 .waitingnavbar {
     background-color: #1d1d1d;
-    height: 57px;
+    height: 6vh;
     width: 100%;
     display: flex;
     position: relative;
@@ -8,9 +9,9 @@
 
 .waitingnavbar__button {
     cursor: pointer;
-    font-size: 16px;
+    font-size: 12pt;
     font-weight: bold;
-    height: 55px;
+    height: 6vh;
     width: 100%;
     justify-content: center;
     align-items: center;
@@ -25,12 +26,32 @@
 }
 
 .waitingmmr img {
-    width: 105px;
-    margin-top: 70px;
+    width: 10vh;
+    margin-top: 6vh;
 }
 
 .waitingmmr .notplaying {
 
     color: dimgray;
-    font-size: 16px;
+    font-size: 12pt;
+}
+
+@media screen and (min-width: 1025px) and (max-width: 1500px) {
+    .inlinetables {
+        display: grid;
+        grid-column-gap: 2vh;
+        width: 100% !important;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .waitingnavbar__button {
+        font-size: 26pt !important;
+    }
+    .notplaying {
+        font-size: 18pt !important;
+    }
+    .mmrtable {
+        width: 80%;
+    }
 }

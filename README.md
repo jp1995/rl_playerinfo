@@ -4,10 +4,10 @@ A rocket league session info tool that condenses interesting tracker data for al
 
 ![output](https://cdn.discordapp.com/attachments/533998516876607511/1091743564150603847/new3.png)
 
-* For every rank, the second value is winstreak.
+* Ranks are shown with division and winstreak.
 * Games is a sum of ranked games this season.
-* Usernames link to the trackernetwork profile
-* Comes with a simple MMR tracker
+* Simple MMR tracker attached
+* Phone and tablet views (not well tested).
 
 
 ## Installation
@@ -42,7 +42,9 @@ After installing, simply run the script.
 
 `python main.py`
 
-The client should then be available at http://127.0.0.1:5500/. It will fill once match data is received from the plugin.
+The client should then be available at http://127.0.0.1:5000/. It will fill once match data is received from the plugin. 
+
+If you want to access the site from a separate device in your local network (like a phone), you need to replace the `127.0.0.1` part in the URL with the IP of the machine that is running the script.
 <hr style="margin-top: -10px;margin-bottom: -5px;width: 200px">
 
 #### Autorun
