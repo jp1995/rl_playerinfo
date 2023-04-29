@@ -22,25 +22,20 @@ h1 {
         grid-template-columns: 1fr;
         margin-left: 0;
     }
-
     .trackertable table{
         width: 100% !important;
     }
-
     .trackertable {
         justify-self: center;
     }
-
     .trackertable td:nth-child(n+2):nth-child(-n+4) {
-        width: 4.5vw;
+        width: 5vw;
     }
-
     .mmrtable {
         margin-top: 4vh;
         width: 40% !important;
         justify-self: center;
     }
-
 }
 
 @media screen and (max-width: 1024px) {
@@ -48,7 +43,6 @@ h1 {
         display: grid;
         grid-template-columns: 1fr;
     }
-
     .mmrtable {
         justify-self: center;
     }
@@ -89,12 +83,12 @@ span {
 }
 
 .rl_icon {
-    height: 6vh;
-    width: 6vh;
+    height: 5vh;
+    width: 5vh;
     float: left;
     padding-left: 2vh;
     padding-right: 2vh;
-    padding-top: 0.8vh;
+    padding-top: 1vh;
 }
 
 .topnavbutton {
@@ -138,21 +132,19 @@ span {
     .topnav {
         height: 5vh;
     }
-
     .rl_icon {
         height: 4vh;
         width: 4vh;
+        padding-top: 0.5vh;
     }
     .play {
-        width: 1.8vh;
-        height: 1.8vh;
+        width: 2.5vh;
+        height: 2.5vh;
     }
-
     .title {
-        font-size: 18pt;
+        font-size: 20pt;
     }
     .github {
         padding-top: 1.2vh;
     }
-
 }

@@ -1,11 +1,10 @@
-.basetable_container {
-    margin-left: 4vh;
-    margin-right: 2.5vh;
+.inlinetables:has(.trackertable):has(.basetable) {
+    grid-column-gap: 4vh;
 }
 
 .basetablenav {
     background-color: #1d1d1d;
-    height: 57px;
+    height: 6vh;
     width: 100%;
     display: flex;
     position: relative;
@@ -13,9 +12,9 @@
 
 .basetablenav div {
     cursor: pointer;
-    font-size: 16px;
+    font-size: 12pt;
     font-weight: bold;
-    height: 55px;
+    height: 6vh;
     width: 100%;
     justify-content: center;
     align-items: center;
@@ -25,7 +24,8 @@
 .basetable {
     text-align: center;
     font-size: 18pt;
-    height: 320px;
+    height: 32vh;
+    width: 60vw;
     border: 5px solid #1d1d1d;
     border-top: none;
     background-color: #161616;
@@ -39,11 +39,40 @@
 }
 
 .basetablewaiting img {
-    width: 105px;
-    margin-top: 7%;
+    width: 10vh;
+    margin-top: 8vh;
 }
 
 .basetablewaiting .notplaying {
     color: dimgray;
-    font-size: 16px;
+    font-size: 12pt;
+}
+
+@media screen and (min-width: 1025px) and (max-width: 1500px) {
+    .inlinetables {
+    grid-column-gap: 2vh;
+    width: 100% !important;
+    }
+
+    .basetable {
+        width: 85vw;
+        justify-self: center;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .basetablenav div:nth-child(6),
+    .basetablenav div:nth-child(7),
+    .basetablenav div:nth-child(8),
+    .basetablenav div:nth-child(9) {
+        display: none;
+    }
+
+    .basetable {
+        width: 95vw;
+        height: 30vh;
+    }
+    .basetablenav div {
+        font-size: 26pt !important;
+    }
 }

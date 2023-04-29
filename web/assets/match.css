@@ -28,8 +28,8 @@
 }
 
 .trackertable td:first-child {
-    min-width: 220px;
-    max-width: 300px;
+    min-width: 12vw;
+    max-width: 16vw;
 }
 
 .trackertable td:nth-child(n+2):nth-child(-n+4) img{
@@ -52,18 +52,18 @@
 }
 
 .tier {
-    height: 42px;
-    width: 42px;
+    height: 4.5vh;
+    width: 4.5vh;
 }
 
 .flag {
-    height: 20px;
-    width: 32px;
+    height: 2vh;
+    width: 3.5vh;
 }
 
 .platform {
-    height: 32px;
-    width: 32px;
+    height: 3.5vh;
+    width: 3.5vh;
 }
 
 .namecontainer {
@@ -75,26 +75,32 @@
 
 .nameurl {
     display: inline-block;
-    margin-left: -10px;
+    margin-left: -0.5vw;
 }
 
 .socialscontainer {
-    margin-right: 25px;
-    margin-top: 5px;
+    margin-right: 1vw;
+    margin-top: 0.7vh;
     display: inline-block;
 }
 
 .social {
-    height: 24px;
-    width: 24px;
-    padding-left: 6px;
+    height: 2.6vh;
+    width: 2.6vh;
+    padding-left: 0.3vw;
 }
 
 @media screen and (max-width: 1024px) {
-
     .inlinetables {
         margin-left: 0;
         margin-top: 8vh;
+    }
+    .trackertable {
+        justify-self: center;
+    }
+    .trackertable table{
+        width: 100% !important;
+        font-size: 26pt !important;
     }
     table td:nth-child(6),
     table td:nth-child(7),
@@ -106,64 +112,44 @@
     table th:nth-child(9) {
         display: none;
     }
-
     .socialscontainer {
         display: none;
     }
-
     .trackertable td {
         height: 7vh;
     }
-
     .trackertable th {
         height: 7vh;
     }
-
     .trackertable td:first-child {
-        padding-left: 3vh !important;
+        padding-left: 2vh !important;
         min-width: 28vw;
     }
-
     .trackertable th:first-child {
-        padding-left: 3vh !important;
+        padding-left: 2vh !important;
     }
-
     .trackertable td:nth-child(n+2):nth-child(-n+4) {
-        /*max-width: 10vw !important;*/
         min-width: 8vw !important;
-        width: 8vw;
+        width: 12vw;
     }
-
+    .trackertable td:nth-child(n+2):nth-child(-n+4) img {
+        margin-left: -3vh;
+    }
     .trackertable th:nth-child(n+2):nth-child(-n+4) {
-        /*max-width: 10vw !important;*/
         min-width: 8vw !important;
         width: 8vw;
         padding-left: 6vw;
     }
-
-    .trackertable td:nth-child(5), th:nth-child(5) {
+    .trackertable td:nth-child(5) {
         padding-left: 2vh;
         padding-right: 2vh;
     }
-
-    .trackertable th:nth-child(5),
-    .trackertable th:nth-child(6) {
-        text-align: center;
-        padding-left: 1vh;
+    .trackertable th:nth-child(5) {
+        padding-left: 2vh;
     }
-
-    .trackertable table{
-        width: 100% !important;
-        font-size: 26pt !important;
-    }
-
-    .trackertable {
-        justify-self: center;
-    }
-
     .tier {
-        height: 4vh;
-        width: 4vh;
+        height: 4.5vh;
+        width: 4.5vh;
     }
 
 }
