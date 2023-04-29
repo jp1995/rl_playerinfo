@@ -1,3 +1,4 @@
+/* :has() selector not supported in Firefox <= */
 .inlinetables:has(.trackertable):has(.basetable) {
     grid-column-gap: 4vh;
 }
