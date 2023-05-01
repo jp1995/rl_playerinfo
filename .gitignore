@@ -1,5 +1,6 @@
 /.idea
 /webdriver/__pycache__/
+/webdriver/Curl
 /web/__pycache__/
 /__pycache__/
 /docs/

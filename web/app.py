@@ -19,7 +19,7 @@ def run_webserver(mmrq, matchq, playlistq):
     socketio = SocketIO(app, cors_allowed_origins='*')
     print("Webserver started")
     print("* Running on http://127.0.0.1:5000\n"
-          f"* Running on http://{socket.gethostbyname(socket.gethostname())}:5000")
+          f"* Running on http://{socket.gethostbyname(socket.gethostname())}:5000\n")
 
     @app.route('/')
     def index():

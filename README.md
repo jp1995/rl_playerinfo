@@ -25,7 +25,7 @@ $ cd rl_playerinfo
 $ pip install -r requirements.txt
 ```
 
-Has been tested on python 3.10. Chrome or Firefox needs to be installed.
+Has been tested on python 3.10.
 
 If you do not have python or pip installed, [refer to this article](https://www.dataquest.io/blog/install-pip-windows/) or use google.
 
@@ -40,7 +40,7 @@ Then enable the plugin in bakkesmod PluginManager (F2 > Plugins > Pluginmanager 
 ## Instructions
 After installing, simply run the script.
 
-`python main.py`
+`python rlpi.py`
 
 The client should then be available at http://127.0.0.1:5000/. It will fill once match data is received from the plugin. 
 
@@ -74,7 +74,6 @@ API availability is decent, but sometimes requests fail. There can be instabilit
 
 ## Functionality todo (maybe)
 
-* The time it takes to generate the match table is pretty slow and there's a lot to optimize
 * Some kind of caching system to not query the same player again during one match. In casual games players leave and join, this would help if API is not doing well.
 * Save previous matches, add ability to view them in the client.
 * MMR storage and merge should really happen in script, in case of a game crash.

@@ -21,9 +21,7 @@ icondict = {'NULL': '<img class="tier" src="../assets/icons/unranked.png" alt="u
             'Grand Champion I': '<img class="tier" src="../assets/icons/gc1.png" alt="gc1" title="Grand Champion I">',
             'Grand Champion II': '<img class="tier" src="../assets/icons/gc2.png" alt="gc2" title="Grand Champion II">',
             'Grand Champion III': '<img class="tier" src="../assets/icons/gc3.png" alt="gc3" title="Grand Champion III">',
-            'Supersonic Legend': '<img class="tier" src="../assets/icons/ssl.png" alt="ssl" title="Supersonic Legend">',
-            'Grand I': '<img class="tier" src="../assets/icons/gc1.png" alt="gc1">',
-            'Supersonic I': '<img class="tier" src="../assets/icons/gc1.png" alt="gc1">'}
+            'Supersonic Legend': '<img class="tier" src="../assets/icons/ssl.png" alt="ssl" title="Supersonic Legend">'}
 
 platforms = ['unknown', 'steam', 'xbl', 'psn', 'switch', 'epic']
 social_icons = {'twitter': 'assets/icons/twitter.svg', 'twitch': 'assets/icons/twitch.svg',
@@ -51,6 +49,8 @@ def formatTable(rawMatch: dict):
         if rawkey == 'Rewardlevel':
             if rawMatch[rawkey] == 'NULL RR':
                 formattedMatch[rawkey] = icondict['NULL']
+            elif rank == 'Supersonic Legend':
+                formattedMatch[rawkey] = icondict[f'{rank}']
             else:
                 formattedMatch[rawkey] = icondict[f'{rank} I']
         elif rawMatch[rawkey] == 'NULL' and rawkey != 'Rewardlevel':
