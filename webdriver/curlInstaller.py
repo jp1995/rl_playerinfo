@@ -43,7 +43,7 @@ def install_curl():
         shutil.move(os.path.join(f'curl-{build}-win64-mingw'), '.\\webdriver')
         os.remove(zipname)
         shutil.move(f'.\\webdriver\\curl-{build}-win64-mingw', '.\\webdriver\\Curl')
-        print('Curl install successful!')
+        print('Curl install successful!\n')
     else:
         print('The layout of the curl.se/windows site has likely changed, unable to find latest build version\n'
               'ERROR: Failed to install curl.')
