@@ -40,12 +40,6 @@ class rl_playerinfo:
         self.playlistq = Queue()
         self.webserver = Process(target=run_webserver, args=(self.mmrq, self.matchq, self.playlistq,))
 
-    def debug_match(self):
-        with open('debug_match', 'r', encoding='') as f:
-            data = f.readline()
-            match = json.loads(data)
-            self.matchCurrent = match
-
     """
     Plugin output is pulled from the TCP server queue and inserted into class variables.
     """
@@ -56,17 +50,9 @@ class rl_playerinfo:
         print(f'Received: {data}')
 
         try:
-            # encoding = chardet.detect(data)['encoding']
-            # print(encoding)
-            # decoded = data.decode(encoding)
-            # print(decoded)
-            # jdata = json.loads(decoded)
-            # print(jdata)
             jdata = json.loads(data)
             if 'Match' in jdata.keys():
                 self.matchCurrent = jdata
-                # self.debug_match()
-                pass
             elif 'Playlist' in jdata.keys():
                 self.playlistCurrent = str(jdata['Playlist'])
             elif all(key.isnumeric() for key in jdata.keys()):
@@ -134,9 +120,6 @@ class rl_playerinfo:
     """
     def responses_check(self, resps: list):
         for item in resps:
-            # print(item)
-            # decoded = codecs.decode(item.encode(), 'utf-8')
-
             try:
                 data = json.loads(item)
             except json.decoder.JSONDecodeError:
@@ -148,7 +131,7 @@ class rl_playerinfo:
                     elif 'We could not find the player' in data['errors'][0]['message']:
                         data = json.loads(self.error('API_unknown_player'))
                     else:
-                        print(f'New error, if possible create an issue on github.\n {data["errors"][0]["message"]}')
+                        print(f'Unhandled error, if possible create an issue on github.\n {data["errors"][0]["message"]}')
 
             self.api_resps.append(data)
 
