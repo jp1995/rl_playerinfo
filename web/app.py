@@ -86,7 +86,6 @@ def run_webserver(mmrq, matchq, playlistq):
             if data[0] == 'Match':
                 matchData.insert(0, data)
                 matchData = matchData[:10]
-                print(f'matchData length is now {len(matchData)}')
             with app.app_context():
                 render_match = render_template('match.html', matchData=matchData)
             socketio.emit('reply_match_update', {'html': render_match})

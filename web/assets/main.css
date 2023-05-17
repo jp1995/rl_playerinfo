@@ -15,6 +15,7 @@ h1 {
     grid-column-gap: 15vh;
     margin-top: 12vh;
     margin-left: 4vh;
+    width: 90%;
 }
 
 @media screen and (min-width: 1025px) and (max-width: 1500px) {
@@ -23,9 +24,6 @@ h1 {
         grid-template-columns: 1fr;
         margin-top: 14vh;
         margin-left: 0;
-    }
-    .trackertable table{
-        width: 100% !important;
     }
     .trackertable {
         justify-self: center;
@@ -44,6 +42,7 @@ h1 {
     .inlinetables {
         display: grid;
         grid-template-columns: 1fr;
+        width: 100%;
     }
     .mmrtable {
         justify-self: center;

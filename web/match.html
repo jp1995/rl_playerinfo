@@ -25,7 +25,6 @@
 
 <script>
 $(function() {
-    const page = document.getElementById('docbody')
     const matchTableBody = document.getElementById('matchTableBody');
     const backButton = document.getElementById('backButton');
     const forwardButton = document.getElementById('forwardButton');
@@ -37,22 +36,23 @@ $(function() {
 
     function updateTable() {
         matchTableBody.innerHTML = '';
-
         const currentMatch = matchData[currentMatchIndex];
 
-        currentMatch.slice(1).forEach(player => {
+        currentMatch.slice(1).forEach((player, index) => {
             const row = document.createElement('tr');
+
             row.innerHTML = `
-            <td>${player['handleLink']}</td>
-            <td>${player['1v1']}</td>
-            <td>${player['2v2']}</td>
-            <td>${player['3v3']}</td>
-            <td>${player['Wins']}</td>
-            <td>${player['Games']}</td>
-            <td>${player['Rewardlevel']}</td>
-            <td>${player['Country']}</td>
-            <td>${player['Platform']}</td>
+                <td>${player['handleLink']}</td>
+                <td>${player['1v1']}</td>
+                <td>${player['2v2']}</td>
+                <td>${player['3v3']}</td>
+                <td>${player['Wins']}</td>
+                <td>${player['Games']}</td>
+                <td>${player['Rewardlevel']}</td>
+                <td>${player['Country']}</td>
+                <td>${player['Platform']}</td>
             `;
+
             matchTableBody.appendChild(row);
         });
 

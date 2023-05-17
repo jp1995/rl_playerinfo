@@ -1,5 +1,9 @@
-.trackertable table {
+.trackertable {
     width: 110%;
+}
+
+.trackertable table {
+    width: 100%;
 }
 
 .trackertable table {
@@ -27,9 +31,10 @@
     border: none;
 }
 
-.trackertable td:first-child {
+.trackertable td:first-child, th:first-child {
     min-width: 12vw;
     max-width: 16vw;
+    width: 12vw;
 }
 
 .trackertable td:nth-child(n+2):nth-child(-n+4) img{
@@ -42,6 +47,7 @@
 }
 .trackertable th:nth-child(n+2):nth-child(-n+4) {
     background-color: rgba(255, 255, 255, 0.07);
+    min-width: 2.5vw;
 }
 
 .trackertable td {
@@ -148,11 +154,11 @@
         height: 7vh;
     }
     .trackertable td:first-child {
-        padding-left: 2vh !important;
+        padding-left: 4vh !important;
         min-width: 28vw;
     }
     .trackertable th:first-child {
-        padding-left: 2vh !important;
+        padding-left: 4vh !important;
     }
     .trackertable td:nth-child(n+2):nth-child(-n+4) {
         min-width: 8vw !important;
