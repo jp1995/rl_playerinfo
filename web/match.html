@@ -1,5 +1,10 @@
 {% if matchData %}
 
+<div class="history_buttons">
+    <button id="backButton"><</button>
+    <button id="forwardButton">></button>
+</div>
+
 <table>
 <thead>
 <tr>
@@ -18,30 +23,26 @@
 </tbody>
 </table>
 
-<button id="backButton">Back</button>
-<button id="forwardButton">Forward</button>
-
 <script>
 $(function() {
+    const page = document.getElementById('docbody')
     const matchTableBody = document.getElementById('matchTableBody');
     const backButton = document.getElementById('backButton');
     const forwardButton = document.getElementById('forwardButton');
 
     let currentMatchIndex = 0;
 
-    const matchData = {{ matchData|safe }};
+    const matchData = {{ matchData | safe }};
     console.log(matchData);
 
     function updateTable() {
-        // Clear the table body
         matchTableBody.innerHTML = '';
 
         const currentMatch = matchData[currentMatchIndex];
-        console.log(currentMatch.slice(1));
 
         currentMatch.slice(1).forEach(player => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
+            const row = document.createElement('tr');
+            row.innerHTML = `
             <td>${player['handleLink']}</td>
             <td>${player['1v1']}</td>
             <td>${player['2v2']}</td>
@@ -51,26 +52,27 @@ $(function() {
             <td>${player['Rewardlevel']}</td>
             <td>${player['Country']}</td>
             <td>${player['Platform']}</td>
-          `;
-          matchTableBody.appendChild(row);
+            `;
+            matchTableBody.appendChild(row);
         });
 
+        backButton.hidden = matchData.length < 2;
+        forwardButton.hidden = matchData.length < 2;
         backButton.disabled = currentMatchIndex === matchData.length - 1;
-
         forwardButton.disabled = currentMatchIndex === 0;
     }
 
     backButton.addEventListener('click', () => {
         if (currentMatchIndex < matchData.length - 1) {
-          currentMatchIndex++;
-          updateTable();
+            currentMatchIndex++;
+            updateTable();
         }
     });
 
     forwardButton.addEventListener('click', () => {
         if (currentMatchIndex > 0) {
-          currentMatchIndex--;
-          updateTable();
+            currentMatchIndex--;
+            updateTable();
         }
     });
 

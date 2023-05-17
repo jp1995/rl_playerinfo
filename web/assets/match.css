@@ -90,6 +90,32 @@
     padding-left: 0.3vw;
 }
 
+.history_buttons {
+    font-size: 0;
+    margin-left: 3vh;
+    position: absolute;
+    top: -4vh;
+}
+
+.history_buttons button {
+    border: none;
+    cursor: pointer;
+    height: 4vh;
+    width: 8vh;
+    background-color: #282829;
+    color: #d3d3d3;
+}
+
+.history_buttons button:first-child {
+    border-right: 2px solid #1d1d1d;
+}
+
+.history_buttons button:disabled {
+    background-color: #1d1d1d;
+    color: #747474;
+    cursor: initial;
+}
+
 @media screen and (max-width: 1024px) {
     .inlinetables {
         margin-left: 0;
@@ -151,6 +177,15 @@
         height: 4.5vh;
         width: 4.5vh;
     }
-
+    .history_buttons {
+        position: relative;
+        top: initial;
+        display: flex;
+        justify-content: flex-end;
+        margin-left: 0;
+    }
+    .history_buttons button {
+        font-size: 26pt !important;
+    }
 }
 
