@@ -7,7 +7,7 @@ import os
 
 
 data = None
-matchData = None
+matchData = []
 playlistData = None
 
 
@@ -84,7 +84,8 @@ def run_webserver(mmrq, matchq, playlistq):
         if not matchq.empty():
             data = matchq.get()
             if data[0] == 'Match':
-                matchData = data
+                matchData.insert(0, data)
+                matchData = matchData[:10]
             with app.app_context():
                 render_match = render_template('match.html', matchData=matchData)
             socketio.emit('reply_match_update', {'html': render_match})

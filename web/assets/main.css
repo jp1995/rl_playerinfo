@@ -10,20 +10,20 @@ h1 {
 
 .inlinetables {
     display: inline-grid;
+    position: relative;
     grid-template-columns: minmax(0, 8fr) minmax(0, 3fr);
     grid-column-gap: 15vh;
     margin-top: 12vh;
     margin-left: 4vh;
+    width: 90%;
 }
 
 @media screen and (min-width: 1025px) and (max-width: 1500px) {
     .inlinetables {
         display: grid;
         grid-template-columns: 1fr;
+        margin-top: 14vh;
         margin-left: 0;
-    }
-    .trackertable table{
-        width: 100% !important;
     }
     .trackertable {
         justify-self: center;
@@ -32,7 +32,7 @@ h1 {
         width: 5vw;
     }
     .mmrtable {
-        margin-top: 4vh;
+        margin-top: 6vh;
         width: 40% !important;
         justify-self: center;
     }
@@ -42,6 +42,7 @@ h1 {
     .inlinetables {
         display: grid;
         grid-template-columns: 1fr;
+        width: 100%;
     }
     .mmrtable {
         justify-self: center;

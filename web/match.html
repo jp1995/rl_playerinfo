@@ -1,5 +1,10 @@
 {% if matchData %}
 
+<div class="history_buttons">
+    <button id="backButton"><</button>
+    <button id="forwardButton">></button>
+</div>
+
 <table>
 <thead>
 <tr>
@@ -13,21 +18,67 @@
     <th>Country</th>
     <th>Platform</th></tr>
 </thead>
-<tbody>
-{% for player in matchData[1:] %}
-<tr>
-    <td>{{ player['handleLink']|safe }}</td>
-    <td>{{ player['1v1']|safe }}</td>
-    <td>{{ player['2v2']|safe }}</td>
-    <td>{{ player['3v3']|safe }}</td>
-    <td>{{ player['Wins']|safe }}</td>
-    <td>{{ player['Games']|safe }}</td>
-    <td>{{ player['Rewardlevel']|safe }}</td>
-    <td>{{ player['Country']|safe }}</td>
-    <td>{{ player['Platform']|safe }}</td></tr>
-{% endfor %}
+<tbody id="matchTableBody">
+    <!-- The current match will be displayed here -->
 </tbody>
 </table>
+
+<script>
+$(function() {
+    const matchTableBody = document.getElementById('matchTableBody');
+    const backButton = document.getElementById('backButton');
+    const forwardButton = document.getElementById('forwardButton');
+
+    let currentMatchIndex = 0;
+
+    const matchData = {{ matchData | safe }};
+    console.log(matchData);
+
+    function updateTable() {
+        matchTableBody.innerHTML = '';
+        const currentMatch = matchData[currentMatchIndex];
+
+        currentMatch.slice(1).forEach((player, index) => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${player['handleLink']}</td>
+                <td>${player['1v1']}</td>
+                <td>${player['2v2']}</td>
+                <td>${player['3v3']}</td>
+                <td>${player['Wins']}</td>
+                <td>${player['Games']}</td>
+                <td>${player['Rewardlevel']}</td>
+                <td>${player['Country']}</td>
+                <td>${player['Platform']}</td>
+            `;
+
+            matchTableBody.appendChild(row);
+        });
+
+        backButton.hidden = matchData.length < 2;
+        forwardButton.hidden = matchData.length < 2;
+        backButton.disabled = currentMatchIndex === matchData.length - 1;
+        forwardButton.disabled = currentMatchIndex === 0;
+    }
+
+    backButton.addEventListener('click', () => {
+        if (currentMatchIndex < matchData.length - 1) {
+            currentMatchIndex++;
+            updateTable();
+        }
+    });
+
+    forwardButton.addEventListener('click', () => {
+        if (currentMatchIndex > 0) {
+            currentMatchIndex--;
+            updateTable();
+        }
+    });
+
+    updateTable();
+});
+</script>
 
 {% else %}
 
