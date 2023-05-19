@@ -2,7 +2,14 @@ import asyncio
 
 
 async def handle_plugin(reader, writer, q):
-    data = await reader.read(2048)
+    data = b''
+    while True:
+        chunk = await reader.read(64)
+        print(f'chunk fragment: {chunk}')
+        if not chunk:
+            writer.close()
+            break
+        data += chunk
     q.put(data)
 
 

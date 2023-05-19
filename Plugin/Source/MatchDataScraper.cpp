@@ -5,6 +5,7 @@
 
 using namespace std;
 using json = nlohmann::json;
+extern MatchDataScraper MDS_S;
 
 BAKKESMOD_PLUGIN(MatchDataScraper, "Gather match data for rl_playerinfo", plugin_version, PLUGINTYPE_FREEPLAY)
 std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
@@ -22,7 +23,6 @@ std::string MatchDataScraper::pluginDataDir() {
 
 void MatchDataScraper::onLoad() {
 	_globalCvarManager = cvarManager;
-	cvarManager->log("Plugin loaded!");
 	this->loadHooks();
 
 	notifierToken = gameWrapper->GetMMRWrapper().RegisterMMRNotifier(
@@ -37,6 +37,8 @@ void MatchDataScraper::onLoad() {
 		fs::create_directory(src);
 	}
 	writeDefaultSettings();
+	settingsIntoVars();
+	LOG("Plugin loaded");
 }
 
 void MatchDataScraper::onUnload() {
