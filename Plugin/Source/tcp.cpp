@@ -4,6 +4,8 @@
 #include "nlohmann/json.hpp"
 #include "pch.h"
 #include "MatchDataScraper.h"
+#include <thread>
+
 
 using boost::asio::ip::tcp;
 using json = nlohmann::json;
@@ -13,9 +15,15 @@ void MatchDataScraper::sendData(const json& data) {
     std::string json_string = data.dump();
     auto io_context = std::make_shared<boost::asio::io_context>();
     tcp::socket socket(*io_context);
-
     asyncConnect(socket, io_context, json_string);
-    io_context->run();
+
+    std::thread ioThread([&]() {
+        io_context->run();
+    });
+
+    if (ioThread.joinable()) {
+        ioThread.join();
+    }
 }
 
 void MatchDataScraper::asyncConnect(tcp::socket& socket, std::shared_ptr<boost::asio::io_context> io_context, const std::string& json_string) {
@@ -36,7 +44,6 @@ void MatchDataScraper::asyncConnect(tcp::socket& socket, std::shared_ptr<boost::
 }
 
 void MatchDataScraper::asyncWrite(tcp::socket& socket, std::shared_ptr<boost::asio::io_context> io_context, const std::string& json_string) {
-    LOG("json has reached write function: {}", json_string);
     boost::asio::async_write(socket, boost::asio::buffer(json_string),
         [&](const boost::system::error_code& error, std::size_t bytes_transferred) {
             if (!error) {

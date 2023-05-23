@@ -19,7 +19,7 @@ def run_webserver(mmrq, matchq, playlistq):
     socketio = SocketIO(app, cors_allowed_origins='*')
     print("Webserver started")
     print("* Running on http://127.0.0.1:5000\n"
-          f"* Running on http://{socket.gethostbyname(socket.gethostname())}:5000\n")
+          f"* Running on http://{get_local_ip()}:5000\n")
 
     @app.route('/')
     def index():
@@ -93,3 +93,16 @@ def run_webserver(mmrq, matchq, playlistq):
         socketio.sleep(1)
 
     socketio.run(app, host='0.0.0.0', port=5000)
+
+
+def get_local_ip():
+    ts = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    ts.settimeout(0)
+    try:
+        ts.connect(("1.1.1.1", 1))
+    except (socket.gaierror, OSError):
+        pass
+    finally:
+        localIP = ts.getsockname()[0]
+        ts.close()
+    return localIP

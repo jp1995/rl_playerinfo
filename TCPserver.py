@@ -5,7 +5,6 @@ async def handle_plugin(reader, writer, q):
     data = b''
     while True:
         chunk = await reader.read(64)
-        print(f'chunk fragment: {chunk}')
         if not chunk:
             writer.close()
             break
