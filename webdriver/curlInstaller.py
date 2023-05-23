@@ -1,5 +1,5 @@
 import os
-import urllib3
+import urllib.request
 import shutil
 import re
 import subprocess
@@ -33,9 +33,8 @@ def install_curl():
     print("Curl was first included in Windows 10 version 1803, released April 2018.")
     print('However, Curl does not appear to be installed, attempting install now...')
     url = 'https://curl.se/windows/'
-    http = urllib3.PoolManager()
-    response = http.request('GET', url)
-    page = response.data.decode('utf-8')
+    response = urllib.request.urlopen(url)
+    page = response.read().decode('utf-8')
 
     build = re.findall(rf"(?<=<b>Build<\/b>:)\s*(.*?)(?=\s|<br>|$)", page)
     if len(build) > 0:
@@ -44,9 +43,9 @@ def install_curl():
         zipurl = f'https://curl.se/windows/dl-{build}/curl-{build}-win64-mingw.zip'
         zipname = 'curl.zip'
 
-        dlzip = http.request('GET', zipurl)
+        dlzip = urllib.request.urlopen(zipurl)
         with open(zipname, 'wb') as out_file:
-            out_file.write(dlzip.data)
+            out_file.write(dlzip.read())
 
         shutil.unpack_archive(zipname)
         shutil.move(os.path.join(f'curl-{build}-win64-mingw'), '.\\webdriver')
