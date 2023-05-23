@@ -6,7 +6,7 @@ from web.formatTable import formatTable
 from TCPserver import run_tcp_server
 from web.app import run_webserver
 from web.MMR import playlistDict
-from time import sleep
+from time import sleep, time
 import atexit
 import json
 
@@ -32,6 +32,8 @@ class rl_playerinfo:
         self.playlistCurrent = '69'
         self.mmrNew = {}
         self.api_resps = []
+
+        self.playerCache = {}
 
         self.q = Queue()
         self.tcp_process = Process(target=run_tcp_server, args=(self.q,))
@@ -135,6 +137,23 @@ class rl_playerinfo:
 
             self.api_resps.append(data)
 
+    def placeIntoCache(self, uid, platform, resp):
+        key = f'{uid}_{platform}'
+        if key not in self.playerCache.keys() and platform is not None:
+            print(f'Caching player {uid} - {platform}. Time is now {time()}')
+            self.playerCache[key] = [json.dumps(resp), time()]
+
+    def cleanCache(self, timeout=600):
+        current_time = time()
+        exp_keys = []
+        for key, [_, timestamp] in self.playerCache.items():
+            if current_time - timestamp > timeout:
+                print(f'{key} has expired. Time is now {current_time}, Timestamp is {timestamp}')
+                exp_keys.append(key)
+
+        for key in exp_keys:
+            del self.playerCache[key]
+
     """
     matchData is integrated into the responses.
     In case of an API error or bot, displayed clearly with the relvant name and platform.
@@ -149,6 +168,7 @@ class rl_playerinfo:
         for item in self.api_resps:
             uid = item['data']['platformInfo'].get('platformUserIdentifier', None)
             platform_slug = item['data']['platformInfo'].get('platformSlug', None)
+            self.placeIntoCache(uid, platform_slug, item)
             if platform_slug is not None:
                 item['data']['gameInfo'] = {}
                 # Sometiems switch/xbl playername has different capitalisation from UID..?
@@ -178,17 +198,27 @@ class rl_playerinfo:
     API is only queried if player is not a bot. Afterwards, the bot templates (if any) are appended to the responses.
     """
     def requests(self, matchData):
-        urls, bots = [], []
+        urls, bots, cached = [], [], []
 
         for player in matchData['Match']['players']:
             platform_num = str(matchData['Match']['players'][player]['platform'])
+            cache_key = f'{player}_{self.platformDict[platform_num]}'
             if platform_num == '0':
                 bots.append(self.isBot())
+                continue
+            elif cache_key in self.playerCache:
+                print(f'Found player {cache_key} in playerCache, retrieving data...')
+                cached.append(self.playerCache[cache_key][0])
                 continue
             api_url = f'{self.api_base_url}/{self.platformDict[platform_num]}/{player}'
             urls.append(api_url)
 
+        print('Requests to be made:')
+        for i in urls:
+            print(i)
+
         resps = threaded_requests(urls, len(urls), self.useragentarr)
+        resps.extend(cached)
         resps.extend(bots)
         self.responses_mod(resps, matchData)
 
@@ -323,7 +353,12 @@ class rl_playerinfo:
         self.webserver.start()
         self.tcp_process.start()
         atexit.register(self.handleExit)
+        min_counter = 0
         while True:
+            if min_counter == 60:
+                print('A minute has passed, checking playerCache')
+                min_counter = 0
+                self.cleanCache()
             self.api_resps.clear()
             self.sort()
             self.checkIfNewPlaylist()
@@ -336,6 +371,7 @@ class rl_playerinfo:
                 # if gameInfo['Match']['isRanked'] == 1:
                 #     self.handleDBdata(self.api_resps)
 
+            min_counter += 1
             sleep(1)
 
 
