@@ -47,9 +47,7 @@ class MatchDataScraper : public BakkesMod::Plugin::BakkesModPlugin,
 	json calcStreak(json jMMR, const std::string& safePID, int delta_a, int delta_b);
 	json getSavedPlayerMMR();
 	void sendData(const json& data);
-	void asyncConnect(tcp::socket& socket, std::shared_ptr<boost::asio::io_context> io_context, const std::string& json_string);
-	void asyncWrite(tcp::socket& socket, std::shared_ptr<boost::asio::io_context> io_context, const std::string& json_string);
-	void runIoContext(boost::asio::io_context& io_context);
-	void runTimer(boost::asio::steady_timer& timer, boost::asio::io_context& io_context);
+	void asyncConnect(tcp::socket& socket, boost::asio::io_context& io_context);
+	void asyncWrite(tcp::socket& socket, const std::string& json_string);
 };
 
