@@ -159,7 +159,7 @@ class rl_playerinfo:
                 exp_resps.append(key)
 
         if len(exp_resps) > 0:
-            print('Expired responses in cache, purging...')
+            print('Discarding expired items in cache')
             for key in exp_resps:
                 del self.playerCache[key]
 
@@ -177,15 +177,17 @@ class rl_playerinfo:
         for item in self.api_resps:
             uid = item['data']['platformInfo'].get('platformUserIdentifier', None)
             platform_slug = item['data']['platformInfo'].get('platformSlug', None)
-            self.placeIntoCache(uid, platform_slug, item)
+
             if platform_slug is not None:
                 item['data']['gameInfo'] = {}
                 # Sometiems switch/xbl playername has different capitalisation from UID..?
                 try:
                     item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
+                    self.placeIntoCache(uid, platform_slug, item)
                 except KeyError:
                     if platform_slug == 'switch' or platform_slug == 'xbl':
                         item['data']['gameInfo']['team'] = matchData['Match']['players'][uid.lower()]['team']
+                        self.placeIntoCache(uid.lower(), platform_slug, item)
                     else:
                         item['data']['gameInfo']['team'] = 0
                         print('UID != matchData player, switch/xbl workaround did not work, teams can be incorrect')
@@ -217,15 +219,12 @@ class rl_playerinfo:
                 bots.append(self.isBot())
                 continue
             elif cache_key in self.playerCache:
-                print(f'Found player {cache_key} in playerCache, retrieving data...')
                 cached.append(self.playerCache[cache_key][0])
                 continue
             api_url = f'{self.api_base_url}/{self.platformDict[platform_num]}/{player}'
             urls.append(api_url)
 
-        print('Requests to be made:')
-        for i in urls:
-            print(i)
+        print(f'Cached responses: {len(cached)}, API requests: {len(urls)}')
 
         resps = threaded_requests(urls, len(urls), self.useragentarr)
         resps.extend(cached)
