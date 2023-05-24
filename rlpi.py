@@ -342,3 +342,4 @@ class rl_playerinfo:
 if __name__ == '__main__':
     init = rl_playerinfo()
     print(init.main())
+    # Beginning of branch
