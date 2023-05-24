@@ -122,6 +122,11 @@
     cursor: initial;
 }
 
+.history_buttons button:last-child {
+    border-left: 2px solid #1d1d1d;
+    cursor: initial;
+}
+
 @media screen and (max-width: 1024px) {
     .inlinetables {
         margin-left: 0;

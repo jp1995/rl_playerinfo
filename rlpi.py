@@ -6,8 +6,8 @@ from web.formatTable import formatTable
 from TCPserver import run_tcp_server
 from web.app import run_webserver
 from web.MMR import playlistDict
-from time import sleep
 import atexit
+import time
 import json
 
 
@@ -32,6 +32,9 @@ class rl_playerinfo:
         self.playlistCurrent = '69'
         self.mmrNew = {}
         self.api_resps = []
+
+        self.playerCache = {}
+        self.cacheExpiration = 1800
 
         self.q = Queue()
         self.tcp_process = Process(target=run_tcp_server, args=(self.q,))
@@ -59,7 +62,7 @@ class rl_playerinfo:
                 self.mmrNew = jdata
                 self.writeMMR()
         except json.JSONDecodeError:
-            print('Something broke really bad? Uhh try restarting... everything? Or not.')
+            print('Plugin output is unexpected. Possible connection issue.')
             return None
 
     """
@@ -131,12 +134,37 @@ class rl_playerinfo:
                     elif 'We could not find the player' in data['errors'][0]['message']:
                         data = json.loads(self.error('API_unknown_player'))
                     else:
-                        print(f'Unhandled error, if possible create an issue on github.\n {data["errors"][0]["message"]}')
+                        print(f'Unhandled error, if possible create an issue on github.'
+                              f'\n {data["errors"][0]["message"]}')
 
             self.api_resps.append(data)
 
     """
-    matchData is integrated into the responses.
+    An API response is cached.
+    """
+    def placeIntoCache(self, uid, platform, resp):
+        key = f'{uid}_{platform}'
+        if key not in self.playerCache.keys() and platform is not None:
+            self.playerCache[key] = [json.dumps(resp), time.time()]
+
+    """
+    The cache is inspected, expired responses are discarded.
+    """
+    def cleanCache(self):
+        current_time = time.time()
+        exp_resps = []
+
+        for key, [_, timestamp] in self.playerCache.items():
+            if current_time - timestamp > self.cacheExpiration:
+                exp_resps.append(key)
+
+        if len(exp_resps) > 0:
+            print('Discarding expired items in cache')
+            for key in exp_resps:
+                del self.playerCache[key]
+
+    """
+    matchData is integrated into the responses. API responses are placed into cache.
     In case of an API error or bot, displayed clearly with the relvant name and platform.
     The two loops could be combined, but it seems to create problems with really annoying workarounds.
     """
@@ -149,14 +177,17 @@ class rl_playerinfo:
         for item in self.api_resps:
             uid = item['data']['platformInfo'].get('platformUserIdentifier', None)
             platform_slug = item['data']['platformInfo'].get('platformSlug', None)
+
             if platform_slug is not None:
                 item['data']['gameInfo'] = {}
                 # Sometiems switch/xbl playername has different capitalisation from UID..?
                 try:
                     item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
+                    self.placeIntoCache(uid, platform_slug, item)
                 except KeyError:
                     if platform_slug == 'switch' or platform_slug == 'xbl':
                         item['data']['gameInfo']['team'] = matchData['Match']['players'][uid.lower()]['team']
+                        self.placeIntoCache(uid.lower(), platform_slug, item)
                     else:
                         item['data']['gameInfo']['team'] = 0
                         print('UID != matchData player, switch/xbl workaround did not work, teams can be incorrect')
@@ -175,20 +206,28 @@ class rl_playerinfo:
                     break
 
     """
-    API is only queried if player is not a bot. Afterwards, the bot templates (if any) are appended to the responses.
+    API is only queried if player is not already cached or a bot.
+    The bot templates and cached responses are appended to the resps.
     """
     def requests(self, matchData):
-        urls, bots = [], []
+        urls, bots, cached = [], [], []
 
         for player in matchData['Match']['players']:
             platform_num = str(matchData['Match']['players'][player]['platform'])
+            cache_key = f'{player}_{self.platformDict[platform_num]}'
             if platform_num == '0':
                 bots.append(self.isBot())
+                continue
+            elif cache_key in self.playerCache:
+                cached.append(self.playerCache[cache_key][0])
                 continue
             api_url = f'{self.api_base_url}/{self.platformDict[platform_num]}/{player}'
             urls.append(api_url)
 
+        print(f'Cached responses: {len(cached)}, API requests: {len(urls)}')
+
         resps = threaded_requests(urls, len(urls), self.useragentarr)
+        resps.extend(cached)
         resps.extend(bots)
         self.responses_mod(resps, matchData)
 
@@ -323,7 +362,13 @@ class rl_playerinfo:
         self.webserver.start()
         self.tcp_process.start()
         atexit.register(self.handleExit)
+        minute = 0
+
         while True:
+            if minute == 60:
+                self.cleanCache()
+                minute = 0
+
             self.api_resps.clear()
             self.sort()
             self.checkIfNewPlaylist()
@@ -336,7 +381,8 @@ class rl_playerinfo:
                 # if gameInfo['Match']['isRanked'] == 1:
                 #     self.handleDBdata(self.api_resps)
 
-            sleep(1)
+            minute += 1
+            time.sleep(1)
 
 
 if __name__ == '__main__':
