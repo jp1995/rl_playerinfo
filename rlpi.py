@@ -6,8 +6,8 @@ from web.formatTable import formatTable
 from TCPserver import run_tcp_server
 from web.app import run_webserver
 from web.MMR import playlistDict
-from time import sleep, time
 import atexit
+import time
 import json
 
 
@@ -34,6 +34,7 @@ class rl_playerinfo:
         self.api_resps = []
 
         self.playerCache = {}
+        self.cacheExpiration = 1800
 
         self.q = Queue()
         self.tcp_process = Process(target=run_tcp_server, args=(self.q,))
@@ -61,7 +62,7 @@ class rl_playerinfo:
                 self.mmrNew = jdata
                 self.writeMMR()
         except json.JSONDecodeError:
-            print('Something broke really bad? Uhh try restarting... everything? Or not.')
+            print('Plugin output is unexpected. Possible connection issue.')
             return None
 
     """
@@ -133,29 +134,37 @@ class rl_playerinfo:
                     elif 'We could not find the player' in data['errors'][0]['message']:
                         data = json.loads(self.error('API_unknown_player'))
                     else:
-                        print(f'Unhandled error, if possible create an issue on github.\n {data["errors"][0]["message"]}')
+                        print(f'Unhandled error, if possible create an issue on github.'
+                              f'\n {data["errors"][0]["message"]}')
 
             self.api_resps.append(data)
 
+    """
+    An API response is cached.
+    """
     def placeIntoCache(self, uid, platform, resp):
         key = f'{uid}_{platform}'
         if key not in self.playerCache.keys() and platform is not None:
-            print(f'Caching player {uid} - {platform}. Time is now {time()}')
-            self.playerCache[key] = [json.dumps(resp), time()]
-
-    def cleanCache(self, timeout=600):
-        current_time = time()
-        exp_keys = []
-        for key, [_, timestamp] in self.playerCache.items():
-            if current_time - timestamp > timeout:
-                print(f'{key} has expired. Time is now {current_time}, Timestamp is {timestamp}')
-                exp_keys.append(key)
-
-        for key in exp_keys:
-            del self.playerCache[key]
+            self.playerCache[key] = [json.dumps(resp), time.time()]
 
     """
-    matchData is integrated into the responses.
+    The cache is inspected, expired responses are discarded.
+    """
+    def cleanCache(self):
+        current_time = time.time()
+        exp_resps = []
+
+        for key, [_, timestamp] in self.playerCache.items():
+            if current_time - timestamp > self.cacheExpiration:
+                exp_resps.append(key)
+
+        if len(exp_resps) > 0:
+            print('Expired responses in cache, purging...')
+            for key in exp_resps:
+                del self.playerCache[key]
+
+    """
+    matchData is integrated into the responses. API responses are placed into cache.
     In case of an API error or bot, displayed clearly with the relvant name and platform.
     The two loops could be combined, but it seems to create problems with really annoying workarounds.
     """
@@ -195,7 +204,8 @@ class rl_playerinfo:
                     break
 
     """
-    API is only queried if player is not a bot. Afterwards, the bot templates (if any) are appended to the responses.
+    API is only queried if player is not already cached or a bot.
+    The bot templates and cached responses are appended to the resps.
     """
     def requests(self, matchData):
         urls, bots, cached = [], [], []
@@ -353,12 +363,13 @@ class rl_playerinfo:
         self.webserver.start()
         self.tcp_process.start()
         atexit.register(self.handleExit)
-        min_counter = 0
+        minute = 0
+
         while True:
-            if min_counter == 60:
-                print('A minute has passed, checking playerCache')
-                min_counter = 0
+            if minute == 60:
                 self.cleanCache()
+                minute = 0
+
             self.api_resps.clear()
             self.sort()
             self.checkIfNewPlaylist()
@@ -371,8 +382,8 @@ class rl_playerinfo:
                 # if gameInfo['Match']['isRanked'] == 1:
                 #     self.handleDBdata(self.api_resps)
 
-            min_counter += 1
-            sleep(1)
+            minute += 1
+            time.sleep(1)
 
 
 if __name__ == '__main__':
