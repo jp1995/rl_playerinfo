@@ -180,6 +180,7 @@ class rl_playerinfo:
 
             if platform_slug is not None:
                 item['data']['gameInfo'] = {}
+                item['data']['gameInfo']['matchID'] = matchData['Match']['matchID']
                 # Sometiems switch/xbl playername has different capitalisation from UID..?
                 try:
                     item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
@@ -261,8 +262,8 @@ class rl_playerinfo:
     In the css, the table is divided in half, with the top being blue and bottom being red. Moving blue to top.
     """
     @staticmethod
-    def sortPlayersByTeams(matchdicts: list):
-        sorted_matchdicts = ['Match']
+    def sortPlayersByTeams(matchdicts: list, matchID: str):
+        sorted_matchdicts = [{'Match': matchID}]
         sorted_matchdicts.extend(sorted(matchdicts, key=lambda x: x['Team']))
         return sorted_matchdicts
 
@@ -311,7 +312,7 @@ class rl_playerinfo:
     """
     The list of lists that makes up the table is created.
     """
-    def handleData(self, api_resps: list):
+    def handleData(self, api_resps: list, matchID: str):
         table = []
 
         for resp in api_resps:
@@ -341,7 +342,7 @@ class rl_playerinfo:
             formatted = formatTable(rawtable)
             table.append(formatted)
 
-        sorted_table = self.sortPlayersByTeams(table)
+        sorted_table = self.sortPlayersByTeams(table, matchID)
         self.writeMatch(sorted_table)
 
     """
@@ -377,7 +378,8 @@ class rl_playerinfo:
                 if 'players' not in matchData['Match'] or matchData['Match']['players'] is None:
                     continue
                 self.requests(matchData)
-                self.handleData(self.api_resps)
+                matchID = matchData['Match'].get('matchID')
+                self.handleData(self.api_resps, matchID)
                 # if gameInfo['Match']['isRanked'] == 1:
                 #     self.handleDBdata(self.api_resps)
 

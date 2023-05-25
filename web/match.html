@@ -70,6 +70,7 @@ $(function() {
         navButton.textContent = navButtonContent;
         backButton.hidden = matchData.length < 2;
         forwardButton.hidden = matchData.length < 2;
+        navButton.hidden = matchData.length < 2;
         backButton.disabled = currentMatchIndex === matchData.length - 1;
         forwardButton.disabled = currentMatchIndex === 0;
     }

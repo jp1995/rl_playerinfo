@@ -83,9 +83,21 @@ def run_webserver(mmrq, matchq, playlistq):
 
         if not matchq.empty():
             data = matchq.get()
-            if data[0] == 'Match':
+            if type(data[0]) == dict:
+                matchID = data[0]['Match']
+                print(matchID)
+
+                for item in matchData:
+                    if item[0]['Match'] == matchID and matchID != '':
+                        matchData.pop(matchData.index(item))
+
+
                 matchData.insert(0, data)
+
+
+
                 matchData = matchData[:10]
+                print(matchData)
             with app.app_context():
                 render_match = render_template('match.html', matchData=matchData)
             socketio.emit('reply_match_update', {'html': render_match})
