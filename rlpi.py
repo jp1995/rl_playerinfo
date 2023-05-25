@@ -290,13 +290,16 @@ class rl_playerinfo:
         for resp in api_resps:
             dbdump_dict = {}
             uid = resp['data']['platformInfo']['platformUserIdentifier']
+            errors = ['No API Response', 'API Server Error', 'Unknown to API', ' - AI']
+            if any(error in resp['data']['platformInfo']['platformUserHandle'] for error in errors):
+                continue
             platform = resp['data']['platformInfo']['platformSlug']
             gen_url = f'{self.gen_base_url}/{platform}/{uid}/overview'
 
             dbdump_dict['name'] = resp['data']['platformInfo']['platformUserHandle']
             dbdump_dict['platform'] = resp['data']['platformInfo']['platformSlug']
 
-            dbdump_dict.update(self.rankDict)
+            dbdump_dict.update(self.createRankDict(resp))
 
             dbdump_dict['wins'] = resp['data']['segments'][0]['stats']['wins']['value']
             dbdump_dict['games_this_season'] = sum(self.rankDict[k] for k in ['1v1_games', '2v2_games', '3v3_games'])
@@ -385,7 +388,7 @@ class rl_playerinfo:
                 self.requests(matchData)
                 matchID = matchData['Match'].get('matchID')
                 self.handleData(self.api_resps, matchID)
-                # if gameInfo['Match']['isRanked'] == 1:
+                # if matchData['Match']['isRanked'] == 1:
                 #     self.handleDBdata(self.api_resps)
 
             minute += 1
