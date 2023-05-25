@@ -1,3 +1,4 @@
+from logging_setup import log
 from urllib import parse
 import subprocess
 import random
@@ -17,5 +18,5 @@ def curl_conf(url, useragentarray):
     curl_command = [executable, encoded_url, '-H', f'User-Agent: {random.choice(useragentarray)}', '-H', f'Referer: {referer}']
     result = subprocess.run(curl_command, capture_output=True, text=True, encoding='utf-8')
     if '% Total' not in result.stderr:
-        print(f'ERROR: {result.stderr}')
+        log.error(f'{result.stderr}')
     return result.stdout

@@ -4,6 +4,7 @@ from db_connect import db_push_tracker_stats
 from multiprocessing import Process, Queue
 from web.formatTable import formatTable
 from TCPserver import run_tcp_server
+from logging_setup import log, logWipe
 from web.app import run_webserver
 from web.MMR import playlistDict
 import atexit
@@ -50,7 +51,7 @@ class rl_playerinfo:
         if self.q.empty():
             return None
         data = self.q.get()
-        print(f'Received: {data}')
+        log.info(f'Received: {data}')
 
         try:
             jdata = json.loads(data)
@@ -62,7 +63,7 @@ class rl_playerinfo:
                 self.mmrNew = jdata
                 self.writeMMR()
         except json.JSONDecodeError:
-            print('Plugin output is unexpected. Possible connection issue.')
+            log.error('Plugin output is unexpected. Possible connection issue.')
             return None
 
     """
@@ -76,7 +77,7 @@ class rl_playerinfo:
 
     def writeMatch(self, listy: list):
         self.matchq.put(listy)
-        print('Table generated\n')
+        log.info('Table generated\n')
 
     def checkIfNewPlaylist(self):
         if self.playlistCurrent != self.playlistStorage:
@@ -95,19 +96,18 @@ class rl_playerinfo:
         if self.mmrOld != self.mmrNew:
             self.mmrOld = self.mmrNew
             self.mmrq.put(json.dumps(self.mmrNew))
-            print('MMR updated\n')
+            log.info('MMR updated\n')
 
     """
     Appropriate error template is loaded and returned.
     """
-    @staticmethod
-    def error(errorType: str):
+    def error(self, errorType: str):
         error_mapping = {
             'API_down': 'error_templates/API_down.json',
             'API_server_error': 'error_templates/API_error.json',
             'API_unknown_player': 'error_templates/API_unknown.json'
         }
-        print(f'API Error: {errorType}')
+        log.error(f'API Error: {errorType}')
         with open(error_mapping[errorType], 'r', encoding='utf-8') as f:
             json = f.read()
         return json
@@ -134,8 +134,8 @@ class rl_playerinfo:
                     elif 'We could not find the player' in data['errors'][0]['message']:
                         data = json.loads(self.error('API_unknown_player'))
                     else:
-                        print(f'Unhandled error, if possible create an issue on github.'
-                              f'\n {data["errors"][0]["message"]}')
+                        log.error(f'Unhandled API error, if possible create an issue on github.'
+                                       f'\n {data["errors"][0]["message"]}')
 
             self.api_resps.append(data)
 
@@ -146,6 +146,7 @@ class rl_playerinfo:
         key = f'{uid}_{platform}'
         if key not in self.playerCache.keys() and platform is not None:
             self.playerCache[key] = [json.dumps(resp), time.time()]
+            log.debug(f'Caching player {key}')
 
     """
     The cache is inspected, expired responses are discarded.
@@ -159,7 +160,7 @@ class rl_playerinfo:
                 exp_resps.append(key)
 
         if len(exp_resps) > 0:
-            print('Discarding expired items in cache')
+            log.debug('Discarding expired items in cache')
             for key in exp_resps:
                 del self.playerCache[key]
 
@@ -186,12 +187,14 @@ class rl_playerinfo:
                     item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
                     self.placeIntoCache(uid, platform_slug, item)
                 except KeyError:
+                    log.debug('Hit player whose ingame name differs from their platformUserIdentifier.')
                     if platform_slug == 'switch' or platform_slug == 'xbl':
+                        log.debug('Attempting switch/xbl lowercase workaround.')
                         item['data']['gameInfo']['team'] = matchData['Match']['players'][uid.lower()]['team']
                         self.placeIntoCache(uid.lower(), platform_slug, item)
                     else:
                         item['data']['gameInfo']['team'] = 0
-                        print('UID != matchData player, switch/xbl workaround did not work, teams can be incorrect')
+                        log.warning('UID != matchData player, switch/xbl workaround failed, teams can be incorrect')
                 valid_players.append(uid)
 
         # And then errors are handled.
@@ -218,14 +221,15 @@ class rl_playerinfo:
             cache_key = f'{player}_{self.platformDict[platform_num]}'
             if platform_num == '0':
                 bots.append(self.isBot())
+                log.debug('Found bot, avoiding API query')
                 continue
             elif cache_key in self.playerCache:
                 cached.append(self.playerCache[cache_key][0])
+                log.debug(f'Retrieving {cache_key} from cache')
                 continue
             api_url = f'{self.api_base_url}/{self.platformDict[platform_num]}/{player}'
             urls.append(api_url)
-
-        print(f'Cached responses: {len(cached)}, API requests: {len(urls)}')
+            log.debug(f'Asking API for {api_url.split("/")[-1]}')
 
         resps = threaded_requests(urls, len(urls), self.useragentarr)
         resps.extend(cached)
@@ -307,7 +311,7 @@ class rl_playerinfo:
             dbdump.append(dbdump_dict)
 
         db_push_tracker_stats(dbdump)
-        print('Successful push\n')
+        log.info('Successful database push\n')
 
     """
     The list of lists that makes up the table is created.
@@ -351,13 +355,14 @@ class rl_playerinfo:
     def handleExit(self):
         self.webserver.kill()
         self.tcp_process.kill()
-        print('Exiting...')
+        log.info('Exiting...')
 
     """
     The main program loop.
     Uncomment the handleDBdata call, set up your own DB and edit db_connect.py for DB functionality.
     """
     def main(self):
+        logWipe()
         if not is_curl_installed():
             install_curl()
         self.webserver.start()

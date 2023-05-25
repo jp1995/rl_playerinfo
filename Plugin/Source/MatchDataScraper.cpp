@@ -59,7 +59,7 @@ void MatchDataScraper::handleCountdownStart(std::string eventName) {
 	int num_players = j["Match"]["players"].size();
 	int maxplayers = j["Match"]["maxPlayers"];
 
-	if (num_players == maxplayers and matchStorage != j) {
+	if (num_players == maxplayers and matchStorage != j and num_players != 0) {
 		matchStorage = j;
 		writeMatchData(j);
 	}

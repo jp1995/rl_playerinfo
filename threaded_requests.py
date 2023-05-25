@@ -1,4 +1,5 @@
 from webdriver.curl_conf import curl_conf
+from logging_setup import log
 from threading import Thread
 import queue
 
@@ -11,6 +12,7 @@ def threaded_requests(addresses, no_workers, useragent_arr):
             Thread.__init__(self)
             self.queue = request_queue
             self.results = []
+            log.debug(f"Running {no_workers} workers in threaded_requests")
 
         def run(self):
             while True:

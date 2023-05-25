@@ -1,3 +1,4 @@
+from logging_setup import log
 import asyncio
 
 
@@ -17,7 +18,7 @@ async def serve(q):
     PORT = 8371
     server = await asyncio.start_server(lambda r, w: handle_plugin(r, w, q), HOST, PORT)
     addr = server.sockets[0].getsockname()
-    print(f'Awaiting plugin on {addr}')
+    log.info(f'Awaiting plugin on {addr}')
 
     async with server:
         await server.serve_forever()
