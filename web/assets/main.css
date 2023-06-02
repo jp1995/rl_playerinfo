@@ -12,7 +12,7 @@ h1 {
     display: inline-grid;
     position: relative;
     grid-template-columns: minmax(0, 8fr) minmax(0, 3fr);
-    grid-column-gap: 15vh;
+    grid-column-gap: 17vh;
     margin-top: 12vh;
     margin-left: 4vh;
     width: 90%;

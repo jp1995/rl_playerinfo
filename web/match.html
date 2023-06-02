@@ -1,9 +1,9 @@
 {% if matchData %}
 
 <div class="history_buttons">
-    <button id="backButton"><</button>
-    <button id="forwardButton">></button>
-    <button id="navButton"></button>
+    <button class="backButton"><</button>
+    <button class="forwardButton">></button>
+    <button class="navButton"></button>
 </div>
 
 <table>
@@ -27,9 +27,9 @@
 <script>
 $(function() {
     const matchTableBody = document.getElementById('matchTableBody');
-    const backButton = document.getElementById('backButton');
-    const forwardButton = document.getElementById('forwardButton');
-    const navButton = document.getElementById('navButton');
+    const backButton = document.getElementsByClassName('backButton')[0];
+    const forwardButton = document.getElementsByClassName('forwardButton')[0];
+    const navButton = document.getElementsByClassName('navButton')[0];
 
     let currentMatchIndex = 0;
     let navButtonContent = '';

@@ -345,6 +345,7 @@ class rl_playerinfo:
             rawtable['socialURLs'] = socialURLs
             rawtable['Team'] = resp['data']['gameInfo']['team']
             rawtable['URL'] = gen_url
+            rawtable['avatarURL'] = resp['data']['platformInfo'].get('avatarUrl')
 
             formatted = formatTable(rawtable)
             table.append(formatted)

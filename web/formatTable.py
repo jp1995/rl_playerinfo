@@ -31,7 +31,13 @@ social_icons = {'twitter': 'assets/icons/twitter.svg', 'twitch': 'assets/icons/t
 def formatTable(rawMatch: dict):
     formattedMatch = {}
     url = rawMatch['URL']
+    avatarURL = rawMatch['avatarURL']
+    defaultAvatar = '../assets/icons/defaultavatar.png'
+    # if not avatarURL:
+    #     avatarURL = defaultAvatar
+    print(f'{rawMatch["Handle"]} - {avatarURL}')
     handleLink = f'<div class="namecontainer">' \
+                 f'<div class="avatarcontainer"><img src="{avatarURL}" onerror="this.src=\'{defaultAvatar}\';"></div>' \
                  f'<a href="{url}" class="nameurl">{rawMatch["Handle"]}</a>' \
                  f'<div class="socialscontainer">'
 
