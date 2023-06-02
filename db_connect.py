@@ -30,7 +30,6 @@ def db_push_tracker_stats(listy: list):
     #     try:
     #         cursor.execute(stmt)
     #         connection.commit()
-    #         log.debug(dicty)
     #     except db.Error as e:
     #         log.error(f'Error adding entry to database: {e}\n{dicty}')
 

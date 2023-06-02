@@ -35,6 +35,7 @@ class rl_playerinfo:
         self.api_resps = []
 
         self.playerCache = {}
+        self.dbCache = {}
         self.cacheExpiration = 1800
 
         self.q = Queue()
@@ -101,7 +102,8 @@ class rl_playerinfo:
     """
     Appropriate error template is loaded and returned.
     """
-    def error(self, errorType: str):
+    @staticmethod
+    def error(errorType: str):
         error_mapping = {
             'API_down': 'error_templates/API_down.json',
             'API_server_error': 'error_templates/API_error.json',
@@ -135,7 +137,7 @@ class rl_playerinfo:
                         data = json.loads(self.error('API_unknown_player'))
                     else:
                         log.error(f'Unhandled API error, if possible create an issue on github.'
-                                       f'\n {data["errors"][0]["message"]}')
+                                  f'\n {data["errors"][0]["message"]}')
 
             self.api_resps.append(data)
 
@@ -223,10 +225,12 @@ class rl_playerinfo:
                 bots.append(self.isBot())
                 log.debug('Found bot, avoiding API query')
                 continue
+
             elif cache_key in self.playerCache:
                 cached.append(self.playerCache[cache_key][0])
                 log.debug(f'Retrieving {cache_key} from cache')
                 continue
+
             api_url = f'{self.api_base_url}/{self.platformDict[platform_num]}/{player}'
             urls.append(api_url)
             log.debug(f'Asking API for {api_url.split("/")[-1]}')
@@ -283,27 +287,55 @@ class rl_playerinfo:
             return ['-']
 
     """
+    The dbCache implementation is similar to playerCache, but no real data is stored
+    and it's only used for avoiding duplicates within the assigned period.
+    """
+    def placeIntoDBcache(self, uid, platform):
+        key = f'{uid}_{platform}'
+        if key not in self.dbCache.keys() and platform is not None:
+            self.dbCache[key] = time.time()
+            log.debug(f'Caching database entry for {key}')
+
+    def cleanDBcache(self):
+        current_time = time.time()
+        exp_keys = []
+
+        for key, timestamp in self.dbCache.items():
+            if current_time - timestamp > self.cacheExpiration:
+                exp_keys.append(key)
+
+        if len(exp_keys) > 0:
+            log.debug('Discarding expired items in dbCache')
+            for key in exp_keys:
+                del self.dbCache[key]
+
+    """
     Data to be inserted into the database is collected.
     """
     def handleDBdata(self, api_resps: list):
         dbdump = []
         for resp in api_resps:
-            dbdump_dict = {}
-            uid = resp['data']['platformInfo']['platformUserIdentifier']
             errors = ['No API Response', 'API Server Error', 'Unknown to API', ' - AI']
             if any(error in resp['data']['platformInfo']['platformUserHandle'] for error in errors):
                 continue
+
+            dbdump_dict = {}
+            uid = resp['data']['platformInfo']['platformUserIdentifier']
             platform = resp['data']['platformInfo']['platformSlug']
+            cachekey = f'{uid}_{platform}'
+
+            if cachekey in self.dbCache:
+                log.debug(f'Found recent database entry for {cachekey}')
+                continue
+
             gen_url = f'{self.gen_base_url}/{platform}/{uid}/overview'
+            rewardlevel = resp['data']['segments'][0]['stats']['seasonRewardLevel']['metadata']['rankName']
 
             dbdump_dict['name'] = resp['data']['platformInfo']['platformUserHandle']
             dbdump_dict['platform'] = resp['data']['platformInfo']['platformSlug']
-
             dbdump_dict.update(self.createRankDict(resp))
-
             dbdump_dict['wins'] = resp['data']['segments'][0]['stats']['wins']['value']
             dbdump_dict['games_this_season'] = sum(self.rankDict[k] for k in ['1v1_games', '2v2_games', '3v3_games'])
-            rewardlevel = resp['data']['segments'][0]['stats']['seasonRewardLevel']['metadata']['rankName']
             dbdump_dict['rewardlevel'] = rewardlevel if rewardlevel != 'None' else 'NULL'
             dbdump_dict['influencer'] = resp['data']['userInfo']['isInfluencer']
             dbdump_dict['premium'] = resp['data']['userInfo']['isPremium']
@@ -312,9 +344,14 @@ class rl_playerinfo:
             dbdump_dict['url'] = gen_url
 
             dbdump.append(dbdump_dict)
+            log.debug(dbdump_dict)
+            self.placeIntoDBcache(uid, platform)
 
         db_push_tracker_stats(dbdump)
-        log.info('Successful database push\n')
+        if len(dbdump) > 0:
+            log.info('Successful database push\n')
+        else:
+            log.debug('Database push avoided\n')
 
     """
     The list of lists that makes up the table is created.
@@ -377,6 +414,7 @@ class rl_playerinfo:
         while True:
             if minute == 60:
                 self.cleanCache()
+                self.cleanDBcache()
                 minute = 0
 
             self.api_resps.clear()

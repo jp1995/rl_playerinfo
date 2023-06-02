@@ -51,6 +51,8 @@ If you want to access the site from a separate device in your local network (lik
 
 [Go to wiki](https://github.com/jp1995/rl_playerinfo/wiki)
 
+The wiki contains some extra information, for example how to enable the database push functionality.
+
 If you want to run this on Linux, [this part](https://github.com/jp1995/rl_playerinfo/wiki/Linux-info) is a mandatory read!
 
 
@@ -64,4 +66,5 @@ API availability is generally very good. There can be instability during peak ti
 
 * Requests through a python library. Hit a wall on that.
 * The C++ TCP client implementation is not ideal, with a 10 millisecond blocking action / connect.
+* Launch options for database push / other things?
 * The phone media css is pretty scuffed.
