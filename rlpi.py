@@ -99,21 +99,6 @@ class rl_playerinfo:
             self.mmrq.put(json.dumps(self.mmrNew))
             log.info('MMR updated\n')
 
-    """
-    Appropriate error template is loaded and returned.
-    """
-    @staticmethod
-    def error(errorType: str):
-        error_mapping = {
-            'API_down': 'error_templates/API_down.json',
-            'API_server_error': 'error_templates/API_error.json',
-            'API_unknown_player': 'error_templates/API_unknown.json'
-        }
-        log.error(f'API Error: {errorType}')
-        with open(error_mapping[errorType], 'r', encoding='utf-8') as f:
-            json = f.read()
-        return json
-
     @staticmethod
     def isBot():
         with open('error_templates/bot.json', 'r', encoding='utf-8') as f:
@@ -121,23 +106,43 @@ class rl_playerinfo:
         return j
 
     """
-    Basic json validation, error handling with the error function.
+    Appropriate error template is returned.
+    """
+    @staticmethod
+    def loadErrorTemp(errorType: str):
+        error_mapping = {
+            'API_down': 'error_templates/API_down.json',
+            'API_server_error': 'error_templates/API_error.json',
+            'API_unknown_player': 'error_templates/API_unknown.json'
+        }
+        log.error(f'Loaded template for API Error: {errorType}')
+        with open(error_mapping[errorType], 'r', encoding='utf-8') as f:
+            json = f.read()
+        return json
+
+    """
+    Basic json validation, error handling.
     """
     def responses_check(self, resps: list):
         for item in resps:
             try:
                 data = json.loads(item)
             except json.decoder.JSONDecodeError:
-                data = json.loads(self.error('API_down'))
+                data = json.loads(self.loadErrorTemp('API_down'))
+                log.error('Malformed or missing JSON response. Server could be down.')
+                log.error(f'Got response: {data}')
             else:
                 if 'errors' in data and data['errors']:
-                    if 'unhandled exception' in data['errors'][0]['message']:
-                        data = json.loads(self.error('API_server_error'))
+                    api_error = data['errors'][0]['message']
+                    if 'unhandled exception' in api_error:
+                        data = json.loads(self.loadErrorTemp('API_server_error'))
+                        log.error(api_error)
                     elif 'We could not find the player' in data['errors'][0]['message']:
-                        data = json.loads(self.error('API_unknown_player'))
+                        data = json.loads(self.loadErrorTemp('API_unknown_player'))
+                        log.error(api_error)
                     else:
                         log.error(f'Unhandled API error, if possible create an issue on github.'
-                                  f'\n {data["errors"][0]["message"]}')
+                                  f'\n {api_error}')
 
             self.api_resps.append(data)
 
