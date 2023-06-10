@@ -5,6 +5,7 @@ import re
 import subprocess
 import signal
 import platform
+from logging_setup import log
 
 
 def is_curl_installed():
@@ -26,12 +27,12 @@ def is_curl_installed():
 def install_curl():
     plat = platform.system()
     if plat == 'Linux' or plat == 'Darwin':
-        print('The script thinks that you are lacking curl but are on Linux or macOS. '
-              'Kind of an awkward situation, either for you or for me, I guess. You need curl. Exiting.')
+        log.error('The script thinks that you are lacking curl but are on Linux or macOS. '
+                  'Kind of an awkward situation, either for you or for me, I guess. You need curl.')
         quit(signal.SIGTERM)
 
-    print("Curl was first included in Windows 10 version 1803, released April 2018.")
-    print('However, Curl does not appear to be installed, attempting install now...')
+    log.warning("Curl was first included in Windows 10 version 1803, released April 2018. "
+                "However, Curl does not appear to be installed, attempting install now...")
     url = 'https://curl.se/windows/'
     response = urllib.request.urlopen(url)
     page = response.read().decode('utf-8')
@@ -51,8 +52,8 @@ def install_curl():
         shutil.move(os.path.join(f'curl-{build}-win64-mingw'), '.\\webdriver')
         os.remove(zipname)
         shutil.move(f'.\\webdriver\\curl-{build}-win64-mingw', '.\\webdriver\\Curl')
-        print('Curl install successful!\n')
+        log.info('Curl install successful!\n')
     else:
-        print('The layout of the curl.se/windows site has likely changed, unable to find latest build version\n'
-              'ERROR: Failed to install curl.')
+        log.error('The layout of the curl.se/windows site has likely changed, unable to find latest build version.'
+                  'Failed to install curl.')
         quit(signal.SIGTERM)

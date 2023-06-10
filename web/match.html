@@ -1,8 +1,9 @@
 {% if matchData %}
 
 <div class="history_buttons">
-    <button id="backButton"><</button>
-    <button id="forwardButton">></button>
+    <button class="backButton"><</button>
+    <button class="forwardButton">></button>
+    <button class="navButton"></button>
 </div>
 
 <table>
@@ -26,10 +27,12 @@
 <script>
 $(function() {
     const matchTableBody = document.getElementById('matchTableBody');
-    const backButton = document.getElementById('backButton');
-    const forwardButton = document.getElementById('forwardButton');
+    const backButton = document.getElementsByClassName('backButton')[0];
+    const forwardButton = document.getElementsByClassName('forwardButton')[0];
+    const navButton = document.getElementsByClassName('navButton')[0];
 
     let currentMatchIndex = 0;
+    let navButtonContent = '';
 
     const matchData = {{ matchData | safe }};
     console.log(matchData);
@@ -56,8 +59,18 @@ $(function() {
             matchTableBody.appendChild(row);
         });
 
+        if (currentMatchIndex === 0) {
+            navButtonContent = 'Newest';
+        } else if (currentMatchIndex === matchData.length - 1) {
+            navButtonContent = 'Oldest';
+        } else {
+            navButtonContent = currentMatchIndex.toString();
+        }
+
+        navButton.textContent = navButtonContent;
         backButton.hidden = matchData.length < 2;
         forwardButton.hidden = matchData.length < 2;
+        navButton.hidden = matchData.length < 2;
         backButton.disabled = currentMatchIndex === matchData.length - 1;
         forwardButton.disabled = currentMatchIndex === 0;
     }

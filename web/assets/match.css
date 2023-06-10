@@ -15,6 +15,10 @@
     background: linear-gradient(to bottom, #36455E 50%, #793933 50%);
 }
 
+.trackertable tr {
+    border-top: 2px solid black;
+}
+
 .trackertable th {
     background-color: #1d1d1d;
     margin-left: -2vh;
@@ -23,8 +27,10 @@
     height: 6vh;
 }
 
-.trackertable tr {
-    border-top: 2px solid black;
+.trackertable td {
+    color: #c7c5c5;
+    padding-left: 4vh;
+    height: 6vh;
 }
 
 .trackertable tr:first-child {
@@ -32,9 +38,13 @@
 }
 
 .trackertable td:first-child, th:first-child {
-    min-width: 12vw;
+    min-width: 14vw;
     max-width: 16vw;
-    width: 12vw;
+    width: 14vw;
+}
+
+.trackertable td:first-child {
+    padding-left: 1vh;
 }
 
 .trackertable td:nth-child(n+2):nth-child(-n+4) img{
@@ -50,12 +60,10 @@
     min-width: 2.5vw;
 }
 
-.trackertable td {
-    margin: 2vh;
-    height: 6vh;
-    color: #c7c5c5;
-    padding-left: 4vh;
+.trackertable th:last-child {
+    padding-right: 2vh;
 }
+
 
 .tier {
     height: 4.5vh;
@@ -74,20 +82,25 @@
 
 .namecontainer {
     display: inline-flex;
-    justify-content: space-between;
     align-items: center;
     width: 100%;
 }
 
+.avatarcontainer img {
+    max-height: 5vh;
+    border-radius: 10px;
+    margin-top: 0.5vh;
+}
+
 .nameurl {
     display: inline-block;
-    margin-left: -0.5vw;
+    margin-left: 1.5vh;
 }
 
 .socialscontainer {
     margin-right: 1vw;
     margin-top: 0.7vh;
-    display: inline-block;
+    margin-left: auto;
 }
 
 .social {
@@ -119,6 +132,11 @@
 .history_buttons button:disabled {
     background-color: #1d1d1d;
     color: #747474;
+    cursor: initial;
+}
+
+.history_buttons button:last-child {
+    border-left: 2px solid #1d1d1d;
     cursor: initial;
 }
 
@@ -154,8 +172,10 @@
         height: 7vh;
     }
     .trackertable td:first-child {
-        padding-left: 4vh !important;
+        padding-left: 2vh;
+        padding-right: 2vh;
         min-width: 28vw;
+        max-width: 40vw;
     }
     .trackertable th:first-child {
         padding-left: 4vh !important;
@@ -184,14 +204,28 @@
         width: 4.5vh;
     }
     .history_buttons {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        grid-template-areas: "nav back forward";
         position: relative;
         top: initial;
-        display: flex;
         justify-content: flex-end;
         margin-left: 0;
     }
+    .backButton {
+        grid-area: back;
+    }
+    .forwardButton {
+        grid-area: forward;
+    }
+    .navButton {
+        grid-area: nav;
+    }
     .history_buttons button {
         font-size: 26pt !important;
+    }
+    .avatarcontainer {
+        display: none;
     }
 }
 

@@ -1,11 +1,12 @@
-# from datetime import datetime
 # from return_to_monke import dbpass
+# from datetime import datetime
+# from logging_setup import log
 # import mysql.connector as db
-
-
+#
+#
 # connection = db.connect(
 #     user='rl_playerinfo',
-#     password='dbpass',
+#     password=dbpass,
 #     host='localhost',
 #     database='rl_playerinfo')
 
@@ -13,11 +14,10 @@
 def db_push_tracker_stats(listy: list):
     # now = datetime.now()
     # date_created = now.strftime("%d/%m/%Y %H:%M:%S")
-    # errors = ['Unknown to API', 'API Server Error', 'No API Response', ' - AI']
     #
     # for dicty in listy:
-    #     # For general player stats, making them actually usable, modify as needed
-    #     if dicty['name'] == '' or dicty['name'] == '' or any(errors) in dicty['name']:
+    #     # You may want to avoid constantly pushing yourself and teammates into the database
+    #     if dicty['name'] == '' or dicty['name'] == '':
     #         continue
     #
     #     dicty['date_created'] = date_created
@@ -30,8 +30,7 @@ def db_push_tracker_stats(listy: list):
     #     try:
     #         cursor.execute(stmt)
     #         connection.commit()
-    #         print(dicty)
     #     except db.Error as e:
-    #         print(f'Error adding entry to database: {e}\n{dicty}')
+    #         log.error(f'Error adding entry to database: {e}\n{dicty}')
 
-    pass  # remove this
+    pass  # REMOVE THIS

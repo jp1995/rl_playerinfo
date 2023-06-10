@@ -1,10 +1,10 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO
+from logging_setup import log
 from web.MMR import modMMRjson
 import socket
 import json
 import os
-
 
 data = None
 matchData = []
@@ -15,11 +15,11 @@ def run_webserver(mmrq, matchq, playlistq):
     os.chdir('./web/')
     app = Flask(__name__, template_folder='.', static_folder='assets')
     app.jinja_env.auto_reload = True
-
     socketio = SocketIO(app, cors_allowed_origins='*')
-    print("Webserver started")
-    print("* Running on http://127.0.0.1:5000\n"
-          f"* Running on http://{get_local_ip()}:5000\n")
+
+    log.info("Webserver started")
+    log.info("* Running on http://127.0.0.1:5000\n"
+             f"* Running on http://{get_local_ip()}:5000\n")
 
     @app.route('/')
     def index():
@@ -83,7 +83,12 @@ def run_webserver(mmrq, matchq, playlistq):
 
         if not matchq.empty():
             data = matchq.get()
-            if data[0] == 'Match':
+            if type(data[0]) == dict:
+                matchID = data[0]['Match']
+                for item in matchData:
+                    if item[0]['Match'] == matchID and matchID != '':
+                        matchData.pop(matchData.index(item))
+
                 matchData.insert(0, data)
                 matchData = matchData[:10]
             with app.app_context():

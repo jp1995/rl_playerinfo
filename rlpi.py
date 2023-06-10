@@ -4,10 +4,11 @@ from db_connect import db_push_tracker_stats
 from multiprocessing import Process, Queue
 from web.formatTable import formatTable
 from TCPserver import run_tcp_server
+from logging_setup import log, logWipe
 from web.app import run_webserver
 from web.MMR import playlistDict
-from time import sleep
 import atexit
+import time
 import json
 
 
@@ -33,6 +34,10 @@ class rl_playerinfo:
         self.mmrNew = {}
         self.api_resps = []
 
+        self.playerCache = {}
+        self.dbCache = {}
+        self.cacheExpiration = 1800
+
         self.q = Queue()
         self.tcp_process = Process(target=run_tcp_server, args=(self.q,))
         self.mmrq = Queue()
@@ -47,7 +52,7 @@ class rl_playerinfo:
         if self.q.empty():
             return None
         data = self.q.get()
-        print(f'Received: {data}')
+        log.info(f'Received: {data}')
 
         try:
             jdata = json.loads(data)
@@ -59,7 +64,7 @@ class rl_playerinfo:
                 self.mmrNew = jdata
                 self.writeMMR()
         except json.JSONDecodeError:
-            print('Something broke really bad? Uhh try restarting... everything? Or not.')
+            log.error('Plugin output is unexpected. Possible connection issue.')
             return None
 
     """
@@ -73,7 +78,7 @@ class rl_playerinfo:
 
     def writeMatch(self, listy: list):
         self.matchq.put(listy)
-        print('Table generated\n')
+        log.info('Table generated\n')
 
     def checkIfNewPlaylist(self):
         if self.playlistCurrent != self.playlistStorage:
@@ -92,22 +97,7 @@ class rl_playerinfo:
         if self.mmrOld != self.mmrNew:
             self.mmrOld = self.mmrNew
             self.mmrq.put(json.dumps(self.mmrNew))
-            print('MMR updated\n')
-
-    """
-    Appropriate error template is loaded and returned.
-    """
-    @staticmethod
-    def error(errorType: str):
-        error_mapping = {
-            'API_down': 'error_templates/API_down.json',
-            'API_server_error': 'error_templates/API_error.json',
-            'API_unknown_player': 'error_templates/API_unknown.json'
-        }
-        print(f'API Error: {errorType}')
-        with open(error_mapping[errorType], 'r', encoding='utf-8') as f:
-            json = f.read()
-        return json
+            log.info('MMR updated\n')
 
     @staticmethod
     def isBot():
@@ -116,27 +106,73 @@ class rl_playerinfo:
         return j
 
     """
-    Basic json validation, error handling with the error function.
+    Appropriate error template is returned.
+    """
+    @staticmethod
+    def loadErrorTemp(errorType: str):
+        error_mapping = {
+            'API_down': 'error_templates/API_down.json',
+            'API_server_error': 'error_templates/API_error.json',
+            'API_unknown_player': 'error_templates/API_unknown.json'
+        }
+        log.error(f'Loaded template for API Error: {errorType}')
+        with open(error_mapping[errorType], 'r', encoding='utf-8') as f:
+            json = f.read()
+        return json
+
+    """
+    Basic json validation, error handling.
     """
     def responses_check(self, resps: list):
         for item in resps:
             try:
                 data = json.loads(item)
             except json.decoder.JSONDecodeError:
-                data = json.loads(self.error('API_down'))
+                data = json.loads(self.loadErrorTemp('API_down'))
+                log.error('Malformed or missing JSON response. Server could be down.')
+                log.error(f'Got response: {data}')
             else:
                 if 'errors' in data and data['errors']:
-                    if 'unhandled exception' in data['errors'][0]['message']:
-                        data = json.loads(self.error('API_server_error'))
+                    api_error = data['errors'][0]['message']
+                    if 'unhandled exception' in api_error:
+                        data = json.loads(self.loadErrorTemp('API_server_error'))
+                        log.error(api_error)
                     elif 'We could not find the player' in data['errors'][0]['message']:
-                        data = json.loads(self.error('API_unknown_player'))
+                        data = json.loads(self.loadErrorTemp('API_unknown_player'))
+                        log.error(api_error)
                     else:
-                        print(f'Unhandled error, if possible create an issue on github.\n {data["errors"][0]["message"]}')
+                        log.error(f'Unhandled API error, if possible create an issue on github.'
+                                  f'\n {api_error}')
 
             self.api_resps.append(data)
 
     """
-    matchData is integrated into the responses.
+    An API response is cached.
+    """
+    def placeIntoCache(self, uid, platform, resp):
+        key = f'{uid}_{platform}'
+        if key not in self.playerCache.keys() and platform is not None:
+            self.playerCache[key] = [json.dumps(resp), time.time()]
+            log.debug(f'Caching player {key}')
+
+    """
+    The cache is inspected, expired responses are discarded.
+    """
+    def cleanCache(self):
+        current_time = time.time()
+        exp_resps = []
+
+        for key, [_, timestamp] in self.playerCache.items():
+            if current_time - timestamp > self.cacheExpiration:
+                exp_resps.append(key)
+
+        if len(exp_resps) > 0:
+            log.debug('Discarding expired items in cache')
+            for key in exp_resps:
+                del self.playerCache[key]
+
+    """
+    matchData is integrated into the responses. API responses are placed into cache.
     In case of an API error or bot, displayed clearly with the relvant name and platform.
     The two loops could be combined, but it seems to create problems with really annoying workarounds.
     """
@@ -149,17 +185,23 @@ class rl_playerinfo:
         for item in self.api_resps:
             uid = item['data']['platformInfo'].get('platformUserIdentifier', None)
             platform_slug = item['data']['platformInfo'].get('platformSlug', None)
+
             if platform_slug is not None:
                 item['data']['gameInfo'] = {}
+                item['data']['gameInfo']['matchID'] = matchData['Match']['matchID']
                 # Sometiems switch/xbl playername has different capitalisation from UID..?
                 try:
                     item['data']['gameInfo']['team'] = matchData['Match']['players'][uid]['team']
+                    self.placeIntoCache(uid, platform_slug, item)
                 except KeyError:
+                    log.debug('Hit player whose ingame name differs from their platformUserIdentifier.')
                     if platform_slug == 'switch' or platform_slug == 'xbl':
+                        log.debug('Attempting switch/xbl lowercase workaround.')
                         item['data']['gameInfo']['team'] = matchData['Match']['players'][uid.lower()]['team']
+                        self.placeIntoCache(uid.lower(), platform_slug, item)
                     else:
                         item['data']['gameInfo']['team'] = 0
-                        print('UID != matchData player, switch/xbl workaround did not work, teams can be incorrect')
+                        log.warning('UID != matchData player, switch/xbl workaround failed, teams can be incorrect')
                 valid_players.append(uid)
 
         # And then errors are handled.
@@ -175,20 +217,31 @@ class rl_playerinfo:
                     break
 
     """
-    API is only queried if player is not a bot. Afterwards, the bot templates (if any) are appended to the responses.
+    API is only queried if player is not already cached or a bot.
+    The bot templates and cached responses are appended to the resps.
     """
     def requests(self, matchData):
-        urls, bots = [], []
+        urls, bots, cached = [], [], []
 
         for player in matchData['Match']['players']:
             platform_num = str(matchData['Match']['players'][player]['platform'])
+            cache_key = f'{player}_{self.platformDict[platform_num]}'
             if platform_num == '0':
                 bots.append(self.isBot())
+                log.debug('Found bot, avoiding API query')
                 continue
+
+            elif cache_key in self.playerCache:
+                cached.append(self.playerCache[cache_key][0])
+                log.debug(f'Retrieving {cache_key} from cache')
+                continue
+
             api_url = f'{self.api_base_url}/{self.platformDict[platform_num]}/{player}'
             urls.append(api_url)
+            log.debug(f'Asking API for {api_url.split("/")[-1]}')
 
         resps = threaded_requests(urls, len(urls), self.useragentarr)
+        resps.extend(cached)
         resps.extend(bots)
         self.responses_mod(resps, matchData)
 
@@ -222,8 +275,8 @@ class rl_playerinfo:
     In the css, the table is divided in half, with the top being blue and bottom being red. Moving blue to top.
     """
     @staticmethod
-    def sortPlayersByTeams(matchdicts: list):
-        sorted_matchdicts = ['Match']
+    def sortPlayersByTeams(matchdicts: list, matchID: str):
+        sorted_matchdicts = [{'Match': matchID}]
         sorted_matchdicts.extend(sorted(matchdicts, key=lambda x: x['Team']))
         return sorted_matchdicts
 
@@ -239,24 +292,55 @@ class rl_playerinfo:
             return ['-']
 
     """
+    The dbCache implementation is similar to playerCache, but no real data is stored
+    and it's only used for avoiding duplicates within the assigned period.
+    """
+    def placeIntoDBcache(self, uid, platform):
+        key = f'{uid}_{platform}'
+        if key not in self.dbCache.keys() and platform is not None:
+            self.dbCache[key] = time.time()
+            log.debug(f'Caching database entry for {key}')
+
+    def cleanDBcache(self):
+        current_time = time.time()
+        exp_keys = []
+
+        for key, timestamp in self.dbCache.items():
+            if current_time - timestamp > self.cacheExpiration:
+                exp_keys.append(key)
+
+        if len(exp_keys) > 0:
+            log.debug('Discarding expired items in dbCache')
+            for key in exp_keys:
+                del self.dbCache[key]
+
+    """
     Data to be inserted into the database is collected.
     """
     def handleDBdata(self, api_resps: list):
         dbdump = []
         for resp in api_resps:
+            errors = ['No API Response', 'API Server Error', 'Unknown to API', ' - AI']
+            if any(error in resp['data']['platformInfo']['platformUserHandle'] for error in errors):
+                continue
+
             dbdump_dict = {}
             uid = resp['data']['platformInfo']['platformUserIdentifier']
             platform = resp['data']['platformInfo']['platformSlug']
+            cachekey = f'{uid}_{platform}'
+
+            if cachekey in self.dbCache:
+                log.debug(f'Found recent database entry for {cachekey}')
+                continue
+
             gen_url = f'{self.gen_base_url}/{platform}/{uid}/overview'
+            rewardlevel = resp['data']['segments'][0]['stats']['seasonRewardLevel']['metadata']['rankName']
 
             dbdump_dict['name'] = resp['data']['platformInfo']['platformUserHandle']
             dbdump_dict['platform'] = resp['data']['platformInfo']['platformSlug']
-
-            dbdump_dict.update(self.rankDict)
-
+            dbdump_dict.update(self.createRankDict(resp))
             dbdump_dict['wins'] = resp['data']['segments'][0]['stats']['wins']['value']
             dbdump_dict['games_this_season'] = sum(self.rankDict[k] for k in ['1v1_games', '2v2_games', '3v3_games'])
-            rewardlevel = resp['data']['segments'][0]['stats']['seasonRewardLevel']['metadata']['rankName']
             dbdump_dict['rewardlevel'] = rewardlevel if rewardlevel != 'None' else 'NULL'
             dbdump_dict['influencer'] = resp['data']['userInfo']['isInfluencer']
             dbdump_dict['premium'] = resp['data']['userInfo']['isPremium']
@@ -265,14 +349,19 @@ class rl_playerinfo:
             dbdump_dict['url'] = gen_url
 
             dbdump.append(dbdump_dict)
+            log.debug(dbdump_dict)
+            self.placeIntoDBcache(uid, platform)
 
         db_push_tracker_stats(dbdump)
-        print('Successful push\n')
+        if len(dbdump) > 0:
+            log.info('Successful database push\n')
+        else:
+            log.debug('Database push avoided\n')
 
     """
     The list of lists that makes up the table is created.
     """
-    def handleData(self, api_resps: list):
+    def handleData(self, api_resps: list, matchID: str):
         table = []
 
         for resp in api_resps:
@@ -298,11 +387,12 @@ class rl_playerinfo:
             rawtable['socialURLs'] = socialURLs
             rawtable['Team'] = resp['data']['gameInfo']['team']
             rawtable['URL'] = gen_url
+            rawtable['avatarURL'] = resp['data']['platformInfo'].get('avatarUrl')
 
             formatted = formatTable(rawtable)
             table.append(formatted)
 
-        sorted_table = self.sortPlayersByTeams(table)
+        sorted_table = self.sortPlayersByTeams(table, matchID)
         self.writeMatch(sorted_table)
 
     """
@@ -311,19 +401,27 @@ class rl_playerinfo:
     def handleExit(self):
         self.webserver.kill()
         self.tcp_process.kill()
-        print('Exiting...')
+        log.info('Exiting...')
 
     """
     The main program loop.
     Uncomment the handleDBdata call, set up your own DB and edit db_connect.py for DB functionality.
     """
     def main(self):
+        logWipe()
         if not is_curl_installed():
             install_curl()
         self.webserver.start()
         self.tcp_process.start()
         atexit.register(self.handleExit)
+        minute = 0
+
         while True:
+            if minute == 60:
+                self.cleanCache()
+                self.cleanDBcache()
+                minute = 0
+
             self.api_resps.clear()
             self.sort()
             self.checkIfNewPlaylist()
@@ -332,11 +430,13 @@ class rl_playerinfo:
                 if 'players' not in matchData['Match'] or matchData['Match']['players'] is None:
                     continue
                 self.requests(matchData)
-                self.handleData(self.api_resps)
-                # if gameInfo['Match']['isRanked'] == 1:
+                matchID = matchData['Match'].get('matchID')
+                self.handleData(self.api_resps, matchID)
+                # if matchData['Match']['isRanked'] == 1:
                 #     self.handleDBdata(self.api_resps)
 
-            sleep(1)
+            minute += 1
+            time.sleep(1)
 
 
 if __name__ == '__main__':
