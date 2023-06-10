@@ -7,7 +7,16 @@ A Rocket League session info tool that condenses interesting tracker data for al
 * Ranks are shown with division and winstreak.
 * Games is a sum of ranked games played in the current season.
 * Simple MMR tracker attached
-* Responsive-ish CSS (not extensively tested).
+* Responsive-ish CSS, API response caching, match history, quick DB integration.
+
+## API disclaimer
+
+The TN API for Rocket League is *technically* public, but there are measures against access.
+
+This is due to a Psyonix policy against the hosting of third party APIs.
+The current solution(s) works because the TN devs have not tried hard enough.
+All this may change, or not. If you stumble upon this repo, it may be wise to not spread the word too much :)
+
 
 ## Installation
 
@@ -55,16 +64,9 @@ The wiki contains some extra information, for example how to enable the database
 
 If you want to run this on Linux, [this part](https://github.com/jp1995/rl_playerinfo/wiki/Linux-info) is a mandatory read!
 
-
-## API disclaimer
-
-The tracker network API is technically public, but there are some ~~basic~~ measures against scraping.
-This may change. There's no official support or guarantees for future access.
-API availability is generally very good. There can be instability during peak times, this has previously been an issue for days.
-
 ## Functionality todo (maybe)
 
-* Requests through a python library. Hit a wall on that.
+* Requests through a python library. It should be possible, but hit a wall on that.
 * The C++ TCP client implementation is not ideal, with a 10 millisecond blocking action / connect.
 * Launch options for database push / other things?
 * The css is a bit of a mess.
