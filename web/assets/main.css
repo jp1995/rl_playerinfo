@@ -13,7 +13,7 @@ h1 {
     position: relative;
     grid-template-columns: minmax(0, 8fr) minmax(0, 3fr);
     grid-column-gap: 17vh;
-    margin-top: 12vh;
+    margin-top: 11vh;
     margin-left: 4vh;
     width: 90%;
 }
@@ -73,10 +73,13 @@ span {
 }
 
 .topnav {
-    background-color: #1c1c1c;
+    display: flex;
     overflow: hidden;
     position: fixed;
-    height: 7vh;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1c1c1c;
+    height: 6vh;
     top: 0;
     left: 0;
     right: 0;
@@ -84,16 +87,15 @@ span {
 }
 
 .rl_icon {
-    height: 5vh;
+    display: flex;
+    align-items: center;
     width: 5vh;
-    float: left;
     padding-left: 2vh;
     padding-right: 2vh;
-    padding-top: 1vh;
 }
 
 .topnavbutton {
-    height: 100%;
+    height: 6vh;
     padding-left: 2vh;
     padding-right: 2vh;
     background-color: #252526;
@@ -120,32 +122,21 @@ span {
     opacity: 1;
 }
 
+.git_container {
+    margin-left: auto;
+}
+
 .github {
-    position: relative;
-    float: right;
-    width: 3.1vh;
-    height: 3.1vh;
-    margin-right: 2.5vh;
-    padding-top: 2vh;
+    display: flex;
+    align-items: center;
+    width: 3.2vh;
+    margin-right: 2vh;
 }
 
 @media screen and (max-width: 1024px) {
-    .topnav {
-        height: 5vh;
-    }
-    .rl_icon {
-        height: 4vh;
-        width: 4vh;
-        padding-top: 0.5vh;
-    }
-    .play {
-        width: 2.5vh;
-        height: 2.5vh;
-    }
+
     .title {
         font-size: 20pt;
     }
-    .github {
-        padding-top: 1.2vh;
-    }
+
 }

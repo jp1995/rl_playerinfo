@@ -38,9 +38,9 @@
 }
 
 .trackertable td:first-child, th:first-child {
-    min-width: 13vw;
-    max-width: 15vw;
-    width: 13vw;
+    min-width: 14vw;
+    max-width: 16vw;
+    width: 14vw;
 }
 
 .trackertable td:first-child {
@@ -58,6 +58,10 @@
 .trackertable th:nth-child(n+2):nth-child(-n+4) {
     background-color: rgba(255, 255, 255, 0.07);
     min-width: 2.5vw;
+}
+
+.trackertable th:last-child {
+    padding-right: 2vh;
 }
 
 
