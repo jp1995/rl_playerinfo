@@ -7,7 +7,7 @@ A Rocket League session info tool that condenses interesting tracker data for al
 * Ranks are shown with division and winstreak.
 * Games is a sum of ranked games played in the current season.
 * Simple MMR tracker attached
-* Responsive-ish CSS, API response caching, match history, quick DB integration.
+* Responsive-ish CSS, API response caching, match history, DB integration.
 
 ## API disclaimer
 
@@ -33,7 +33,7 @@ $ cd rl_playerinfo
 $ pip install -r requirements.txt
 ```
 
-Has been tested on python 3.10.
+Has been tested on python 3.10, 3.11.
 
 If you do not have python or pip installed, [refer to this article](https://www.dataquest.io/blog/install-pip-windows/) or use google.
 
@@ -52,7 +52,7 @@ After installing, simply run the script.
 
 The client should then be available at http://127.0.0.1:5000/. It will fill once match data is received from the plugin. 
 
-If you want to access the site from a separate device in your local network (like a phone), you need to replace the `127.0.0.1` part in the URL with the IP of the machine that is running the script.
+If you want to access the site from a separate device in your local network (like a phone), you need to use the local IP that the script provides you.
 
 ## Wiki
 
@@ -60,7 +60,7 @@ If you want to access the site from a separate device in your local network (lik
 
 [Go to wiki](https://github.com/jp1995/rl_playerinfo/wiki)
 
-The wiki contains some extra information, for example how to enable the database push functionality.
+The wiki contains some extra information, for example how to enable the database integration.
 
 If you want to run this on Linux, [this part](https://github.com/jp1995/rl_playerinfo/wiki/Linux-info) is a mandatory read!
 
