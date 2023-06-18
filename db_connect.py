@@ -1,11 +1,11 @@
-from return_to_monke import dbpass
+# from return_to_monke import dbpass
 from datetime import datetime
 from logging_setup import log
 import mysql.connector as db
 
 
 credentials = {'user': 'rl_playerinfo',
-               'password': dbpass,
+               'password': 'password',
                'host': 'localhost',
                'database': 'rl_playerinfo'}
 
