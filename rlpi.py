@@ -128,9 +128,9 @@ class rl_playerinfo:
             try:
                 data = json.loads(item)
             except json.decoder.JSONDecodeError:
-                data = json.loads(self.loadErrorTemp('API_down'))
                 log.error('Malformed or missing JSON response. Server could be down.')
-                log.error(f'Got response: {data}')
+                log.error(f'Got response: {item}')
+                data = json.loads(self.loadErrorTemp('API_down'))
             else:
                 if 'errors' in data and data['errors']:
                     api_error = data['errors'][0]['message']
