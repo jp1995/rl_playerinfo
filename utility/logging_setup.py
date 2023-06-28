@@ -27,7 +27,7 @@ def logConfig(loggername):
         log.addHandler(syslog_handler)
 
     # Dedicated log file output
-    file_handler = logging.FileHandler('../rlpi.log', mode='a', encoding='utf-8')
+    file_handler = logging.FileHandler('rlpi.log', mode='a', encoding='utf-8')
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logformat)
     log.addHandler(file_handler)
@@ -38,7 +38,7 @@ def logConfig(loggername):
 
 
 def logWipe():
-    with open('../rlpi.log', 'w') as wipe:
+    with open('rlpi.log', 'w') as wipe:
         pass
 
 
