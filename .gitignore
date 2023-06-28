@@ -2,6 +2,7 @@
 /webdriver/__pycache__/
 /webdriver/Curl
 /web/__pycache__/
+/utility/__pycache__/
 /__pycache__/
 /docs/
 utility/return_to_monke.py
