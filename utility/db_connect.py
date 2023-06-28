@@ -1,6 +1,6 @@
-# from return_to_monke import dbpass
+# from utility.return_to_monke import dbpass
 from datetime import datetime
-from logging_setup import log
+from utility.logging_setup import log
 import mysql.connector as db
 
 

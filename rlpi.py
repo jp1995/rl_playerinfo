@@ -1,10 +1,10 @@
 from webdriver.curlInstaller import is_curl_installed, install_curl
-from threaded_requests import threaded_requests
-from db_connect import db_push_tracker_stats
+from utility.threaded_requests import threaded_requests
+from utility.db_connect import db_push_tracker_stats
+from utility.logging_setup import log, logWipe
+from utility.TCPserver import run_tcp_server
 from multiprocessing import Process, Queue
 from web.formatTable import formatTable
-from TCPserver import run_tcp_server
-from logging_setup import log, logWipe
 from web.app import run_webserver
 from web.MMR import playlistDict
 import atexit
