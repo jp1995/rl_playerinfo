@@ -5,7 +5,7 @@ import re
 import subprocess
 import signal
 import platform
-from logging_setup import log
+from utility.logging_setup import log
 
 
 def is_curl_installed():

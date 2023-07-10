@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO
-from logging_setup import log
+from utility.logging_setup import log
 from web.MMR import modMMRjson
 import socket
 import json
