@@ -1,3 +1,5 @@
+// API dead, Rocket League dead, project dead //
+
 # rl_playerinfo
 
 A Rocket League session info tool that condenses interesting tracker data for all players in the match.
