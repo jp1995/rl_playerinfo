@@ -1,4 +1,4 @@
 Flask==2.3.2
 Flask_SocketIO==5.3.3
-mysql-connector-python==8.0.33
+mysql-connector-python==9.1.0
 gevent-websocket==0.10.1
