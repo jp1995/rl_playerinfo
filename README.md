@@ -4,7 +4,7 @@
 
 A Rocket League session info tool that condenses interesting tracker data for all players in the match.
 
-![output](https://cdn.discordapp.com/attachments/533998516876607511/1299088378259832932/new4.png?ex=671bedd5&is=671a9c55&hm=5c35f5d3d33754e8c582a7674e711afd7c764659768174ca5e588e65e25ab335&)
+![output](https://i.imgur.com/DYEaUSC.png)
 
 * Ranks are shown with division and winstreak.
 * Games is a sum of ranked games played in the current season.
